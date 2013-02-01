@@ -13,7 +13,6 @@ export LEIN_JVM_OPTS=-Duser.home=$HOME
 export LEIN_REPL_PORT=35000
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 echo $OPENSHIFT_REPO_DIR/diy/$APPDIR
-$OPENSHIFT_REPO_DIR/bin/lein deps
-$OPENSHIFT_REPO_DIR/bin/lein ring server > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
+java -server -cp `lein classpath` clojure.main -m main $HOST $PORT 
 disown
 echo 'Ring server is started'
