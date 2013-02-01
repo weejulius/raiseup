@@ -13,6 +13,6 @@ export LEIN_REPL_HOST=$HOST
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 mkdir $OPENSHIFT_REPO_DIR/.lein
 $OPENSHIFT_REPO_DIR/bin/lein deps
-$OPENSHIFT_REPO_DIR/bin/lein ring server $PORT > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
+$OPENSHIFT_REPO_DIR/bin/lein ring server-headless $PORT > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
 echo 'Ring server is started'
 #> ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
