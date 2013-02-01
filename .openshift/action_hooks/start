@@ -9,6 +9,7 @@ export PORT=$OPENSHIFT_INTERNAL_PORT
 export HOST=$OPENSHIFT_INTERNAL_IP
 export HOME=$OPENSHIFT_DATA_DIR/home
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
+echo $OPENSHIFT_REPO_DIR/diy/$APPDIR
 $OPENSHIFT_REPO_DIR/bin/lein deps
 $OPENSHIFT_REPO_DIR/bin/lein ring server > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
 echo 'Ring server is started'
