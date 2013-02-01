@@ -3,9 +3,7 @@
   (:require [compojure.handler :as handler]
             [compojure.route :as route]))
 
-(defroutes app-routes
-  (GET "/" [] "Hello World")
-  (route/not-found "Not Found"))
-
-(def app
-  (handler/site app-routes))
+(defn app [req]
+  {:status  200
+     :headers {"Content-Type" "text/html"}
+        :body    "hello word"})
