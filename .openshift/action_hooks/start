@@ -4,13 +4,8 @@
 # $OPENSHIFT_INTERNAL_IP:8080
 #nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_INTERNAL_IP $OPENSHIFT_REPO_DIR/diy > $OPENSHIFT_HOMEDIR/diy-0.1/logs/server.log 2>&1 &
 export HTTP_CLIENT="wget --no-check-certificate -O"
-export HOST=$OPENSHIFT_INTERNAL_IP
-export HOME=$OPENSHIFT_DATA_DIR/home
-export PORT=$OPENSHIFT_INTERNAL_PORT
 export APPDIR="raiseup"
-export LEIN_REPL_HOST=$HOST
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 $OPENSHIFT_REPO_DIR/bin/lein deps
-$OPENSHIFT_REPO_DIR/bin/lein ring server-headless 30000 > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
+$OPENSHIFT_REPO_DIR/bin/lein ring server 30000 > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
 echo 'Ring server is started'
-#> ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
