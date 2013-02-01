@@ -11,6 +11,6 @@ export APPDIR="raiseup"
 export LEIN_REPL_HOST=$HOST
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 $OPENSHIFT_REPO_DIR/bin/lein deps
-$OPENSHIFT_REPO_DIR/bin/lein ring server-headless $PORT > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
+$OPENSHIFT_REPO_DIR/bin/lein ring server-headless 30000 > ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
 echo 'Ring server is started'
 #> ${OPENSHIFT_DIY_LOG_DIR}/lein.log 2>&1 &
