@@ -1,6 +1,11 @@
 # raiseup
 
-FIXME
+raiseup is a set of ideas
+
+including:
+1. catchtime
+   it is a time manage toolkits
+
 
 ## Prerequisites
 
