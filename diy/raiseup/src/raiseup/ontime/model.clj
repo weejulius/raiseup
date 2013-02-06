@@ -19,14 +19,6 @@
     {:attempt-id attempt-id :task-id task-id :status :attempt-done
      :stopped-time current-time}))
 
-(defn create-task "create one task"
-  ([task-id description task-owner estimation created-time]
-     {:pre [(number? task-id)
-            (string? description)
-            (number? estimation) ]}
-     (->Task task-id description task-owner estimation created-time))
-  ([task-id description task-owner created-time]
-     (create-task task-id description task-owner (with-default :task-estimation nil)  created-time)))
 
 (defmulti with-default
  ; "if pre is qualified,the default is used"
@@ -36,6 +28,16 @@
   ;"populate the empty task estimation with default"
   :task-estimation  [type task-estimation]
   (if(nil? task-estimation) 30 task-estimation))
+
+(defn create-task "create one task"
+  ([task-id description task-owner estimation created-time]
+     {:pre [(number? task-id)
+            (string? description)
+            (number? estimation) ]}
+     (->Task task-id description task-owner estimation created-time))
+  ([task-id description task-owner created-time]
+     (create-task task-id description task-owner (with-default :task-estimation nil)  created-time)))
+
 
 (with-default :task-estimation nil )
 
