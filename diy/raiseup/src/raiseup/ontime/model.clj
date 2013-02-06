@@ -1,12 +1,10 @@
 (ns raiseup.ontime.model)
 
-
-(defprotocol Task-protocol "task is a goal which can be done with a short time,
-  normally it is from 10 min to 40 min. it is possible that the actual is more
-  than the estimation, therefore we might try more than one times to achieve the
-  task"
+(defprotocol Task-protocol "task is a unit of work which can be done round 30 min,
+  and it has clear goal and is easy to determine if it is done, we can try again if
+  the task is not achieved within estimation."
   (attempt [this attempt-id estimation current-time]
-    "attempt to complete the task within the estimation,each task can be attempt times")
+    "attempt to complete the task within the estimation")
   (stop-attempt [this attempt-id current-time stop-reason]
     "when the estimation is over or unexpected urgent things to
     handle, we stop the attempt"))
