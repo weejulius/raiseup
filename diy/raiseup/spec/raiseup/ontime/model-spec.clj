@@ -13,7 +13,7 @@
     (let [now (java.util.Date.)]
       (should= now (:created-time (create-task 4 "task 4" "me" now)))))
   (it "has default estimation (min)"
-    (should= 3 (:estimation (create-task 4 "task 4" 3 "me" nil)))))
+    (should= 30 (:task-estimation (create-task 4 "task 4" "me" nil)))))
 
 (describe "An task"
   (it "must has an number identifier"
