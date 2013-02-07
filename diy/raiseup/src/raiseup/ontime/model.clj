@@ -10,9 +10,10 @@
     handle, we stop the attempt"))
 
 (defrecord Task
-  [task-id description task-owner task-estimation created-time]
+  [task-id description task-owner task-estimation created-time task-status]
   Task-protocol
   (attempt [this attempt-id attempt-estimation current-time]
+    (assoc  this :task-status  :in-process)
     {:attempt-id attempt-id :task-id task-id :status :attempte-started
      :start-time current-time :attempt-estimation attempt-estimation})
   (stop-attempt [this attempt-id current-time stop-reason]
@@ -20,25 +21,9 @@
      :stopped-time current-time}))
 
 
-(defmulti with-default
- ; "if pre is qualified,the default is used"
-  (fn[x y] (identity x)))
-
-(defmethod with-default
-  ;"populate the empty task estimation with default"
-  :task-estimation  [type task-estimation]
-  (if(nil? task-estimation) 30 task-estimation))
-
 (defn create-task "create one task"
   ([task-id description task-owner estimation created-time]
      {:pre [(number? task-id)
             (string? description)
             (number? estimation) ]}
-     (->Task task-id description task-owner estimation created-time))
-  ([task-id description task-owner created-time]
-     (create-task task-id description task-owner (with-default :task-estimation nil)  created-time)))
-
-
-(with-default :task-estimation nil )
-
- 
+     (->Task task-id description task-owner estimation created-time :created)))

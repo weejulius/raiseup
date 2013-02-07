@@ -4,27 +4,39 @@
 
 (describe "An task"
   (it "has identifier"
-    (should= 1 (:task-id (create-task 1 "task 1" "ower" nil))))
+    (should= 1 (:task-id (create-task 1 "task 1" "ower" 3 nil))))
   (it "has description"
-    (should= "task 2" (:description (create-task 2 "task 2" "owner" nil))))
+    (should= "task 2" (:description (create-task 2 "task 2" "owner" 3 nil))))
   (it "has owner(creator)"
-    (should= "me" (:task-owner (create-task 3 "task 3" "me" nil))))
+    (should= "me" (:task-owner (create-task 3 "task 3" "me" 3  nil))))
   (it "has created time"
     (let [now (java.util.Date.)]
-      (should= now (:created-time (create-task 4 "task 4" "me" now)))))
+      (should= now (:created-time (create-task 4 "task 4" "me" 3 now)))))
   (it "has default estimation (min)"
-    (should= 30 (:task-estimation (create-task 4 "task 4" "me" nil)))))
+    (should= 30 (:task-estimation (create-task 4 "task 4" "me" 30 nil)))))
 
 (describe "An task"
   (it "must has an number identifier"
-    (should-throw (create-task nil "task 5" "owner1" nil))
-    (should-throw (create-task "a" "task 6" "owner2" nil))
-    (should-throw (create-task (Object.) "task 7" "owner3" nil))))
+    (should-throw (create-task nil "task 5" "owner1" 3  nil))
+    (should-throw (create-task "a" "task 6" "owner2" 3 nil))
+    (should-throw (create-task (Object.) "task 7" "owner3" 3 nil))))
 
 (describe "An task"
   (it "must have description to state the goal"
     (should-throw (create-task 1 nil "owner" nil))
     (should-throw (create-task 1 1 "owner" nil))))
 
+(describe "An task"
+  (it "must have estimation"
+    (should-throw (create-task 1 "task 7" "owner" nil nil))))
 
+(describe "An task"
+  (it "is kick off after you attempt to work on it"
+    (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))]
+      (attempt task 1 30 (java.util.Date.))
+      (should= :in-process (task :task-status)))))
+
+(let [task (create-task 1 "task1" "owner" 30 nil)]
+  (attempt task 1 30 nil)
+ )
 (run-specs)
