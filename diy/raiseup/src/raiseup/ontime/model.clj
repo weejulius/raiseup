@@ -10,10 +10,11 @@
     handle, we stop the attempt"))
 
 (defrecord Task
-  [task-id description task-owner task-estimation created-time task-status]
+  [task-id description task-owner task-estimation created-time task-status attempts]
   Task-protocol
   (attempt [this attempt-id attempt-estimation current-time]
-    (assoc  this :task-status  :in-process)
+    (assoc this :task-status :in-process)
+    (println (:task-status this))
     {:attempt-id attempt-id :task-id task-id :status :attempte-started
      :start-time current-time :attempt-estimation attempt-estimation})
   (stop-attempt [this attempt-id current-time stop-reason]

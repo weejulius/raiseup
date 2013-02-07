@@ -36,7 +36,4 @@
       (attempt task 1 30 (java.util.Date.))
       (should= :in-process (task :task-status)))))
 
-(let [task (create-task 1 "task1" "owner" 30 nil)]
-  (attempt task 1 30 nil)
- )
 (run-specs)
