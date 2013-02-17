@@ -32,8 +32,8 @@
 
 (describe "An task"
   (it "is kick off after you attempt to work on it"
-    (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))]
-      (attempt task 1 30 (java.util.Date.))
-      (should= :in-process (task :task-status)))))
+    (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))
+          an-attempt (attempt task 1 30 (java.util.Date.))]
+      (should= :in-process (get-in an-attempt [:task :task-status] )))))
 
 (run-specs)
