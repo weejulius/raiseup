@@ -33,7 +33,15 @@
 (describe "An task"
   (it "is kick off after you attempt to work on it"
     (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))
-          an-attempt (attempt task 1 30 (java.util.Date.))]
-      (should= :in-process (:task-status an-attempt)))))
+          an-attempt (attempt task 30 (java.util.Date.))]
+      (should= :in-process (:task-status an-attempt))
+      (should= :attempt-started (get-in an-attempt [:attempts 0 :status])))))
+
+(describe "An task"
+  (it "is done after you achieve the goal by the end of the attempt"
+    (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))
+          an-attempt (attempt task 30 (java.util.Date.))
+          the-stop-attempt (stop-attempt an-attempt (java.util.Date.) "task is done")]
+      (should= :attempt-done (get-in the-stop-attempt [:attempts 0 :status])))))
 
 (run-specs)

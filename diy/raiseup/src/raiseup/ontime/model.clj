@@ -5,31 +5,35 @@
   and it has clear goal and is easy to determine if it is done, we can try again if
   the task is not achieved within estimation."
 
-  (attempt [this attempt-id estimation current-time]
+  (attempt [this estimation current-time]
     "attempt to complete the task within the estimation")
 
-  (stop-attempt [this attempt-id current-time stop-reason]
+  (stop-attempt [this current-time stop-reason]
     "when the estimation is over or unexpected urgent things to
     handle, we stop the attempt"))
 
 (defrecord Task
   [task-id description task-owner task-estimation created-time task-status attempts]
   Task-protocol
-  (attempt [this attempt-id attempt-estimation current-time]
+  (attempt [this attempt-estimation current-time]
     (let [an-attempt
-    {:attempt-id attempt-id
-     :status :attempt-started
-     :start-time current-time
+    {:status :attempt-started
+     :started-time current-time
      :attempt-estimation attempt-estimation}]
       (->> this
            (#(assoc % :task-status :in-process))
            (#(update-in % [:attempts] conj an-attempt)))))
 
-  (stop-attempt [this attempt-id current-time stop-reason]
-    {:attempt-id attempt-id
-     :task this
-     :status :attempt-done
-     :stopped-time current-time}))
+  (stop-attempt [this current-time stop-reason]
+    (let [the-start-attempt (last (:attempts this))
+          the-stop-attempt (->> the-start-attempt
+                        (#(assoc % :status :attempt-done))
+                        (#(assoc % :stopped-time current-time)))]
+      (->> this
+           (#(assoc % :task-status :task-done))
+           (#(assoc % :task-done-time current-time))
+           (#(assoc-in % [:attempts 0] the-stop-attempt))))))
+          ; (#(update-in % [:attempts] conj the-stop-attempt))))))
 
 
 (defn create-task "create one task"
