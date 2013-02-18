@@ -13,14 +13,18 @@
     handle, we stop the attempt"))
 
 (defrecord Task
-  [task-id description task-owner task-estimation created-time task-status]
+  [task-id description task-owner task-estimation created-time task-status attempts]
   Task-protocol
   (attempt [this attempt-id attempt-estimation current-time]
+    (let [an-attempt
     {:attempt-id attempt-id
-     :task (assoc this :task-status :in-process)
      :status :attempt-started
      :start-time current-time
-     :attempt-estimation attempt-estimation})
+     :attempt-estimation attempt-estimation}]
+      (->> this
+           (#(assoc % :task-status :in-process))
+           (#(update-in % [:attempts] conj an-attempt)))))
+
   (stop-attempt [this attempt-id current-time stop-reason]
     {:attempt-id attempt-id
      :task this
@@ -33,4 +37,4 @@
      {:pre [(number? task-id)
             (string? description)
             (number? estimation) ]}
-     (->Task task-id description task-owner estimation created-time :created)))
+     (->Task task-id description task-owner estimation created-time :created [])))
