@@ -41,7 +41,12 @@
   (it "is done after you achieve the goal by the end of the attempt"
     (let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))
           an-attempt (attempt task 30 (java.util.Date.))
-          the-stop-attempt (stop-attempt an-attempt (java.util.Date.) "task is done")]
+          the-stop-attempt (stop-attempt an-attempt (java.util.Date.))]
       (should= :attempt-done (get-in the-stop-attempt [:attempts 0 :status])))))
 
+(describe "An task"
+  (it "is not done if the attempt is interrupted"
+(let [task (create-task 1 "task1" "owner" 30 (java.util.Date.))
+an-attempt (attempt task 30 (java.util.Date.))
+                            interrupted-attempt (interrupt-attempt an-attempt (java.util.Date.) "I am hungry")])))
 (run-specs)
