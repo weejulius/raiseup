@@ -1,6 +1,6 @@
 (ns raiseup.ontime.model)
 
-(defprotocol Task-protocol
+(defprotocol Task
   "task is a unit of work which can be done round 30 min,
    and it has clear goal and is easy to determine if it is done, we can try again if
    the task is not achieved within estimation."
@@ -14,20 +14,31 @@
 
   (interrupt-attempt [this current-time interruptted-reason]
     "when there are urgent things to be handled instantly, the attempt is
-     interrupted with reason"))
+     interrupted with reason")
 
-(defrecord Task
+  (re-attempt [this current-time]
+    "reattempt to work on the task if the first attempt does not complete the task")
+
+  (complete [this current-time]
+    "the task is completed after attempts")
+
+  (give-up [this reason]
+    "give up the task")
+
+  (delete [this reason]
+    "destroy the task.Compared with giving up task, deleting the task will not keep anything of the task"))
+
+(defrecord DefaultTask
   [task-id description task-owner task-estimation created-time task-status attempts]
-  Task-protocol
+  Task
   
   (attempt [this attempt-estimation current-time]
-    (let [an-attempt
-    {:status :attempt-started
-     :started-time current-time
-     :attempt-estimation attempt-estimation}]
+    (let [an-attempt {:status :attempt-started
+                      :started-time current-time
+                      :attempt-estimation attempt-estimation}]
       (->> this
            (#(assoc % :task-status :in-process))
-           ;the lastest attempt is on the top among the attempts
+           ;;the lastest attempt is on the top among the attempts
            (#(update-in % [:attempts] conj an-attempt)))))
 
   (stop-attempt [this current-time]
