@@ -1,37 +1,25 @@
 (ns raiseup.ontime.model)
 
 (defprotocol Task
-  "task is a unit of work which can be done round 30 min,
-   and it has clear goal and is easy to determine if it is done, we can try again if
-   the task is not achieved within estimation."
+  "task is a unit of work which can be done round 30 min,and it has clear goal
+   and is easy to determine if it is done, we can try again if the task is not
+   achieved within estimation."
 
   (attempt [this estimation current-time]
-    "attempt to complete the task within the estimation")
+    "attempt to work on the task with the estimation")
 
   (stop-attempt [this current-time]
-    "when the estimation is over,the attempt is supposed to be stopped
-     and the task should be completed as well")
-
-  (interrupt-attempt [this current-time interruptted-reason]
-    "when there are urgent things to be handled instantly, the attempt is
-     interrupted with reason")
-
-  (re-attempt [this current-time]
-    "reattempt to work on the task if the first attempt does not complete the task")
+    "stop the attempt")
 
   (complete [this current-time]
     "the task is completed after attempts")
 
-  (give-up [this reason]
-    "give up the task")
-
   (delete [this reason]
-    "destroy the task.Compared with giving up task, deleting the task will not keep anything of the task"))
+    "the task is drop"))
 
 (defrecord DefaultTask
-  [task-id description task-owner task-estimation created-time task-status attempts]
+    [task-id description owner estimation created-time status attempts]
   Task
-  
   (attempt [this attempt-estimation current-time]
     (let [an-attempt {:status :attempt-started
                       :started-time current-time
@@ -42,15 +30,11 @@
            (#(update-in % [:attempts] conj an-attempt)))))
 
   (stop-attempt [this current-time]
-    (let [the-start-attempt (first (:attempts this))
-          the-stop-attempt (->> the-start-attempt
-                        (#(assoc % :status :attempt-done))
-                        (#(assoc % :stopped-time current-time)))]
-      (->> this
-           (#(assoc % :task-status :task-done))
-           (#(assoc % :task-done-time current-time))
-           (#(assoc-in % [:attempts 0] the-stop-attempt)))))
-
+    (let [the-start-attempt (first (:attempts this))]
+      (if (the-start-attempt)
+        ((assoc-in this [:attempts 0] (->> the-start-attempt
+                                           (#(assoc % :status :attempt-done))
+                                           (#(assoc % :stopped-time current-time)))))
   (interrupt-attempt [this current-time interruptted-reason]
     (let [the-start-attempt (first (:attempts this))
           the-interrupted-attempt (->> the-start-attempt
@@ -64,7 +48,6 @@
 
 
       )))
-          
 
 (defn create-task "create one task"
   ([task-id description task-owner estimation created-time]
