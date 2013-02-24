@@ -37,7 +37,7 @@
     (let [the-start-attempt (get-in this [:attempts 0])]
       (when-not(= :started (:status the-start-attempt))
         (throw (java.lang.IllegalArgumentException.
-                "the task is not able to be stopped before starting it")))
+                "the task is not able to be stopped before it is started")))
       (assoc-in this
                 [:attempts 0]
                 (->> the-start-attempt
@@ -50,4 +50,5 @@
      {:pre [(number? task-id)
             (string? description)
             (number? estimation) ]}
-     (->DefaultTask task-id description task-owner estimation created-time :created [])))
+     (->DefaultTask
+      task-id description task-owner estimation created-time :created [])))
