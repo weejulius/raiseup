@@ -1,5 +1,4 @@
 (ns raiseup.ontime.model)
-
 (defprotocol Task
   "task is a unit of work which can be done round 30 min,and it has clear goal
    and is easy to determine if it is done, we can try again if the task is not
