@@ -1,9 +1,9 @@
 (ns raiseup.ontime.model)
+
 (defprotocol Task
   "task is a unit of work which can be done round 30 min,and it has clear goal
    and is easy to determine if it is done, we can try again if the task is not
    achieved within estimation."
-
   (attempt [this estimation current-time]
     "attempt to work on the task with the estimation")
 
@@ -25,9 +25,9 @@
     [this attempt-estimation current-time]
     (let [an-attempt {:status :started
                       :started-time current-time
-                      :attempt-estimation attempt-estimation}
+                      :estimation attempt-estimation}
           updated-attempts (cons an-attempt (:attempts this))]
-      (assoc (assoc this :task-status :started)
+      (assoc (assoc this :status :started)
         :attempts (vec updated-attempts))))
 
   (stop-attempt

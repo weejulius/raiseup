@@ -1,6 +1,5 @@
 [
  ;; task
-
  {:db/id #db/id[:db.part/db]
   :db/ident :task/description
   :db/valueType :db.type/string
@@ -43,10 +42,8 @@
   :db/valueType :db.type/ref
   :db/cardinality :db.cardinality/many
   :db/doc "every attempt for the task"
-  :db.install/_attribute :db.part/db}]
+  :db.install/_attribute :db.part/db}
 
-;;attempt
-[
  {:db/id #db/id[:db.part/db]
   :db/ident :attempts
   :db/valueType :db.type/ref
@@ -61,8 +58,6 @@
   :db/doc "the current status of the attempt, started or stopped"
   :db.install/_attribute :db.part/db}
 
-  :db/isComponent true
-  :db.install/_attribute :db.part/db}
 
  {:db/id #db/id[:db.part/db]
   :db/ident :attempt/started-time
