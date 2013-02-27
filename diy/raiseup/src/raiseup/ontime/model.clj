@@ -43,7 +43,6 @@
                      (#(assoc % :status :stopped))
                      (#(assoc % :stopped-time current-time)))))))
 
-
 (defn create-task "create one task"
   ([task-id description task-owner estimation created-time]
      {:pre [(number? task-id)
