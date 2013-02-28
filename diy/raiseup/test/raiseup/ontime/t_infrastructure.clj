@@ -1,6 +1,8 @@
 (ns raiseup.ontime.t-infrastructure
-  (:use [datomic.api :only (q db) :as d]
-        midje.sweet))
+  (:use [datomic.api :only (q db resolve-tempid) :as d]
+        midje.sweet
+        raiseup.ontime.infrastructure
+        raiseup.ontime.model))
 
 (def uri "datomic:free://localhost:4334//raiseup")
 
@@ -26,20 +28,22 @@
 
 @(d/transact conn data-tx)
 
-;(def results (q '[:find ?n :where [?n :task/owner "jyu"]] (db conn)))
+(defn transact
+  [data-tx]
+  (d/transact conn data-tx))
 
-;(def id (ffirst results))
-
-;(def entity (-> conn db (d/entity id)))
-
-;(fact (:task/description entity)=> "task one")
-
-(fact (:task/attempts
+(fact (:attempt/status
        (d/entity (d/db conn) (ffirst
-                     (q '[:find ?t ?a
-                          :where
-                          [?t :task/owner "jyu"]
-                          [?t :task/attempts ?a]
-                          [?a :attempt/status "STARTED"]]
-                        (d/db conn)))))=> "STARTED")
+                              (q '[:find ?a
+                                   :where
+                                   [?t :task/owner "jyu"]
+                                   [?t :task/attempts ?a]
+                                   [?a :attempt/status "STARTED"]]
+                                 (d/db conn)))))=> :STARTED)
 
+
+(fact (:owner
+        (d/resolve-tempid (d/db conn) (:tmpids (store-new-task
+          (create-task "new task" "jyu" 10 (java.util.Date.)))
+         transact)))
+      => "jyu")

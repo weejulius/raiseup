@@ -17,7 +17,7 @@
     "the task is drop"))
 
 (defrecord DefaultTask
-  [task-id description owner estimation created-time status attempts]
+  [description owner estimation created-time status attempts]
   Task
 
   (attempt
@@ -44,9 +44,8 @@
                      (#(assoc % :stopped-time current-time)))))))
 
 (defn create-task "create one task"
-  ([task-id description task-owner estimation created-time]
-     {:pre [(number? task-id)
-            (string? description)
+  ([description task-owner estimation created-time]
+     {:pre [(string? description)
             (number? estimation) ]}
      (->DefaultTask
-      task-id description task-owner estimation created-time :created [])))
+      description task-owner estimation created-time :created [])))

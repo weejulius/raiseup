@@ -32,7 +32,7 @@
 
  {:db/id #db/id[:db.part/db]
   :db/ident :task/status
-  :db/valueType :db.type/string
+  :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/one
   :db/doc "the status of the task"
   :db.install/_attribute :db.part/db}
@@ -53,7 +53,7 @@
 
  {:db/id #db/id[:db.part/db]
   :db/ident :attempt/status
-  :db/valueType :db.type/string
+  :db/valueType :db.type/keyword
   :db/cardinality :db.cardinality/one
   :db/doc "the current status of the attempt, started or stopped"
   :db.install/_attribute :db.part/db}
