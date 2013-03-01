@@ -1,5 +1,5 @@
 (ns raiseup.ontime.t-infrastructure
-  (:use [datomic.api :only (q db resolve-tempid) :as d]
+  (:use [datomic.api :only (q db entity resolve-tempid) :as d]
         midje.sweet
         raiseup.ontime.infrastructure
         raiseup.ontime.model))
@@ -10,8 +10,6 @@
 (def conn (d/connect uri))
 
 (def schema-tx (read-string (slurp "resources/schema.edn")))
-
-@(d/transact conn schema-tx)
 
 (def data-tx [{:attempt/estimation 10
                :attempt/started-time (java.util.Date.)
@@ -28,9 +26,12 @@
 
 @(d/transact conn data-tx)
 
-(defn transact
+(defn make-transaction
   [data-tx]
-  (d/transact conn data-tx))
+  (let [tempid (get-in data-tx [0 :db/id])
+        {:keys [tempids db-after]} @(d/transact conn data-tx)
+        real-id  (d/resolve-tempid db-after tempids tempid)]
+    (fn [fun] (fun db-after real-id))))
 
 (fact (:attempt/status
        (d/entity (d/db conn) (ffirst
@@ -42,8 +43,9 @@
                                  (d/db conn)))))=> :STARTED)
 
 
-(fact (:owner
-        (d/resolve-tempid (d/db conn) (:tmpids (store-new-task
-          (create-task "new task" "jyu" 10 (java.util.Date.)))
-         transact)))
-      => "jyu")
+(fact
+ (:task/estimation
+  (((store-new-task
+     (create-task "new task" "jyu" 10 (java.util.Date.))) make-transaction)
+   d/entity))
+ => 10)
