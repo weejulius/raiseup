@@ -2,8 +2,7 @@
   (:use midje.sweet
         raiseup.ontime.model))
 
-(def new-task (create-task 1 "task 1" "owner" 30 nil))
-
+(def new-task (create-task "task 1" "owner" 30 nil))
 (fact "attempt to work on a task"
       (get-in (attempt new-task 30 nil)
               [:attempts 0 :status]) => :started)
@@ -17,6 +16,8 @@
 (fact "cannot stop the task if it is not started"
       (stop-attempt new-task nil) =>
       (throws java.lang.IllegalArgumentException))
+
+(fact (undefined-id) => -1)
 
 (fact "reattempt to work on one task which is not
        completed with the first attempt"

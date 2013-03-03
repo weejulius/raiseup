@@ -1,13 +1,10 @@
 (ns raiseup.ontime.infrastructure
-  (:use [datomic.api :only (q tempid db) :as d]))
+  (:use [datomic.api :only (q tempid db) :as d]
+        raiseup.ontime.repository))
 
 (defn store-new-task
   "store the new task"
   [task]
   (fn [transact] (transact
-                  [{:task/description (:description task)
-                    :task/estimation (:estimation task)
-                    :task/owner (:owner task)
-                    :task/created-time (:created-time task)
-                    :task/status (:status task)
-                    :db/id (d/tempid :db.part/user)}])))
+                  [(assoc (record-to-datomic task :task)
+                     :db/id (d/tempid :db.part/user))])))
