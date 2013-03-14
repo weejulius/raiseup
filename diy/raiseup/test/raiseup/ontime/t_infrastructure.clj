@@ -11,6 +11,8 @@
 
 (def schema-tx (read-string (slurp "resources/schema.edn")))
 
+(d/transact conn schema-tx)
+
 (def data-tx [{:attempt/estimation 10
                :attempt/started-time (java.util.Date.)
                :attempt/stopped-time (java.util.Date.)
@@ -22,9 +24,9 @@
                :task/created-time (java.util.Date.)
                :task/status "STARTED"
                :task/attempts [#db/id[:db.part/user -10001]]
-               :db/id #db/id[:db.part/user -1000001]}])
+               :db/id #db/id[:db.part/db]}])
 
-@(d/transact conn data-tx)
+(d/transact conn data-tx)
 
 (defn make-transaction
   [data-tx]
@@ -32,6 +34,13 @@
         {:keys [tempids db-after]} @(d/transact conn data-tx)
         real-id  (d/resolve-tempid db-after tempids tempid)]
     (fn [fun] (fun db-after real-id))))
+
+(fact
+ (:task/estimation
+  (((store-new-task
+     (create-task "new task" "jyu" 10 (java.util.Date.))) make-transaction)
+   d/entity))
+ => 10)
 
 (fact (:attempt/status
        (d/entity (d/db conn) (ffirst
@@ -41,11 +50,3 @@
                                    [?t :task/attempts ?a]
                                    [?a :attempt/status "STARTED"]]
                                  (d/db conn)))))=> :STARTED)
-
-
-(fact
- (:task/estimation
-  (((store-new-task
-     (create-task "new task" "jyu" 10 (java.util.Date.))) make-transaction)
-   d/entity))
- => 10)
