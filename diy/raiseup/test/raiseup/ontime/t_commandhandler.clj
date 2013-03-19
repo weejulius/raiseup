@@ -9,15 +9,18 @@
 (fact "open level db"
       (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
 
-(fact "pad 0 to number"
-      (pad-number 1 2 0) => "01")
+(fact "open level db for aggregate root"
+      ((open-leveldb-for-ar level-db-root-dir {}) "hello") => (complement nil?))
 
-(fact "the store key is consist of length of ar name,ar name and the ar id"
-      (construct-store-key "task" 123455) => "04task123455")
+(fact "store aggregate root"
+      (store-aggregate-root
+       {:ar-name :task2
+        :ar-id 10001
+        :events [{:event :task-created
+                  :name "test"}]} (open-leveldb-for-ar level-db-root-dir {})) =>
+                  nil?)
 
-
-
-
-
-;; (fact "write data to leveldb"
-  ;;    (write-to-leveldb leveldb "jyu" "hello word") => (complement nil?))
+(fact "performance"
+      (println (time (transact leveldb (fn [db]
+                                          (dotimes [n 150]
+                                            (.put db (to-bytes (str n) "UTF-8") (to-bytes "helloword" "UTF-8"))))))))

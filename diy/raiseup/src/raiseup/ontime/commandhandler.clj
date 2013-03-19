@@ -1,28 +1,7 @@
 (ns raiseup.ontime.commandhandler
   (:require [clojure.data.json :as json]))
 
-(def fixed-length-of-store-key 20)
-(def padded-char \space)
-(def fixed-length-of-ar-name-length 2)
-
-(defn pad-number
-  [number fixed-length padded-num]
-  (let [number-as-str (str number)
-        num-of-padded-num (- fixed-length (.length number-as-str))]
-    (if (< 0 num-of-padded-num)
-      (str (apply str (repeat num-of-padded-num padded-num)) number-as-str)
-      number-as-str)))
-
-(defn construct-store-key
-  [ar-name ar-id]
-  (let [ar-name-length (.length ar-name)]
-    (str (pad-number ar-name-length fixed-length-of-ar-name-length 0) ar-name ar-id)))
-
-(defn store-aggregate-root
-  ^{:added "1.0"
-    :abbre "ar->aggregate root name"}
-  [db aggregate-root]
-  ())
+(def level-db-root-dir "/tmp/")
 
 (defn transact
   ^{:added "0.1"
@@ -65,9 +44,26 @@
 (defn open-leveldb
  ^{:added "1.0"
    :doc   "initialize or open the level db for using"
-   :side-affect "true"
-   }
+   :side-affect "true"}
   [db-dir options]
   (let [leveldb-options (org.iq80.leveldb.Options.)
         file (java.io.File. db-dir)]
     (.open (org.fusesource.leveldbjni.JniDBFactory/factory) file leveldb-options)))
+
+(defn open-leveldb-for-ar
+  ^{:doc "init and open the level db for ar"
+    :abbre "ar=>aggregate root"}
+  [level-db-root-dir options]
+  (fn [ar-name]
+    (open-leveldb (str level-db-root-dir ar-name) options)))
+
+(defn store-aggregate-root
+  ^{:added "1.0"
+    :abbre "ar->aggregate root"
+    :doc "store the events of aggregate root"}
+  [aggregate-root open-db]
+  (let [ar-name-str (name (:ar-name aggregate-root))
+        key (str (:ar-id aggregate-root))
+        value (json/write-str (:events aggregate-root))]
+    (write-to-leveldb
+     (open-db ar-name-str)  key value)))
