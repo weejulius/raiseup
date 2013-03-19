@@ -2,25 +2,20 @@
   (:use midje.sweet
         raiseup.ontime.commandhandler))
 
-(def leveldb (open-leveldb "/tmp/leveldb-test11" {}))
+(def leveldb (open-leveldb "/tmp/leveldb-test" {}))
 
 (fact (write-to-leveldb leveldb "hello" "word") => nil)
 
 (fact "open level db"
       (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
 
-(fact "pad aggregate root name to fixed length of string"
-      (pad-aggregate-root-name (name :task) 20 \space)
-      => "task                "
-      (pad-aggregate-root-name "task12345678910123444" 20 \space)
-      => "task1234567891012344")
+(fact "pad 0 to number"
+      (pad-number 1 2 0) => "01")
 
-(fact "store an event"
-      (store-aggregate-root
-       {:aggregate-root :task
-        :id 100
-        :events [{:event :task-created
-                  :name "jyu"}]}))
+(fact "the store key is consist of length of ar name,ar name and the ar id"
+      (construct-store-key "task" 123455) => "04task123455")
+
+
 
 
 

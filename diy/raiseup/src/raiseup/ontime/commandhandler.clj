@@ -3,28 +3,26 @@
 
 (def fixed-length-of-store-key 20)
 (def padded-char \space)
+(def fixed-length-of-ar-name-length 2)
 
-(defn pad-aggregate-root-name
-  "pad a string to a fixed length with char, for example
-   pad the string 'task' to the string whose length is 10 with space
-   ,like 'task      '"
-  [ar-name fix-length padded-char]
-  (let [ar-length (.length ar-name)
-        num-of-padded-chars (- fix-length ar-length)]
-    (if(<= num-of-padded-chars 0)
-      (subs ar-name 0 fix-length)
-      (str ar-name (apply str (repeat num-of-padded-chars padded-char))))))
+(defn pad-number
+  [number fixed-length padded-num]
+  (let [number-as-str (str number)
+        num-of-padded-num (- fixed-length (.length number-as-str))]
+    (if (< 0 num-of-padded-num)
+      (str (apply str (repeat num-of-padded-num padded-num)) number-as-str)
+      number-as-str)))
+
+(defn construct-store-key
+  [ar-name ar-id]
+  (let [ar-name-length (.length ar-name)]
+    (str (pad-number ar-name-length fixed-length-of-ar-name-length 0) ar-name ar-id)))
 
 (defn store-aggregate-root
   ^{:added "1.0"
-    :abbre "ar->aggregate name"}
+    :abbre "ar->aggregate root name"}
   [db aggregate-root]
-  (let [ar-name (name (:ar-name aggregate-root))
-        store-key (str (pad-aggregate-root-name
-                         ar-name fixed-length-of-store-key padded-char)
-                       (:id aggregate-root))
-        store-value (:events aggregate-root)]
-    (write-to-leveldb db store-key store-value)))
+  ())
 
 (defn transact
   ^{:added "0.1"
