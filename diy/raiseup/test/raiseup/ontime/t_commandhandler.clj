@@ -3,8 +3,8 @@
         raiseup.ontime.commandhandler))
 
 (def leveldb (open-leveldb "/tmp/leveldb-test0" {}))
+(def level-db-root-dir "/tmp/")
 
-                                        ;(fact (write-to-leveldb leveldb "hello" "word") => nil)
 (fact "open level db"
       (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
 
@@ -18,6 +18,13 @@
         :events [{:event :task-created
                   :name "test"}]} (open-leveldb-for-ar level-db-root-dir {})) =>
                   nil?)
+
+(fact "read events for aggregate root"
+      (read-aggregate-root {:ar-name :task3 :ar-id 10001}) =>
+      {:ar-name :task3
+       :ar-id 10001
+        :events [{:event :task-created
+                  :name "test"}]})
 
 (fact "write performance"
       (println

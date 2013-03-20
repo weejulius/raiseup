@@ -1,7 +1,6 @@
 (ns raiseup.ontime.commandhandler
   (:require [clojure.data.json :as json]))
 
-(def level-db-root-dir "/tmp/")
 
 (defn transact
   ^{:added "0.1"
@@ -67,3 +66,8 @@
         value (json/write-str (:events aggregate-root))]
     (write-to-leveldb
      (open-db ar-name-str)  key value)))
+
+
+(defn read-aggregate-root
+  [ar-name ar-id]
+  ())
