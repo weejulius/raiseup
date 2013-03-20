@@ -2,10 +2,9 @@
   (:use midje.sweet
         raiseup.ontime.commandhandler))
 
-(def leveldb (open-leveldb "/tmp/leveldb-test" {}))
+(def leveldb (open-leveldb "/tmp/leveldb-test10" {}))
 
-(fact (write-to-leveldb leveldb "hello" "word") => nil)
-
+                                        ;(fact (write-to-leveldb leveldb "hello" "word") => nil)
 (fact "open level db"
       (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
 
@@ -14,13 +13,16 @@
 
 (fact "store aggregate root"
       (store-aggregate-root
-       {:ar-name :task2
+       {:ar-name :task3
         :ar-id 10001
         :events [{:event :task-created
                   :name "test"}]} (open-leveldb-for-ar level-db-root-dir {})) =>
                   nil?)
 
 (fact "performance"
-      (println (time (transact leveldb (fn [db]
-                                          (dotimes [n 150]
-                                            (.put db (to-bytes (str n) "UTF-8") (to-bytes "helloword" "UTF-8"))))))))
+      (println
+       (time
+        (dotimes [n 1000000]
+          (.put leveldb (to-bytes (str n) "UTF-8") (to-bytes "word" "UTF-8"))
+          )))
+      => nil?)
