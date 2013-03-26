@@ -9,22 +9,14 @@
       (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
 
 (fact "open level db for aggregate root"
-      ((open-leveldb-for-ar level-db-root-dir {}) "hello") => (complement nil?))
+      (open-leveldb-for-ar level-db-root-dir "hello" {}) => (complement nil?))
 
-(fact "store aggregate root"
-      (store-aggregate-root
-       {:ar-name :task3
-        :ar-id 10001
-        :events [{:event :task-created
-                  :name "test"}]} (open-leveldb-for-ar level-db-root-dir {})) =>
-                  nil?)
-
-(fact "read events for aggregate root"
-      (read-aggregate-root {:ar-name :task3 :ar-id 10001}) =>
-      {:ar-name :task3
+(fact "store uncommitted events"
+      (store-uncommitted-events
+       
+       :ar-name :task3
        :ar-id 10001
-        :events [{:event :task-created
-                  :name "test"}]})
+       :events [{:event :task-created :name "test"}]))
 
 (fact "write performance"
       (println

@@ -52,22 +52,14 @@
 (defn open-leveldb-for-ar
   ^{:doc "init and open the level db for ar"
     :abbre "ar=>aggregate root"}
-  [level-db-root-dir options]
-  (fn [ar-name]
-    (open-leveldb (str level-db-root-dir ar-name) options)))
+  [level-db-root-dir options ar-name]
+  (open-leveldb (str level-db-root-dir ar-name) options))
 
-(defn store-aggregate-root
+(defn store-uncommitted-events
   ^{:added "1.0"
     :abbre "ar->aggregate root"
     :doc "store the events of aggregate root"}
-  [aggregate-root open-db]
-  (let [ar-name-str (name (:ar-name aggregate-root))
-        key (str (:ar-id aggregate-root))
-        value (json/write-str (:events aggregate-root))]
-    (write-to-leveldb
-     (open-db ar-name-str)  key value)))
-
-
-(defn read-aggregate-root
-  [ar-name ar-id]
-  ())
+  [ar-name ar-id events open-db]
+  (let [ar-name-str (name ar-name)
+        key (str ar-id)]
+    ()))
