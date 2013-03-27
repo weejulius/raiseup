@@ -55,6 +55,17 @@
   [level-db-root-dir options ar-name]
   (open-leveldb (str level-db-root-dir ar-name) options))
 
+(defn store-events-id-mapped-by-ar-id
+  [ar-name ar-id events db]
+  (let [batch-process (.createWriteBatch db)
+        ar-name-str (name ar-name)
+        ar-id-str (str ar-id)
+        charset "UTF-8"
+        current-eventids (.get batch-process (to-bytes ar-id-str charset))
+        appended-events (str current-eventids "," ar-id-str)]
+   (.put batch-process (to-bytes ar-id-str charset) (to-bytes appended-events charset))
+   (.write db batch-process)))
+
 (defn store-uncommitted-events
   ^{:added "1.0"
     :abbre "ar->aggregate root"
@@ -63,3 +74,5 @@
   (let [ar-name-str (name ar-name)
         key (str ar-id)]
     ()))
+
+
