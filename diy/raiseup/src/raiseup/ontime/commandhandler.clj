@@ -62,7 +62,7 @@
         ar-id-str (str ar-id)
         charset "UTF-8"
         current-eventids (.get batch-process (to-bytes ar-id-str charset))
-        appended-events (str current-eventids "," ar-id-str)]
+        appended-events (join-str current-eventids "," events )]
    (.put batch-process (to-bytes ar-id-str charset) (to-bytes appended-events charset))
    (.write db batch-process)))
 
