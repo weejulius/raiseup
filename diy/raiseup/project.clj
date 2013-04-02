@@ -12,4 +12,5 @@
   :plugins [[lein-ring "0.8.2"]]
   :ring {:handler raiseup.handler/app}
   :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
-                    :plugins [[lein-midje "3.0.0"]]}})
+                    :plugins [[lein-midje "3.0.0"]]
+                    :repl-options {:port 4001}}})
