@@ -1,5 +1,6 @@
 (ns raiseup.ontime.commandhandler
-  (:require [clojure.data.json :as json]))
+  (:require [clojure.data.json :as json]
+            [raiseup.base :as util]))
 
 
 (defn transact
@@ -61,8 +62,9 @@
         ar-name-str (name ar-name)
         ar-id-str (str ar-id)
         charset "UTF-8"
-        current-eventids (.get batch-process (to-bytes ar-id-str charset))
-        appended-events (join-str current-eventids "," events )]
+        store-key (str ar-name-str ar-id-str)
+        current-eventids (.get db (to-bytes ar-id-str charset))
+        appended-events (util/join-str "," current-eventids events )]
    (.put batch-process (to-bytes ar-id-str charset) (to-bytes appended-events charset))
    (.write db batch-process)))
 
@@ -71,8 +73,6 @@
     :abbre "ar->aggregate root"
     :doc "store the events of aggregate root"}
   [ar-name ar-id events open-db]
-  (let [ar-name-str (name ar-name)
-        key (str ar-id)]
-    ()))
+  )
 
 

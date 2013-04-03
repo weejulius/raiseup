@@ -2,7 +2,7 @@
   (:use midje.sweet
         raiseup.ontime.commandhandler))
 
-(def leveldb (open-leveldb "/tmp/leveldb-test" {}))
+(def leveldb (open-leveldb "/tmp/leveldb-test6" {}))
 (def level-db-root-dir "/tmp/")
 
 (fact "open level db"
@@ -11,15 +11,13 @@
 (fact "open level db for aggregate root"
       (open-leveldb-for-ar level-db-root-dir "hello" {}) => (complement nil?))
 
-(fact "store uncommitted events"
-      (store-uncommitted-events
-       :task3
-       10001
-       [{:event :task-created :id 1001 :name "test"}]
-       leveldb))
 
 (fact "store event ids mapped by aggregate root id"
-      (store-events-id-mapped-by-ar-id (:task3 10001 [10001] leveldb)))
+      (store-events-id-mapped-by-ar-id :task3 10001 [10001] leveldb))
+
+(fact "store event id performance"
+      (time (dotimes [n 100000]
+              (store-events-id-mapped-by-ar-id :task3 n [n] leveldb))))
 
 (fact "write performance"
       (println

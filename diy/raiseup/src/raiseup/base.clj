@@ -1,7 +1,6 @@
-(ns raiseup.base)
+(ns raiseup.base
+  (:use [clojure.string :only (join)]))
 
 (defn join-str
-  ([coll separator]
-      (let [first (first coll)
-            rest (next coll)]
-        (apply str first (reduce #(conj %1 "," %2) [] rest)))))
+  ([separator prefix coll]
+     (join separator (cons prefix coll))))
