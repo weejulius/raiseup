@@ -1,4 +1,4 @@
-(ns raiseup.ontime.t-eventstore
+(ns raiseup.t-eventstore
   (:use midje.sweet
         raiseup.eventstore
         raiseup.storage)
@@ -19,7 +19,7 @@
 
 (fact "store event id performance"
       (time (dotimes [n 100000]
-              (store-events-id-mapped-by-ar-id "task" (str n) [n] leveldb))))
+              (store-events-id-mapped-by-ar-id "task1" (str n) [n] leveldb))))
 
 (fact "store events"
       (store-events :task 10001
@@ -43,12 +43,6 @@
            :ar-id 10001
            :event-id 1001
            :name "task 1"}])
-
-(fact "int array to bytes"
-      (count (int-to-bytes [1001 1003 1004])) => 12)
-
-(fact "bytes to int array"
-      (byte-to-int-array (int-to-bytes [1004 1002 1003])) => [1004 1002 1003])
 
 (fact "write performance"
       (println
