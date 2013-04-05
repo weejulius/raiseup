@@ -47,15 +47,21 @@
 (fact "write performance"
       (println
            (time
-            (dotimes [n 100000]
-              (.put leveldb (base/to-bytes (str n)) (base/to-bytes "word")))))
+            (dotimes [n 20000]
+              (store-events :task2 n
+                    [{:event :task/task-created
+                      :ar-id n
+                      :event-id n
+                      :name "task 1"}]
+                    leveldb
+                    eventdb))))
       => nil?)
 
 (fact "get performance"
       (println
            (time
             (dotimes [n 100000]
-              (.get leveldb (base/to-bytes (str n))))))
+              (read-events :task2 n leveldb eventdb))))
       => nil?)
 
 
