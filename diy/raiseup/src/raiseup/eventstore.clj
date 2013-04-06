@@ -1,13 +1,17 @@
-(ns raiseup.eventstore
+0(ns raiseup.eventstore
   (:require [raiseup.mutable :as default]
             [raiseup.storage :as store]
             [raiseup.base :as base]))
 
 (defn make-store-key-of-event-ids
+  "used to make the key for the event ids in the storage,
+   event-ids is used to locate the events for ar quickly"
   [ar-name-str ar-id-str]
   (str ar-name-str ar-id-str))
 
 (defn store-events-id-mapped-by-ar-id
+  "map the events for ar by the ar's id
+   in order to find the events for ar quickly"
   [ar-name-str ar-id-str event-ids db]
   (let [store-key (make-store-key-of-event-ids ar-name-str ar-id-str)
         event-ids-byte (store/find-value-by-key store-key db)

@@ -4,12 +4,12 @@
         raiseup.storage)
   (:require [raiseup.base :as base]))
 
-(def leveldb (open-leveldb "/tmp/leveldb-test2" {}))
-(def eventdb (open-leveldb "/tmp/eventdb2" {}))
+(def leveldb (open-leveldb "/tmp/leveldb-test" {}))
+(def eventdb (open-leveldb "/tmp/eventdb" {}))
 (def level-db-root-dir "/tmp/")
 
 (fact "open level db"
-      (open-leveldb "/tmp/leveldb" {}) => (complement nil?))
+      (.getName (class (open-leveldb "/tmp/leveldbtest" {}))) =>"org.fusesource.leveldbjni.internal.JniDB")
 
 (fact "open level db for aggregate root"
       (open-leveldb-for-ar level-db-root-dir "hello" {}) => (complement nil?))
@@ -65,4 +65,3 @@
       => nil?)
 
 
-(.close leveldb)

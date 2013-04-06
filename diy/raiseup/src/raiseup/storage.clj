@@ -14,23 +14,18 @@
 (defn store-string-kv
   "store key value which is string"
   ([key value store charset]
-      (base/process-kv key value #(base/to-bytes % charset)))
+     (base/process-kv key value #(base/to-bytes % charset)))
   ([key value]
-      (store-string-kv key value mutable/charset)))
+     (store-string-kv key value mutable/charset)))
 
-(defn write-to-leveldb
-  ^{:added "1.0"
-    :doc "write key value to level db"}
-  ([db key value charset]
-     (transact db
-               (fn [db1]
-                 (store-string-kv
-                  key
-                  value
-                  (fn [key1 value1] (.put db1 key1 value1))
-                  charset))))
-  ([db key value]
-     (write-to-leveldb db key value mutable/charset)))
+(defn- open-new-leveldb
+  [file leveldb-options]
+  (try
+    (.open
+     (org.fusesource.leveldbjni.JniDBFactory/factory)
+     file
+     leveldb-options)
+    (catch Exception e (println e))))
 
 (defn open-leveldb
   ^{:added "1.0"
@@ -38,29 +33,17 @@
             the level db object is cached once it is opened"
     :side-affect "true"}
   ([db-dir options]
-     (let [leveldb-options (org.iq80.leveldb.Options.)
-           file (java.io.File. db-dir)
-           existing-db (get @mutable/opened-leveldb db-dir)]
-       (print @mutable/opened-leveldb)
-       (if (nil? existing-db)
+     (if-let [existing-db (get @mutable/opened-leveldb db-dir)]
+       existing-db
+       (let [opened-new-db (open-new-leveldb
+                            (java.io.File. db-dir)
+                            (org.iq80.leveldb.Options.))]
          (swap! mutable/opened-leveldb
                 (fn [dbs]
-                  (assoc dbs db-dir
-                         (.open
-                          (org.fusesource.leveldbjni.JniDBFactory/factory)
-                          file
-                          leveldb-options))))
-         existing-db)))
+                  (assoc dbs db-dir opened-new-db)))
+         opened-new-db)))
   ([db-dir]
      (open-leveldb db-dir mutable/default-leveldb-option)))
-
-
-
-(defn open-leveldb-for-ar
-  ^{:doc "init and open the level db for ar"
-    :abbre "ar=>aggregate root"}
-  [level-db-root-dir options ar-name]
-  (open-leveldb (str level-db-root-dir ar-name) options))
 
 
 (defn find-value-by-key
