@@ -51,5 +51,48 @@
   [key-str db]
   (.get db (base/to-bytes key-str)))
 
+(defn write
+  [key-bytes value-bytes db]
+  (.put db key-bytes value-bytes))
+
+(defn delete
+  [key-str db]
+  (.delete db (base/to-bytes key-str)))
+
+(defprotocol RecoverableId
+  (init [this])
+  (get [this])
+  (inc! [this])
+  (clear! [this]))
 
 
+
+(defrecord RecoverableLongId
+    [store-key storage long-id]
+  RecoverableId
+  (init [this]
+    (let [cur-value (base/bytes->long (find-value-by-key store-key storage))
+          new-value (if (nil? cur-value) (long 0)
+                        (+ cur-value mutable/flush-recoverable-id-interval))]
+      (reset! long-id new-value)
+      (write (base/to-bytes store-key) (base/long->bytes new-value) storage)))
+  (get [this]
+    @long-id)
+  (inc! [this]
+    (let [inc-value (swap! long-id inc)]
+      (if (= 0 (mod inc-value mutable/flush-recoverable-id-interval))
+        (write
+         (base/to-bytes store-key)
+         (base/long->bytes
+          (long inc-value))
+         storage))
+      inc-value))
+  (clear! [this]
+    (delete store-key storage)
+    (reset! long-id 0)))
+
+(defn init-recoverable-long-id
+  [name storage]
+  (let [recoverable (->RecoverableLongId name storage (atom -1))]
+    (.init recoverable)
+    recoverable))

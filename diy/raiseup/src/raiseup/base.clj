@@ -1,7 +1,7 @@
 (ns raiseup.base
   (:use [clojure.string :only (join)])
   (:require [raiseup.mutable :as mutable]
-            [cheshire.core :as json]))
+            [taoensso.nippy :as json]))
 
 (defn join-str
   "join a bunch of items with separator
@@ -28,15 +28,15 @@
     (process (pre-fun key) (pre-fun value))))
 
 
-(defn json-to-str
-  "convert data to json string"
-  [data options]
-  (json/generate-string data options))
+(defn data->bytes
+  "convert data to bytes"
+  [data]
+  (json/freeze-to-bytes data))
 
-(defn str-to-json
-  "convert string to json data structure"
-  [str]
-  (json/parse-string str true))
+(defn bytes->data
+  "convert bytes to data"
+  [bytes]
+  (json/thaw-from-bytes bytes))
 
 (defn int-to-bytes
   "convert the int collection to bytes"
@@ -57,3 +57,16 @@
     (let [buffer (java.nio.ByteBuffer/wrap int-bytes)
           size (/ (count int-bytes) 4)]
       (repeatedly size #(.getInt buffer)))))
+
+(defn bytes->long
+  [bytes]
+  (if (nil? bytes) nil
+     (->> (java.nio.ByteBuffer/wrap bytes)
+       (.getLong))))
+
+(defn long->bytes
+  [l]
+  (if (nil? l) nil
+      (-> (java.nio.ByteBuffer/allocate 8)
+           (.putLong l)
+           (.array))))

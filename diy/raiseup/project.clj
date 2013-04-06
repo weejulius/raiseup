@@ -7,7 +7,7 @@
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
                  [cheshire "5.1.0"]
-                 [org.clojure/data.json "0.2.1"]
+                 [com.taoensso/nippy "1.1.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.5"]
                  [com.hazelcast/hazelcast "2.5"]]
   :plugins [[lein-ring "0.8.2"]]

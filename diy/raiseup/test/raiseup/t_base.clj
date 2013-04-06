@@ -22,3 +22,6 @@
 
 (fact "bytes to int array"
       (byte-to-int-array (int-to-bytes [1004 1002 1003])) => [1004 1002 1003])
+
+(fact "bytes to data"
+      (bytes->data (data->bytes [1 2 3]))=> [1 2 3])

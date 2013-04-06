@@ -25,21 +25,21 @@
       (store-events :task 10001
                     [{:event :task/task-created
                       :ar-id 10001
-                      :event-id 1001
+                      :event-id 1003
                       :name "task 1"}]
                     leveldb
                     eventdb))
 
 (fact "read single event"
-      (read-event (base/to-bytes (str 1001)) eventdb)
-      => {:event "task/task-created"
+      (read-event (base/int-to-bytes [1003]) eventdb)
+      => {:event :task/task-created
           :ar-id 10001
-          :event-id 1001
+          :event-id 1003
           :name "task 1"})
 
 (fact "read events"
       (read-events :task 10001 leveldb eventdb)
-      => [{:event "task/task-created"
+      => [{:event :task/task-created
            :ar-id 10001
            :event-id 1001
            :name "task 1"}])

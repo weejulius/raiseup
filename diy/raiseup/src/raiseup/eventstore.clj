@@ -1,4 +1,4 @@
-0(ns raiseup.eventstore
+(ns raiseup.eventstore
   (:require [raiseup.mutable :as default]
             [raiseup.storage :as store]
             [raiseup.base :as base]))
@@ -16,7 +16,7 @@
   (let [store-key (make-store-key-of-event-ids ar-name-str ar-id-str)
         event-ids-byte (store/find-value-by-key store-key db)
         current-eventids (base/byte-to-int-array event-ids-byte)
-        appended-eventids (distinct (concat current-eventids event-ids))
+        appended-eventids (distinct (into current-eventids event-ids))
         batch-process (.createWriteBatch db)]
     (.put batch-process
           (base/to-bytes store-key)
@@ -25,11 +25,11 @@
 
 (defn serialize
   [event]
-  (base/json-to-str event default/eventstore-json-options))
+  (base/data->bytes event))
 
 (defn deserialize
-  [str]
-  (base/str-to-json str))
+  [bytes]
+  (base/bytes->data bytes))
 
 
 (defn write-events-to-leveldb
@@ -38,7 +38,7 @@
     (doseq [event events]
       (.put batch
             (base/int-to-bytes [(:event-id event)])
-            (base/to-bytes (serialize event))))
+            (serialize event)))
     (.write events-db batch)))
 
 (defn store-events
@@ -49,29 +49,25 @@
   (let [ar-name-str (name ar-name)
         ar-id-str (str ar-id)
         new-event-ids (map #(:event-id %) new-events)]
+    (future (write-events-to-leveldb) new-events events-db)
     (store-events-id-mapped-by-ar-id
-     ar-name-str
-     ar-id-str
-     new-event-ids
-     ar-eventids-db)
-    (write-events-to-leveldb new-events events-db)))
+       ar-name-str
+       ar-id-str
+       new-event-ids
+       ar-eventids-db)))
 
 (defn read-event-ids
   [ar-name-str ar-id-str ar-event-ids-db]
-  (let [event-ids-byte
+  (if-let [event-ids-byte
         (store/find-value-by-key
          (make-store-key-of-event-ids ar-name-str ar-id-str)
          ar-event-ids-db)]
-    (if (nil? event-ids-byte)
-      nil
-      (base/byte-to-int-array event-ids-byte))))
+      (base/byte-to-int-array event-ids-byte)))
 
 (defn read-event
   [event-id-byte events-db]
-  (let [event-byte (.get events-db event-id-byte)]
-    (if (nil? event-byte)
-      nil
-      (deserialize (String. event-byte default/charset)))))
+  (if-let [event-byte (.get events-db event-id-byte)]
+     (deserialize event-byte)))
 
 
 (defn read-events
