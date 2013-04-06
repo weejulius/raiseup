@@ -24,15 +24,18 @@
     (.write db batch-process)))
 
 (defn serialize
+  "serialize the clojure data structure to bytes"
   [event]
   (base/data->bytes event))
 
 (defn deserialize
+  "deser the bytes to data structure"
   [bytes]
   (base/bytes->data bytes))
 
 
 (defn write-events-to-leveldb
+  "the events are stored in the leveldb and the event id is the key"
   [events events-db]
   (let [batch  (.createWriteBatch events-db)]
     (doseq [event events]
@@ -41,22 +44,19 @@
             (serialize event)))
     (.write events-db batch)))
 
-(defn store-events
-  ^{:added "1.0"
-    :abbre "ar->aggregate root"
-    :doc "store the umcommitted events of aggregate root"}
-  [ar-name ar-id new-events ar-eventids-db events-db]
-  (let [ar-name-str (name ar-name)
-        ar-id-str (str ar-id)
-        new-event-ids (map #(:event-id %) new-events)]
-    (future (write-events-to-leveldb) new-events events-db)
-    (store-events-id-mapped-by-ar-id
-       ar-name-str
-       ar-id-str
-       new-event-ids
-       ar-eventids-db)))
+defn store-events
+^{:added "1.0"
+  :abbre "ar->aggregate root"
+  :doc "store the umcommitted events of aggregate root"}
+[ar-name ar-id new-events ar-eventids-db events-db]
+let [ar-name-str (name ar-name)
+     ar-id-str (str ar-id)
+     new-event-ids (map #(:event-id %) new-events)]
+(future (write-events-to-leveldb) new-events events-db)
 
 (defn read-event-ids
+  "the events ids are required when fetching an aggregate root
+   then reading the events for ar according the read event ids"
   [ar-name-str ar-id-str ar-event-ids-db]
   (if-let [event-ids-byte
         (store/find-value-by-key
@@ -65,12 +65,15 @@
       (base/byte-to-int-array event-ids-byte)))
 
 (defn read-event
+  "read a single event by event id"
   [event-id-byte events-db]
   (if-let [event-byte (.get events-db event-id-byte)]
      (deserialize event-byte)))
 
 
 (defn read-events
+  "read events for an ar, firstly read its event ids,
+   and then read events "
   [ar-name ar-id ar-event-ids-db events-db]
   (let [event-ids (read-event-ids (name ar-name) (str ar-id) ar-event-ids-db)]
     (map

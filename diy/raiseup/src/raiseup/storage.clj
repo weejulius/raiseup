@@ -19,6 +19,7 @@
      (store-string-kv key value mutable/charset)))
 
 (defn- open-new-leveldb
+  "before using the leveldb open it"
   [file leveldb-options]
   (try
     (.open
@@ -51,19 +52,23 @@
   [key-str db]
   (.get db (base/to-bytes key-str)))
 
-(defn write
+(defn- write
   [key-bytes value-bytes db]
   (.put db key-bytes value-bytes))
 
-(defn delete
+(defn- delete
   [key-str db]
   (.delete db (base/to-bytes key-str)))
 
 (defprotocol RecoverableId
-  (init [this])
-  (get [this])
-  (inc! [this])
-  (clear! [this]))
+  "an uniqure identifier,it can be recoved after restart,
+   but it does not garantee the identifier is sequential,
+   for example the identifier is 10 before crash, might be
+   13 after going back"
+  (init [this] "init the id")
+  (get [this] "return the current value of id")
+  (inc! [this] "increase the id")
+  (clear! [this] "clear and reset the state of id"))
 
 
 
@@ -92,6 +97,7 @@
     (reset! long-id 0)))
 
 (defn init-recoverable-long-id
+  "factory of recoverable long id"
   [name storage]
   (let [recoverable (->RecoverableLongId name storage (atom -1))]
     (.init recoverable)
