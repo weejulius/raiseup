@@ -26,7 +26,18 @@
      (org.fusesource.leveldbjni.JniDBFactory/factory)
      file
      leveldb-options)
-    (catch Exception e (println e))))
+    (catch Exception e
+      (do (println "the db is not able be opened by " e ",let us repair and retry")
+          (.repair
+           (org.fusesource.leveldbjni.JniDBFactory/factory)
+           file
+           leveldb-options)
+          (.open
+           (org.fusesource.leveldbjni.JniDBFactory/factory)
+           file
+           leveldb-options)))))
+
+
 
 (defn open-leveldb
   ^{:added "1.0"
@@ -46,11 +57,14 @@
   ([db-dir]
      (open-leveldb db-dir mutable/default-leveldb-option)))
 
+(defn k->value
+  [key-byte db]
+  (.get db key-byte))
 
 (defn find-value-by-key
   "find the value in the leveldb according to key"
   [key-str db]
-  (.get db (base/to-bytes key-str)))
+  (k->value (base/to-bytes key-str) db))
 
 (defn- write
   [key-bytes value-bytes db]
@@ -65,8 +79,8 @@
    but it does not garantee the identifier is sequential,
    for example the identifier is 10 before crash, might be
    13 after going back"
-  (init [this] "init the id")
-  (get [this] "return the current value of id")
+  (init! [this] "init the id")
+  (get! [this] "return the current value of id")
   (inc! [this] "increase the id")
   (clear! [this] "clear and reset the state of id"))
 
@@ -75,13 +89,13 @@
 (defrecord RecoverableLongId
     [store-key storage long-id]
   RecoverableId
-  (init [this]
+  (init! [this]
     (let [cur-value (base/bytes->long (find-value-by-key store-key storage))
           new-value (if (nil? cur-value) (long 0)
                         (+ cur-value mutable/flush-recoverable-id-interval))]
       (reset! long-id new-value)
       (write (base/to-bytes store-key) (base/long->bytes new-value) storage)))
-  (get [this]
+  (get! [this]
     @long-id)
   (inc! [this]
     (let [inc-value (swap! long-id inc)]
@@ -100,5 +114,5 @@
   "factory of recoverable long id"
   [name storage]
   (let [recoverable (->RecoverableLongId name storage (atom -1))]
-    (.init recoverable)
+    (.init! recoverable)
     recoverable))

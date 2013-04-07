@@ -50,11 +50,13 @@
     :doc "store the umcommitted events of aggregate root"}
   [ar-name ar-id new-events ar-eventids-db events-db]
   (let [ar-name-str (name ar-name)
-        ar-id-str (str ar-id)
-        new-event-ids (map #(:event-id %) new-events)]
-    (future (write-events-to-leveldb) new-events events-db)
-    (store-events-id-mapped-by-ar-id ar-name-str ar-id-str new-event-ids
-                                     ar-eventids-db)))
+        ar-id-str (str ar-id)]
+    (write-events-to-leveldb new-events events-db)
+    (store-events-id-mapped-by-ar-id
+     ar-name-str
+     ar-id-str
+     (map #(:event-id %) new-events)
+     ar-eventids-db)))
 
 
 (defn read-event-ids
@@ -70,7 +72,7 @@
 (defn read-event
   "read a single event by event id from event store"
   [event-id-byte events-db]
-  (if-let [event-byte (.get events-db event-id-byte)]
+  (if-let [event-byte (store/k->value event-id-byte events-db)]
     (deserialize event-byte)))
 
 

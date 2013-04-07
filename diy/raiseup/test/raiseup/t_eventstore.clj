@@ -1,18 +1,16 @@
 (ns raiseup.t-eventstore
   (:use midje.sweet
-        raiseup.eventstore
-        raiseup.storage)
-  (:require [raiseup.base :as base]))
+        raiseup.eventstore)
+  (:require [raiseup.base :as base]
+            [raiseup.storage :as store]))
 
-(def leveldb (open-leveldb "/tmp/leveldb-test" {}))
-(def eventdb (open-leveldb "/tmp/eventdb" {}))
+(def leveldb (store/open-leveldb "/tmp/leveldb-test" {}))
+(def eventdb (store/open-leveldb "/tmp/eventdb" {}))
 (def level-db-root-dir "/tmp/")
 
 (fact "open level db"
-      (.getName (class (open-leveldb "/tmp/leveldbtest" {}))) =>"org.fusesource.leveldbjni.internal.JniDB")
-
-(fact "open level db for aggregate root"
-      (open-leveldb-for-ar level-db-root-dir "hello" {}) => (complement nil?))
+      (.getName (class (store/open-leveldb "/tmp/leveldbtest" {})))
+      =>"org.fusesource.leveldbjni.internal.JniDB")
 
 (fact "store event ids mapped by aggregate root id"
       (store-events-id-mapped-by-ar-id "task" "10001" [1001] leveldb))
@@ -22,26 +20,26 @@
               (store-events-id-mapped-by-ar-id "task1" (str n) [n] leveldb))))
 
 (fact "store events"
-      (store-events :task 10001
+      (store-events :task5 10001
                     [{:event :task/task-created
                       :ar-id 10001
-                      :event-id 1003
+                      :event-id 100000002
                       :name "task 1"}]
                     leveldb
                     eventdb))
 
 (fact "read single event"
-      (read-event (base/int-to-bytes [1003]) eventdb)
+      (read-event (base/int-to-bytes [100000002]) eventdb)
       => {:event :task/task-created
           :ar-id 10001
-          :event-id 1003
+          :event-id 100000002
           :name "task 1"})
 
 (fact "read events"
-      (read-events :task 10001 leveldb eventdb)
+      (read-events :task5 10001 leveldb eventdb)
       => [{:event :task/task-created
            :ar-id 10001
-           :event-id 1001
+           :event-id 100000002
            :name "task 1"}])
 
 (fact "write performance"

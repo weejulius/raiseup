@@ -1,21 +1,21 @@
 (ns raiseup.t-storage
-  (:use raiseup.storage)
+  (:use midje.sweet)
   (:require  [raiseup.base :as base]
-             [midje.sweet :as test]))
+             [raiseup.storage :as store]))
 
-(def leveldb (open-leveldb "/tmp/recoverable"))
-(def long-id (init-recoverable-long-id "event-id" leveldb))
-(clear! long-id)
+(def leveldb (store/open-leveldb "/tmp/recoverable"))
+(def long-id (store/init-recoverable-long-id "event-id" leveldb))
+(.clear! long-id)
 
-(test/fact "init recoverabel long id"
-           (get long-id) => 0
-           (inc! long-id) => 1
-           (inc! long-id) => 2
-           (inc! long-id) => 3)
+(fact "init recoverabel long id"
+      (.get! long-id) => 0
+      (.inc! long-id) => 1
+      (.inc! long-id) => 2
+      (.inc! long-id) => 3)
 
-(test/fact "flush change to store"
-           (println (let [long-id1 (init-recoverable-long-id "event-id" leveldb)]
-                      (clear! long-id1)
-                      (time (dotimes [n 1000001]
-                              (inc! long-id1)))))
-           (base/bytes->long (find-value-by-key "event-id" leveldb)) => 1000000)
+(fact "flush change to store"
+      (println (let [long-id1 (store/init-recoverable-long-id "event-id" leveldb)]
+                 (.clear! long-id1)
+                 (time (dotimes [n 1000001]
+                         (.inc! long-id1)))))
+      (base/bytes->long (store/find-value-by-key "event-id" leveldb)) => 1000000)
