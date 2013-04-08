@@ -4,12 +4,15 @@
   (:require [raiseup.base :as base]
             [raiseup.storage :as store]))
 
-(def leveldb (store/open-leveldb "/tmp/leveldb-test" {}))
-(def eventdb (store/open-leveldb "/tmp/eventdb" {}))
-(def level-db-root-dir "/tmp/")
+(store/destroy-leveldb "/tmp/leveldb-test1")
+(store/destroy-leveldb "/tmp/eventdb1")
+
+(def leveldb (store/open-leveldb "/tmp/leveldb-test1" {}))
+(def eventdb (store/open-leveldb "/tmp/eventdb1" {}))
+
 
 (fact "open level db"
-      (.getName (class (store/open-leveldb "/tmp/leveldbtest" {})))
+      (.getName (class leveldb))
       =>"org.fusesource.leveldbjni.internal.JniDB")
 
 (fact "store event ids mapped by aggregate root id"
@@ -43,8 +46,7 @@
            :name "task 1"}])
 
 (fact "write performance"
-      (println
-           (time
+      (time
             (dotimes [n 20000]
               (store-events :task2 n
                     [{:event :task/task-created
@@ -52,7 +54,7 @@
                       :event-id n
                       :name "task 1"}]
                     leveldb
-                    eventdb))))
+                    eventdb)))
       => nil?)
 
 (fact "get performance"
@@ -63,3 +65,5 @@
       => nil?)
 
 
+(.close leveldb)
+(.close eventdb)

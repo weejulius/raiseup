@@ -1,6 +1,7 @@
 (ns raiseup.storage
   (:require [raiseup.mutable :as mutable]
-            [raiseup.base :as base]))
+            [raiseup.base :as base]
+            [clojure.java.io :as io]))
 
 (defn transact
   ^{:added "0.1"
@@ -56,6 +57,15 @@
          opened-new-db)))
   ([db-dir]
      (open-leveldb db-dir mutable/default-leveldb-option)))
+
+(defn destroy-leveldb
+  ([file options]
+     (.destroy org.fusesource.leveldbjni.JniDBFactory/factory
+               (io/file file)
+               (org.iq80.leveldb.Options.)))
+  ([file]
+     (destroy-leveldb file mutable/default-leveldb-option)))
+
 
 (defn k->value
   [key-byte db]

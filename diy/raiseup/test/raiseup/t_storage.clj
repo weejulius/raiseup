@@ -3,7 +3,8 @@
   (:require  [raiseup.base :as base]
              [raiseup.storage :as store]))
 
-(def leveldb (store/open-leveldb "/tmp/recoverable"))
+(store/destroy-leveldb "/tmp/recoverable1")
+(def leveldb (store/open-leveldb "/tmp/recoverable1"))
 (def long-id (store/init-recoverable-long-id "event-id" leveldb))
 (.clear! long-id)
 
@@ -19,3 +20,5 @@
                  (time (dotimes [n 1000001]
                          (.inc! long-id1)))))
       (base/bytes->long (store/find-value-by-key "event-id" leveldb)) => 1000000)
+
+(.close leveldb)
