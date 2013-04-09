@@ -47,7 +47,7 @@
 
 (fact "write performance"
       (time
-            (dotimes [n 20000]
+            (dotimes [n 200000]
               (store-events :task2 n
                     [{:event :task/task-created
                       :ar-id n
