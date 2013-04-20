@@ -2,13 +2,13 @@
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [http-kit "2.0.0-RC4"]
+                 [http-kit "2.0.1"]
                  [midje "1.5.0"]
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
                  [cheshire "5.1.0"]
                  [com.taoensso/nippy "1.1.0"]
-                 [org.fusesource.leveldbjni/leveldbjni-all "1.5"]
+                 [org.fusesource.leveldbjni/leveldbjni-all "1.6.1"]
                  [com.hazelcast/hazelcast "2.5"]]
   :plugins [[lein-ring "0.8.2"]]
   :ring {:handler raiseup.handler/app}

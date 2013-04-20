@@ -52,11 +52,10 @@
   (let [ar-name-str (name ar-name)
         ar-id-str (str ar-id)]
     (write-events-to-leveldb new-events events-db)
-    (store-events-id-mapped-by-ar-id
-     ar-name-str
-     ar-id-str
-     (map #(:event-id %) new-events)
-     ar-eventids-db)))
+    (store-events-id-mapped-by-ar-id ar-name-str
+                                     ar-id-str
+                                     (map #(:event-id %) new-events)
+                                     ar-eventids-db)))
 
 
 (defn read-event-ids

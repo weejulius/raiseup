@@ -31,7 +31,7 @@
                   [on-task-created-heavy {:asyn true}]]})
 
 (fact "publish event to handlers"
-      (->sent {:event :task-created :event-id 1001} event-map)
+      (->send {:event :task-created :event-id 1001} event-map)
       @v => 1)
 
 
@@ -42,21 +42,6 @@
                      (do
                        (repeatedly
                         #(do
-                           (->sent {:event :task-created :event-id 1001} event-map1)
+                           (->send {:event :task-created :event-id 1001} event-map1)
                            @v))))))=> 100000)
 
-
-(fact "pararel to execute the task if the execution is heavy"
-      (time
-       (count
-        (filter #(= % 3)
-                (take 10
-                      (do
-                        (repeatedly
-                         #(do
-                            (->sent {:event :task-created :event-id 1001} event-map2)
-                            @v))))))) => 10)
-
-
-(fact "subscribe event"
-      (->sub :task-created on-task-created))
