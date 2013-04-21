@@ -7,11 +7,12 @@
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
                  [cheshire "5.1.0"]
+                 [httl/httl "1.0.9"]
                  [com.taoensso/nippy "1.1.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.6.1"]
                  [com.hazelcast/hazelcast "2.5"]]
-  :plugins [[lein-ring "0.8.2"]]
-  :ring {:handler raiseup.handler/app}
+  :plugins [[lein-ring "0.8.3"]]
+  :ring {:handler raiseup.handler/app-routes}
   :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
                     :plugins [[lein-midje "3.0.0"]]
                     :repl-options {:port 4001}}})
