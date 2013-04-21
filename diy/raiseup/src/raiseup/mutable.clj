@@ -1,5 +1,4 @@
-(ns raiseup.mutable
-  (:require [raiseup.storage :as storage]))
+(ns raiseup.mutable)
 
 (def charset "UTF-8")
 (def default-leveldb-option {})

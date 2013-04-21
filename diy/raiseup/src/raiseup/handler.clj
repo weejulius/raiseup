@@ -3,11 +3,6 @@
             [raiseup.ontime.control :refer :all])
   (:import httl.Engine))
 
-(defn app [req]
-  {:status  200
-     :headers {"Content-Type" "text/html"}
-        :body    "I am julius yu"})
-
 (defn- render
   [file-path params]
   (let [engine (Engine/getEngine)
@@ -15,7 +10,7 @@
     (.evaluate template params)))
 
 (defroutes app-routes
-  (GET "/todo/slots" []
+  (GET "/todo/slots/new" []
        #(render "templates/index.httl" (create-task-slot-action %))))
 
 
