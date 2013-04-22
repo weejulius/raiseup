@@ -1,5 +1,5 @@
 (ns raiseup.handler
-  (:require [compojure.core :refer [defroutes GET]]
+  (:require [compojure.core :refer [defroutes GET POST]]
             [raiseup.ontime.control :refer :all])
   (:import httl.Engine))
 
@@ -11,7 +11,9 @@
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       #(render "templates/index.httl" (create-task-slot-action %))))
+       #(render "templates/index.httl" %))
+  (POST "/todo/slots" []
+        #(render "templates/index.httl" (create-task-slot-action %))))
 
 
 
