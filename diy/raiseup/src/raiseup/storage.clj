@@ -87,8 +87,8 @@
 (defprotocol RecoverableId
   "an uniqure identifier,it can be recoved after restart,
    but it does not garantee the identifier is sequential,
-   for example the identifier is 10 before crash, might be
-   13 after going back"
+   for example the next identifier is supposed to be 10 before crash,
+   might be 13 back from halt"
   (init! [this] "init the id")
   (get! [this] "return the current value of id")
   (inc! [this] "increase the id")
