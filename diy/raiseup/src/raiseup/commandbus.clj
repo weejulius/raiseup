@@ -14,18 +14,28 @@
                        default/event-identifier
                        event-ids-db))
 
+(def ar-id-creator (storage/init-recoverable-long-id
+                    default/ar-identifier
+                    event-ids-db))
+
+(defn- populate-id-if-need
+  "if the id is not existing one is given"
+  [command]
+  (if (nil? (:ar-id command))
+    (assoc command :ar-id (.inc! ar-id-creator)) command))
+
 
 (defn ->send
   "send command to bus"
   [command command-router event-router]
   (let [cmd-fun ((:command command) command-router)
-        produced-events (cmd-fun command)
+        command-with-id (populate-id-if-need command)
+        produced-events (cmd-fun command-with-id)
         events-with-id (map
                         #(assoc % :event-id (.inc! event-id-creator))
                         [produced-events])]
-    (println produced-events events-with-id)
-    (es/store-events (:ar command)
-                     (:ar-id command)
+    (es/store-events (:ar command-with-id)
+                     (:ar-id command-with-id)
                      events-with-id
                      event-ids-db
                      events-db)

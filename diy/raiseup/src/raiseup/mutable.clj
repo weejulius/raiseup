@@ -9,3 +9,4 @@
 (def eventids-db-path "/tmp/event-ids-real")
 (def events-db-path "/tmp/events-real")
 (def event-identifier "event-rc-id-real")
+(def ar-identifier "ar-id-real")

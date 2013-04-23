@@ -52,3 +52,8 @@
             (number? estimation) ]}
      (->DefaultTask
       (undefined-id) description task-owner estimation created-time :created [])))
+
+
+(defn task-slot-created
+  [event]
+  ())
