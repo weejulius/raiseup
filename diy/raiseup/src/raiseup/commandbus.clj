@@ -40,7 +40,7 @@
                      events-with-id
                      event-ids-db
                      events-db)
-    (map #(eventbus/->send %  event-router) events-with-id)
+    (dorun (map #(eventbus/->send %  event-router) events-with-id))
     events-with-id))
 
 (defn <-read

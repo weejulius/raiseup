@@ -1,21 +1,28 @@
 (ns raiseup.ontime.views
-  (:import (com.hazelcast.core Hazelcast)
-           (com.hazelcast.config Config)))
+  (:require [raiseup.mutable-data :as md]))
 
-(def cache (Hazelcast/newHazelcastInstance (Config.)))
+(defn get-view
+  "get the item from cache by the view name and its key"
+  ([view-name k cache]
+     (let [view (.getMap cache (name view-name))
+           item (.get view k)]
+       (println "current view -> " k (type k)  item "-" view)
+       (doseq [[k v] view]
+         (println k (type k) ":" v))
+       item))
+  ([view-name k]
+     (get-view view-name k (md/view-cache))))
 
-(defn get
-  ([name key cache]
-     (.get (.getMap cache (name name)) key))
-  ([name key]
-     (get name key cache)))
-
-(defn put
-  ([name key value cache]
-     (.put (.getMap cache (name name)) key value))
-  ([name key value]
-     (put name key value cache)))
+(defn put-in-view
+  "put item into the  view inside the cache"
+  ([view-name k v cache]
+     (let [view (.getMap cache (name view-name))]
+       (.put view k v)
+       (println "view after put -> "  (.get view k))))
+  ([view-name k v]
+     (put-in-view view-name k v (md/view-cache))))
 
 (defn task-slot-created
   [event]
-  (put (:ar event) (:ar-id event) event))
+  (println "creating task slot " event)
+  (put-in-view (:ar event) (:ar-id event) event))
