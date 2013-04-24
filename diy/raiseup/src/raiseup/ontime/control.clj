@@ -9,7 +9,7 @@
 
 (defn create-task-slot-action
   "create an task slot"
-  [[description start-time estimation]]
+  [description start-time estimation]
   (send {:command :create-task-slot
          :ar :task-slot
          :description description

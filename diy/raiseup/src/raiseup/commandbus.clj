@@ -34,12 +34,14 @@
         events-with-id (map
                         #(assoc % :event-id (.inc! event-id-creator))
                         [produced-events])]
+    (println "processing command for ar " (:ar command-with-id) ":"  (:ar-id command-with-id))
     (es/store-events (:ar command-with-id)
                      (:ar-id command-with-id)
                      events-with-id
                      event-ids-db
                      events-db)
-    (map #(eventbus/->send %  event-router) events-with-id)))
+    (map #(eventbus/->send %  event-router) events-with-id)
+    events-with-id))
 
 (defn <-read
   [ar-name ar-id]

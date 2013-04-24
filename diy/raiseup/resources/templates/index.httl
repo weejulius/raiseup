@@ -5,9 +5,10 @@
   </head>
   <body>${hello}
     <form action="/todo/slots" method="post">
-      <input type="text" name="description">
-      <input type="text" name="start-time">
-      <input type="text" name="estimation">
+      <input type="text" name="description" value="${description}"/>
+      <input type="text" name="start-time"/>
+      <input type="text" name="estimation"/>
+      <input type="submit" value="add"/>
     </form>
   </body>
 </html>
