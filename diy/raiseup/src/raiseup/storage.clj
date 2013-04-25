@@ -100,7 +100,7 @@
     [store-key storage long-id]
   RecoverableId
   (init! [this]
-    (let [cur-value (base/bytes->long (find-value-by-key store-key storage))
+    (let [cur-value (base/->long (find-value-by-key store-key storage))
           new-value (if (nil? cur-value) (long 0)
                         (+ cur-value mutable/flush-recoverable-id-interval))]
       (reset! long-id new-value)

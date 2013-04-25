@@ -58,11 +58,6 @@
           size (/ (count int-bytes) 4)]
       (repeatedly size #(.getInt buffer)))))
 
-(defn bytes->long
-  [bytes]
-  (if (nil? bytes) nil
-     (->> (java.nio.ByteBuffer/wrap bytes)
-       (.getLong))))
 
 (defn long->bytes
   [l]
@@ -70,3 +65,17 @@
       (-> (java.nio.ByteBuffer/allocate 8)
            (.putLong l)
            (.array))))
+
+(defmulti ->long
+  "convert to long from other types" class)
+
+(defmethod ->long String
+  [str]
+  (Long/parseLong str))
+
+(defmethod ->long
+  (Class/forName "[B")
+  [bytes]
+  (if (nil? bytes) nil
+     (->> (java.nio.ByteBuffer/wrap bytes)
+       (.getLong))))

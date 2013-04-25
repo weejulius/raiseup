@@ -1,7 +1,9 @@
 (ns raiseup.handler
   (:require [compojure.core :refer [defroutes GET POST]]
             [raiseup.ontime.control :refer :all]
-            [raiseup.ontime.views :as view])
+            [raiseup.ontime.views :as view]
+            [raiseup.reqres :as reqres]
+            [raiseup.base :refer [->long]])
   (:import httl.Engine))
 
 (defn- render
@@ -9,13 +11,8 @@
   (fn [req]
    (let [engine (Engine/getEngine)
          template (.getTemplate engine file-path)
-         kw->name (into {} (for [[k v] params]
-                             [(clojure.string/replace
-                               (name k)
-                               #"-"
-                               "_") v]))]
-     (println "params" kw->name "-" (type kw->name))
-     (.evaluate template kw->name))))
+         template-params (reqres/->template-param params)]
+     (.evaluate template template-params))))
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
@@ -23,8 +20,8 @@
   (GET "/todo/slots/edit/:id" [id]
        (render "templates/index.httl"
                (let [task-slot (view/get-view "task-slot"
-                                              (Long/parseLong id))]
-                 (println "geting task slot "  id task-slot)
+                                              (->long id))]
+                ; (println "geting task slot "  id task-slot)
                  task-slot)))
   (POST "/todo/slots" [description start-time estimation]
         (render "templates/index.httl"

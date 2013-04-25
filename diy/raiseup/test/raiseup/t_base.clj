@@ -25,3 +25,9 @@
 
 (fact "bytes to data"
       (bytes->data (data->bytes [1 2 3]))=> [1 2 3])
+
+(fact "bytes to long"
+      (->long (long->bytes 10)) => 10)
+
+(fact "string to long"
+      (->long "1") => 1)
