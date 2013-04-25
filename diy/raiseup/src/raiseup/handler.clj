@@ -8,8 +8,14 @@
   [file-path params]
   (fn [req]
    (let [engine (Engine/getEngine)
-         template (.getTemplate engine file-path)]
-     (.evaluate template (into {} (for [[k v] params] [(name k) v]))))))
+         template (.getTemplate engine file-path)
+         kw->name (into {} (for [[k v] params]
+                             [(clojure.string/replace
+                               (name k)
+                               #"-"
+                               "_") v]))]
+     (println "params" kw->name "-" (type kw->name))
+     (.evaluate template kw->name))))
 
 (defroutes app-routes
   (GET "/todo/slots/new" []

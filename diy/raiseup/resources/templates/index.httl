@@ -3,11 +3,11 @@
     <title>add a time slot</title>
     <meta charset="utf-8" />
   </head>
-  <body>${hello}
+  <body>4
     <form action="/todo/slots" method="post">
       <input type="text" name="description" value="${description}"/>
-      <input type="text" name="start-time"/>
-      <input type="text" name="estimation"/>
+      <input type="text" name="start-time" value="${start_time}"/>
+      <input type="text" name="estimation" value="${estimation}"/>
       <input type="submit" value="add"/>
     </form>
   </body>

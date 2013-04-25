@@ -2,7 +2,7 @@
   (:require [raiseup.commandbus :as cb]
             [raiseup.cqrsroutes :refer :all]))
 
-(defn- send
+(defn- send-command
   "send command to bus"
   [command]
   (cb/->send command commandroutes eventroutes))
@@ -10,11 +10,12 @@
 (defn create-task-slot-action
   "create an task slot"
   [description start-time estimation]
-  (send {:command :create-task-slot
-         :ar :task-slot
-         :description description
-         :start-time start-time
-         :estimation estimation}))
+  (send-command
+   {:command :create-task-slot
+    :ar :task-slot
+    :description description
+    :start-time start-time
+    :estimation estimation}))
 
 
 

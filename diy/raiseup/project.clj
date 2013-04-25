@@ -13,7 +13,11 @@
                  [org.fusesource.leveldbjni/leveldbjni-all "1.6.1"]
                  [com.hazelcast/hazelcast "2.5"]]
   :plugins [[lein-ring "0.8.3"]]
-  :ring {:handler raiseup.handler/app-routes}
+  :ring {:handler raiseup.handler/app-routes
+         :reload-paths ["src" "resources"]
+         :auto-refresh? true
+         :auto-reload? true
+         :port 8080}
   :main main
   :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
                     :plugins []
