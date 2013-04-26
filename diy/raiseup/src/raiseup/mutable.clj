@@ -10,3 +10,4 @@
 (def events-db-path "/tmp/events-real")
 (def event-identifier "event-rc-id-real")
 (def ar-identifier "ar-id-real")
+(def template-extension "httl")
