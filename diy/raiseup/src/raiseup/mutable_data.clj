@@ -18,6 +18,6 @@
        cache-name)
       cache)))
 
-(defn view-cache
+(defn readmodel-cache
   []
-  (get-cache :view-cache (fn [] (Hazelcast/newHazelcastInstance (Config.)))))
+  (get-cache :readmodel-cache (fn [] (Hazelcast/newHazelcastInstance (Config.)))))

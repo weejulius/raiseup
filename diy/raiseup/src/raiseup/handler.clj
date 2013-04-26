@@ -1,7 +1,7 @@
 (ns raiseup.handler
   (:require [compojure.core :refer [defroutes GET POST]]
             [raiseup.ontime.control :refer :all]
-            [raiseup.ontime.views :as view]
+            [raiseup.ontime.readmodel :as rm]
             [raiseup.reqres :as reqres]
             [raiseup.base :refer [->long]])
   (:import httl.Engine))
@@ -19,13 +19,11 @@
        (render "templates/index.httl" {}))
   (GET "/todo/slots/edit/:id" [id]
        (render "templates/index.httl"
-               (let [task-slot (view/get-view "task-slot"
-                                              (->long id))]
-                ; (println "geting task slot "  id task-slot)
+               (let [task-slot (rm/get-readmodel "task-slot"
+                                                 (->long id))]
                  task-slot)))
   (POST "/todo/slots" [description start-time estimation]
-        (render "templates/index.httl"
-                 (create-task-slot-action description start-time estimation))))
+        (create-task-slot-action description start-time estimation)))
 
 
 

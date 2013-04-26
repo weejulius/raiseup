@@ -73,9 +73,12 @@
   [str]
   (Long/parseLong str))
 
+(defmethod ->long (class nil)
+  [p]
+  nil)
+
 (defmethod ->long
   (Class/forName "[B")
   [bytes]
-  (if (nil? bytes) nil
-     (->> (java.nio.ByteBuffer/wrap bytes)
-       (.getLong))))
+ (->> (java.nio.ByteBuffer/wrap bytes)
+       (.getLong)))
