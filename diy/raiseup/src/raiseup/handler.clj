@@ -1,5 +1,6 @@
 (ns raiseup.handler
   (:require [compojure.core :refer [defroutes GET POST]]
+            [compojure.route :as route]
             [raiseup.ontime.control :refer :all]
             [raiseup.ontime.readmodel :as rm]
             [raiseup.reqres :as reqres]
@@ -22,9 +23,11 @@
        (render "templates/index" {}))
   (GET "/todo/slots/edit/:id" [id]
        (render "templates/index"
-              (rm/get-readmodel "task-slot" (->long id))))
+               (rm/get-readmodel "task-slot" (->long id))))
   (POST "/todo/slots" [description start-time estimation]
-        (create-task-slot-action description start-time estimation)))
+        (create-task-slot-action description start-time estimation))
+  (route/resources "/")
+  (route/not-found "PAGE NOT FOUND"))
 
 
 
