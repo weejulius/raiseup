@@ -1,10 +1,10 @@
 # raiseup
 
-raiseup is a set of ideas
+raiseup is a set of projects, applying the event souring and cqrs. they are built upon the clojure.
 
 including:
-1. catchtime
-   it is a time manage toolkits
+ **  on time
+     it is a time manager for daily work
 
 
 ## Prerequisites

@@ -1,17 +1,38 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>add a time slot</title>
     <meta charset="utf-8" />
-    <link href="/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <script src="/js/jquery-2.0.0.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="/css/raiseup.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <form action="/todo/slots" method="post">
-      <input type="text" name="description" value="${description}"/>
-      <input type="text" name="start-time" value="${start_time}"/>
-      <input type="text" name="estimation" value="${estimation}"/>
-      <input type="submit" value="add"/>
-    </form>
+    <head>
+      <div class="time-slot-desc">
+        <h1>Make an awesome day, drop your time to slots</h1>
+        <span><p>for 2013-04-30</p></span>
+      </div>
+    </head>
+    <div class="container-fluid">
+      <div class="row-fluid" class="time-slot-new">
+        <div class="span3"></div>
+        <div class="span6">
+          <form action="/todo/slots" method="post" class="form-inline">
+            <input type="text" name="description" class="input-xlarge" placeholder="description" value="${description}">
+            <input type="text" name="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
+            <input type="text" name="estimation" class="input-small"  placeholder="estimation" value="${estimation}">
+            <input type="submit" id="add-task-slot" value="add task slot" class="btn">
+          </form>
+        </div>
+        <div class="span3"></div>
+      </div>
+    </div>
+
+    <script src="/js/jquery-2.0.0.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.websocket.js"></script>
+    <script src="/js/jquery.json.js"></script>
+    <script src="/js/raiseup.js"></script>
   </body>
 </html>

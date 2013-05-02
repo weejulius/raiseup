@@ -1,0 +1,15 @@
+.time-slot-desc{
+   padding:20px 80px;
+   background:#0e0e0e;
+   color:#eeefff;
+    }
+
+.time-slot-desc span p{
+    color:orange;
+    margin: 10px 0px 10px 750px;
+    font-weight:bolder;
+    }
+
+.container-fluid{
+    margin-top:10px;
+    }
