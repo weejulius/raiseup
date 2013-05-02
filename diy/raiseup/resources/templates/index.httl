@@ -17,13 +17,14 @@
     <div class="container-fluid">
       <div class="row-fluid" class="time-slot-new">
         <div class="span3"></div>
-        <div class="span6">
-          
+        <div class="span6 form-inline">
           <input type="text" name="description" id="description" class="input-xlarge" placeholder="description" value="${description}">
           <input type="text" name="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
-          <input type="text" name="estimation" class="input-small"  placeholder="estimation" value="${estimation}">
+          <div class="input-append">
+            <input type="text" id="appendedInput"  name="estimation" class=" span6"  placeholder="estimation" value="${estimation}">
+            <span class="add-on">min</span>
+          </div>
           <button id="add-task-slot" class="btn">add task slot</button>
-          
         </div>
         <div class="span3"></div>
       </div>

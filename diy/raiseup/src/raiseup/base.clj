@@ -91,3 +91,12 @@
   String
   [str]
   (json/parse-string str))
+
+
+(defmulti ->str
+  "convert to str from ds,bytes etc" class)
+
+(defmethod ->str
+  (class {})
+  [a-map]
+  (json/generate-string a-map))

@@ -4,7 +4,7 @@
             [raiseup.ontime.control :refer :all]
             [raiseup.ontime.readmodel :as rm]
             [raiseup.reqres :as reqres]
-            [raiseup.base :refer [->long ->map]]
+            [raiseup.base :refer [->long ->map ->str]]
             [raiseup.mutable :refer [template-extension]])
   (:import httl.Engine)
   (:use org.httpkit.server))
@@ -21,7 +21,7 @@
 
 (defn create-task-slot-req
   [ring-request]
-   (with-channel ring-request channel
+  (with-channel ring-request channel
     (if (websocket? channel)
       (on-receive channel
                   (fn [data]
@@ -29,10 +29,10 @@
                     (println "param:" (->map data))
                     (let [{:keys [description start-time estimation]} (->map data)
                           result (create-task-slot-action
-                              description
-                              start-time
-                              estimation)]
-                      (send! channel (str "type:message,data:" result)))))
+                                  description
+                                  start-time
+                                  estimation)]
+                      (send! channel (->str {:type :message :data result})))))
       (send! channel {:status 200
                       :headers {"Content-Type" "text/plain"}
                       :body    "Long polling?"}))))
