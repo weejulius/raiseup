@@ -1,7 +1,8 @@
 (ns raiseup.base
   (:use [clojure.string :only (join)])
   (:require [raiseup.mutable :as mutable]
-            [taoensso.nippy :as json]))
+            [taoensso.nippy :as nippy]
+            [cheshire.core :as json]))
 
 (defn join-str
   "join a bunch of items with separator
@@ -31,12 +32,12 @@
 (defn data->bytes
   "convert data to bytes"
   [data]
-  (json/freeze-to-bytes data))
+  (nippy/freeze-to-bytes data))
 
 (defn bytes->data
   "convert bytes to data"
   [bytes]
-  (json/thaw-from-bytes bytes))
+  (nippy/thaw-from-bytes bytes))
 
 (defn int-to-bytes
   "convert the int collection to bytes"
@@ -82,3 +83,11 @@
   [bytes]
  (->> (java.nio.ByteBuffer/wrap bytes)
        (.getLong)))
+
+(defmulti ->map
+  "convert to map data structure from string or bytes,etc" class)
+
+(defmethod ->map
+  String
+  [str]
+  (json/parse-string str))
