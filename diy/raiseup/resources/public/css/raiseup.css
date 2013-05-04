@@ -14,6 +14,27 @@
     margin-top:10px;
 }
 
-#add-task-slot{
-  float:left;
+.slot-new-est{
+    overflow:hidden;
+    width:160px;
+}
+
+.fade {
+    opacity: 0;
+    -webkit-transition: opacity 0.15s linear;
+    -moz-transition: opacity 0.15s linear;
+    -o-transition: opacity 0.15s linear;
+    transition: opacity 0.15s linear;
+}
+.fade.in {
+    opacity: 1;
+}
+
+.error-msg{
+    display:block;
+    margin-top:10px;
+}
+
+.icon-ok{
+    color:green;
 }

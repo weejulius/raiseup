@@ -90,7 +90,7 @@
 (defmethod ->map
   String
   [str]
-  (json/parse-string str))
+  (json/parse-string str true))
 
 
 (defmulti ->str

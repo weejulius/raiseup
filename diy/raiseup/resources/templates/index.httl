@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" href="/css/font-awesome.min.css" media="screen">
     <link href="/css/raiseup.css" rel="stylesheet" media="screen">
   </head>
   <body>
@@ -18,13 +19,16 @@
       <div class="row-fluid" class="time-slot-new">
         <div class="span3"></div>
         <div class="span6 form-inline">
-          <input type="text" name="description" id="description" class="input-large" placeholder="description" value="${description}">
-          <input type="text" name="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
-          <div class="input-append">
-            <input type="text" id="appendedInput"  name="estimation" class=" span4"  placeholder="estimation" value="${estimation}">
-            <span class="add-on">min</span>
+          <div id="module-new-slot"  class="form-inline">
+            <input type="text" name="description" id="description" class="input-large" placeholder="description" value="${description}">
+            <input type="text" name="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
+            <div class="slot-new-est input-append">
+              <input type="text"  name="estimation" class="span6"  placeholder="estimation" value="${estimation}">
+              <span class="add-on">min</span>
+            </div>
+            <button id="add-task-slot" class="btn">add task slot</button>
+            <span id="slot-new-msg" class="fade" data-alert="alert"><i class="icon-ok"></i></span>
           </div>
-          <button id="add-task-slot" class="btn">add task slot</button>
         </div>
         <div class="span3"></div>
       </div>
@@ -33,16 +37,7 @@
     <script src="/js/jquery-2.0.0.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/jquery.websocket.js"></script>
-    <script src="/js/jquery.json.js"></script>
+    <script src="/js/jquery.json-2.4.js"></script>
     <script src="/js/raiseup.js"></script>
-    <script>
-    var websocket = $.websocket("ws://127.0.0.1:8080/todo/slots",{
-      events:{
-        message:function(e){alert(e.data);}
-      }});
-    $('#add-task-slot').click(function(e){
-      websocket.send('message',{description:$('input[id=description]').val()});
-    });
-    </script>
   </body>
 </html>

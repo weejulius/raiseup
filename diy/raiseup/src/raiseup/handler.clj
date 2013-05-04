@@ -12,6 +12,7 @@
 (def template-extension-with-dot (str "." template-extension))
 
 (defn- render
+  "render the template using the params"
   [file-path params]
   (fn [req]
    (let [engine (Engine/getEngine)
@@ -23,16 +24,13 @@
   [ring-request]
   (with-channel ring-request channel
     (if (websocket? channel)
-      (on-receive channel
-                  (fn [data]
-                    (println data)
-                    (println "param:" (->map data))
-                    (let [{:keys [description start-time estimation]} (->map data)
-                          result (create-task-slot-action
-                                  description
-                                  start-time
-                                  estimation)]
-                      (send! channel (->str {:type :message :data result})))))
+      (on-receive
+       channel
+       (fn [data]
+         (println "params" (->map data))
+         (let [result (create-task-slot-action (:data (->map data)))]
+           (println "req result:" result)
+           (send! channel (->str {:type :message :data result})))))
       (send! channel {:status 200
                       :headers {"Content-Type" "text/plain"}
                       :body    "Long polling?"}))))

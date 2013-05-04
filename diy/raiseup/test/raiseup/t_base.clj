@@ -31,3 +31,6 @@
 
 (fact "string to long"
       (->long "1") => 1)
+
+(fact "string to map"
+      (->map "{\"hello\":\"word\"}")=> {"hello" "word"})

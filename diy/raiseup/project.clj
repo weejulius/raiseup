@@ -1,6 +1,6 @@
 (defproject raiseup "0.1.0-SNAPSHOT"
   :description "raise up to make to do tool"
-  :url "http://example.com/FIXME"
+  :url "http://raiseup-trueyourself.rhcloud.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [http-kit "2.0.1"]
                  [midje "1.5.0"]
@@ -10,6 +10,7 @@
                  [ring/ring-devel "1.1.8"]
                  [ring/ring-core "1.1.8"]
                  [httl/httl "1.0.9"]
+                 [bouncer "0.2.3-beta1"]
                  [org.clojure/tools.namespace "0.2.3"]
                  [com.taoensso/nippy "1.1.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.6.1"]

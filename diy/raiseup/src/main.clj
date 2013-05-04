@@ -11,7 +11,8 @@
     (run-server handler {:port port :ip ip})
     (println (str "Server started. listen at " ip ":" port))))
 
-(defn -main [& args]
+(defn -main
+  [& args]
   (start-server (nth args 1 "8080") (nth args 0 "localhost")))
 
 (defn start-server-in-dev-mode
