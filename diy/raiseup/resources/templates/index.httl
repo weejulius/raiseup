@@ -9,28 +9,27 @@
     <link href="/css/raiseup.css" rel="stylesheet" media="screen">
   </head>
   <body>
-    <head>
-      <div class="time-slot-desc">
-        <h1>Make an awesome day, drop your time to slots</h1>
-        <span><p>for 2013-04-30</p></span>
-      </div>
-    </head>
+    <div class="time-slot-desc">
+      <h1>Make an awesome day, drop your time to slots</h1>
+      <span><p>for 2013-04-30</p></span>
+    </div>
     <div class="container-fluid">
       <div class="row-fluid" class="time-slot-new">
-        <div class="span3"></div>
-        <div class="span6 form-inline">
+        <div class="span2"></div>
+        <div class="span8">
           <div id="module-new-slot"  class="form-inline">
             <input type="text" name="description" id="description" class="input-large" placeholder="description" value="${description}">
-            <input type="text" name="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
+            <input type="text" name="start-time" id="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
             <div class="slot-new-est input-append">
-              <input type="text"  name="estimation" class="span6"  placeholder="estimation" value="${estimation}">
+              <input type="text"  name="estimation" id="estimation" class="span6"  placeholder="estimation" value="${estimation}">
               <span class="add-on">min</span>
             </div>
             <button id="add-task-slot" class="btn">add task slot</button>
             <span id="slot-new-msg" class="fade" data-alert="alert"><i class="icon-ok"></i></span>
           </div>
+          <ul id="module-planned-slot-list"></ul>
         </div>
-        <div class="span3"></div>
+        <div class="span2"></div>
       </div>
     </div>
 
