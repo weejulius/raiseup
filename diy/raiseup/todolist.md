@@ -5,6 +5,8 @@
 * divide the slots into planned and unplanned
 * start performing the slot
 * stop performing the slot
+* remove event-id etc keys when caching from event
+* refactor the read model cache interface
 
 * replay the events
-* move commandbus eventbus to a standalone module and abstract them
+* move commandbus event store eventbus to a standalone module and abstract them

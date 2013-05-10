@@ -21,4 +21,5 @@
 (defn task-slot-created
   [event]
   (println "creating task slot " event)
-  (put-in-readmodel (:ar event) (:ar-id event) event))
+  (put-in-readmodel (:ar event) (:ar-id event) event)
+  (put-in-readmodel :user-slots (:user-id event) conj event))

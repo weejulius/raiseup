@@ -15,11 +15,11 @@
   (let [error-message (first (b/validate
                               req
                               :description v/required))]
-    (println "error message" error-message)
     (if (nil? error-message)
       (send-command
        {:command :create-task-slot
         :ar :task-slot
+        :user-id 1
         :description (:description req)
         :start-time (:start-time req)
         :estimation (:estimation req)})
