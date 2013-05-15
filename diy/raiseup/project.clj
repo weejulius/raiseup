@@ -23,6 +23,8 @@
          :port 8080
          :nrepl {:start? true :port 4001}}
   :main main
+  :repositories [["httl" {:url "http://httl.github.io/maven"
+                          :checksum :warn}]]
   :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
                     :plugins []
                     :repl-options {:port 4001}}})
