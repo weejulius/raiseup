@@ -35,5 +35,8 @@
 (fact "string to map"
       (->map "{\"hello\":\"word\"}")=> {:hello "word"})
 
+(fact "map to str"
+      (->str {:hello "word"}) => "{\"hello\":\"word\"}")
+
 (fact "date to str"
       (->str (java.util.Date.) nil) => "2013-05-16")

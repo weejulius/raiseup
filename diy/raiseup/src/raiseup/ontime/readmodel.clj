@@ -1,5 +1,6 @@
 (ns raiseup.ontime.readmodel
-  (:require [raiseup.mutable-data :as md]))
+  (:require [raiseup.mutable-data :as md]
+            [raiseup.base :as base]))
 
 (defn get-readmodel
   "get the read model from cache by the model name and its model id"
@@ -27,7 +28,12 @@
 
 (defn task-slot-created
   [event]
-  (let [ar-id (:ar-id event)]
-      (println "creating task slot " event)
+  (let [ar-id (:ar-id event)
+        event-created-time (:ect event)]
     (put-in-readmodel (:ar event) ar-id event)
-    (update-in-readmodel :user-slots (:user-id event) #(assoc-in %  date conj ar-id ))))
+    (update-in-readmodel
+     :user-slots
+     (:user-id event)
+     (fn
+       [slots]
+       (update-in slots [(base/->str event-created-time nil)] conj ar-id) ))))

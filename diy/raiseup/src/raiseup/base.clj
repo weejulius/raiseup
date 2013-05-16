@@ -97,7 +97,7 @@
 
 (defmulti ->str
   "convert to str from ds,bytes etc"
-  (fn [param &other] (class param)))
+  (fn [param & other] (class param)))
 
 (defmethod ->str
   (class {})
