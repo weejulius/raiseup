@@ -2,7 +2,9 @@
   (:use [clojure.string :only (join)])
   (:require [raiseup.mutable :as mutable]
             [taoensso.nippy :as nippy]
-            [cheshire.core :as json]))
+            [cheshire.core :as json]
+            [clj-time.format :as t-format]
+            [clj-time.coerce :as t-convert]))
 
 (defn join-str
   "join a bunch of items with separator
@@ -94,9 +96,18 @@
 
 
 (defmulti ->str
-  "convert to str from ds,bytes etc" class)
+  "convert to str from ds,bytes etc"
+  (fn [param &other] (class param)))
 
 (defmethod ->str
   (class {})
   [a-map]
   (json/generate-string a-map))
+
+(defmethod ->str
+  (class (java.util.Date.))
+  [dt options]
+  (if (nil? options)
+    (t-format/unparse
+     (t-format/formatter mutable/short-date-format)
+     (t-convert/from-date dt))))

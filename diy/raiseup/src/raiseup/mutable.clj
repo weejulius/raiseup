@@ -11,3 +11,5 @@
 (def event-identifier "event-rc-id-real")
 (def ar-identifier "ar-id-real")
 (def template-extension "httl")
+(def short-date-format "yyyy-MM-dd")
+(def long-date-format "yyyy-MM-dd HH:mm:ss")
