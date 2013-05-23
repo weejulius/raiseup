@@ -15,6 +15,7 @@
   "render the template using the params"
   [file-path params]
   (fn [req]
+    (println "render params " params)
    (let [engine (Engine/getEngine)
          template (.getTemplate engine (str file-path template-extension-with-dot))
          template-params (reqres/->template-param params)]
@@ -30,17 +31,17 @@
          (println "params" (->map data))
          (let [result (create-task-slot-action (:data (->map data)))]
            (println "req result:" result)
-           (send! channel (->str {:type :message :data result})))))
-      (send! channel {:status 200
-                      :headers {"Content-Type" "text/plain"}
-                      :body    "Long polling?"}))))
+           (send! channel (->str {:type :message :data result}))))))))
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       (render "templates/index" {}))
+       (render "templates/index" {:unplanned-slots
+                                  (doall (map
+                                     (fn [slot-id] (rm/get-readmodel :task-slots slot-id))
+                                     (:none (rm/get-readmodel :user-slots 1))))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "templates/index"
-               (rm/get-readmodel "task-slot" (->long id))))
+               (rm/get-readmodel :task-slots (->long id))))
   (GET "/todo/slots" [];; [description start-time estimation]
         create-task-slot-req);;(create-task-slot-action description start-time estimation)
   (route/resources "/")

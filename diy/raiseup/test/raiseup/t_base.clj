@@ -39,4 +39,4 @@
       (->str {:hello "word"}) => "{\"hello\":\"word\"}")
 
 (fact "date to str"
-      (->str (java.util.Date.) nil) => "2013-05-16")
+      (->str (java.util.Date.)) => "2013-05-16")

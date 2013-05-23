@@ -106,8 +106,9 @@
 
 (defmethod ->str
   (class (java.util.Date.))
-  [dt options]
+  [dt & options]
   (if (nil? options)
     (t-format/unparse
      (t-format/formatter mutable/short-date-format)
      (t-convert/from-date dt))))
+

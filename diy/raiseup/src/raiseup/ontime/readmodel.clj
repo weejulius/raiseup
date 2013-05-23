@@ -7,6 +7,7 @@
   ([model-name k cache]
      (let [readmodels (.getMap cache (name model-name))
            readmodel (.get readmodels k)]
+       (println "key:" k " -> " readmodel " :all " readmodels)
        readmodel))
   ([model-name k]
      (get-readmodel model-name k (md/readmodel-cache))))
@@ -29,11 +30,14 @@
 (defn task-slot-created
   [event]
   (let [ar-id (:ar-id event)
-        event-created-time (:ect event)]
+        start-time (:start-time event)]
     (put-in-readmodel (:ar event) ar-id event)
     (update-in-readmodel
      :user-slots
      (:user-id event)
      (fn
        [slots]
-       (update-in slots [(base/->str event-created-time nil)] conj ar-id) ))))
+       (update-in
+        slots
+        [(if (empty? start-time):none start-time)]
+        conj ar-id) ))))
