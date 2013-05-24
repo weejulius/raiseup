@@ -30,8 +30,8 @@
           <ul id="module-planned-slot-list"></ul>
           <ul id="module-unplanned-slot-list">
           <!--#if(unplanned_slots)-->
-            <!--#for(java.util.Map unplanned_slot : unplanned_slots)-->
-              <li>${unplanned_slot.get("description")}</li>
+            <!--#for(clojure.lang.PersistentArrayMap unplanned_slot : unplanned_slots)-->
+              <li>${unplanned_slot.get(Keyword)}</li>
             <!--#end-->
             <!--#end-->
           </ul>

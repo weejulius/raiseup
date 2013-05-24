@@ -33,7 +33,7 @@
         start-time (:start-time event)]
     (put-in-readmodel (:ar event) ar-id event)
     (update-in-readmodel
-     :user-slots
+     :user-slot
      (:user-id event)
      (fn
        [slots]

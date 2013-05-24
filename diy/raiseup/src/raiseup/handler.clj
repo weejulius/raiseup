@@ -37,11 +37,11 @@
   (GET "/todo/slots/new" []
        (render "templates/index" {:unplanned-slots
                                   (doall (map
-                                     (fn [slot-id] (rm/get-readmodel :task-slots slot-id))
-                                     (:none (rm/get-readmodel :user-slots 1))))}))
+                                     (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
+                                     (:none (rm/get-readmodel :user-slot 1))))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "templates/index"
-               (rm/get-readmodel :task-slots (->long id))))
+               (rm/get-readmodel :task-slot (->long id))))
   (GET "/todo/slots" [];; [description start-time estimation]
         create-task-slot-req);;(create-task-slot-action description start-time estimation)
   (route/resources "/")

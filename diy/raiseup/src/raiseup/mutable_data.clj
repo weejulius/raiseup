@@ -10,7 +10,6 @@
   [cache-kw cached-item]
   (let [cache-name (name cache-kw)
         cache (@caches cache-name)]
-    (println "getting cache " cache)
     (if (nil? cache)
       ((swap! caches (fn [c]
                         (assoc c cache-name
