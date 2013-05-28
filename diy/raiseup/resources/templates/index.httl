@@ -18,10 +18,10 @@
         <div class="span2"></div>
         <div class="span8">
           <div id="module-new-slot"  class="form-inline">
-            <input type="text" name="description" id="description" class="input-large" placeholder="description" value="${description}">
-            <input type="text" name="start-time" id="start-time" class="input-small datepicker" placeholder="start time" value="${start_time}">
+            <input type="text" name="description" id="description" class="input-large" placeholder="description" value="{{description}}">
+            <input type="text" name="start-time" id="start-time" class="input-small datepicker" placeholder="start time" value="{{start-time}}">
             <div class="slot-new-est input-append">
-              <input type="text"  name="estimation" id="estimation" class="span6"  placeholder="estimation" value="${estimation}">
+              <input type="text"  name="estimation" id="estimation" class="span6"  placeholder="estimation" value="{{estimation}}">
               <span class="add-on">min</span>
             </div>
             <button id="add-task-slot" class="btn">add task slot</button>
@@ -29,11 +29,9 @@
           </div>
           <ul id="module-planned-slot-list"></ul>
           <ul id="module-unplanned-slot-list">
-          <!--#if(unplanned_slots)-->
-            <!--#for(clojure.lang.PersistentArrayMap unplanned_slot : unplanned_slots)-->
-              <li>${unplanned_slot.get(Keyword)}</li>
-            <!--#end-->
-            <!--#end-->
+               {{#unplanned-slots}}
+                  <li>{{description}} </li>
+               {{/unplanned-slots}}
           </ul>
         </div>
         <div class="span2"></div>

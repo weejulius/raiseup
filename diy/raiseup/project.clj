@@ -10,6 +10,7 @@
                  [ring/ring-devel "1.1.8"]
                  [ring/ring-core "1.1.8"]
                  [clj-time "0.5.0"]
+                 [de.ubercode.clostache/clostache "1.3.1"]
                  [httl/httl "1.0.9"]
                  [bouncer "0.2.3-beta1"]
                  [org.clojure/tools.namespace "0.2.3"]

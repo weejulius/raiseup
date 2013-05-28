@@ -5,13 +5,14 @@
             [raiseup.ontime.readmodel :as rm]
             [raiseup.reqres :as reqres]
             [raiseup.base :refer [->long ->map ->str]]
-            [raiseup.mutable :refer [template-extension]])
+            [raiseup.mutable :refer [template-extension]]
+            [clostache.parser :as tpl])
   (:import httl.Engine)
   (:use org.httpkit.server))
 
 (def template-extension-with-dot (str "." template-extension))
 
-(defn- render
+(defn- render1
   "render the template using the params"
   [file-path params]
   (fn [req]
@@ -20,6 +21,13 @@
          template (.getTemplate engine (str file-path template-extension-with-dot))
          template-params (reqres/->template-param params)]
      (.evaluate template template-params))))
+
+(defn- render
+  "reader the template using the params"
+  [file-path params]
+  (tpl/render-resource
+     (str "templates/" file-path template-extension-with-dot)
+     params))
 
 (defn create-task-slot-req
   [ring-request]
@@ -35,12 +43,12 @@
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       (render "templates/index" {:unplanned-slots
-                                  (doall (map
-                                     (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
-                                     (:none (rm/get-readmodel :user-slot 1))))}))
+       (render "index" {:unplanned-slots
+                          (doall (map
+                                  (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
+                                  (:none (rm/get-readmodel :user-slot 1))))}))
   (GET "/todo/slots/edit/:id" [id]
-       (render "templates/index"
+       (render "index"
                (rm/get-readmodel :task-slot (->long id))))
   (GET "/todo/slots" [];; [description start-time estimation]
         create-task-slot-req);;(create-task-slot-action description start-time estimation)
