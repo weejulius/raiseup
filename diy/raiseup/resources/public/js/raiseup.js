@@ -37,7 +37,7 @@ function val(input){
           showAlert($('#slot-new-msg'),e.data.errors);
         }else{
           var appendedSlot = '<li>'+val($('#description'))+'</li>';
-          $('#module-planned-slot-list').prepend(appendedSlot);
+          $('#module-unplanned-slot-list').prepend(appendedSlot);
           resetForm('module-new-slot');
           $('#slot-new-msg').html('<i class="icon-ok"></i>');
           $('#slot-new-msg').addClass('in');
@@ -48,9 +48,17 @@ function val(input){
       }
         }
       });
+
+  //events to add slot
     $('#add-task-slot').click(function(e){
       $('#slot-new-msg').removeClass('error-msg in alert').text('');
       websocket.send('message',
                      readInputsToJson("description"));
     });
+
+  //events on slot list
+  $('#module-unplanned-slot-list li')
+    .hover(
+      function(){$(this).addClass('current-slot');},
+      function(){$(this).removeClass('current-slot');});
 })(jQuery);
