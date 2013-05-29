@@ -1,4 +1,6 @@
 
+* remove the estimation and start time input box in the area to add slot
+* delete the slot
 * time slot associates with a specific user
 * list the user's slots in the refresh index page
 * css the slots list in the index page

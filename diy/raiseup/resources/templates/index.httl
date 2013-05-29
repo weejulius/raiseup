@@ -18,12 +18,7 @@
         <div class="span2"></div>
         <div class="span8">
           <div id="module-new-slot"  class="form-inline">
-            <input type="text" name="description" id="description" class="input-large" placeholder="description" value="{{description}}">
-            <input type="text" name="start-time" id="start-time" class="input-small datepicker" placeholder="start time" value="{{start-time}}">
-            <div class="slot-new-est input-append">
-              <input type="text"  name="estimation" id="estimation" class="span6"  placeholder="estimation" value="{{estimation}}">
-              <span class="add-on">min</span>
-            </div>
+            <input type="text" name="description" id="description" class="input-xxlarge" placeholder="description" value="{{description}}">
             <button id="add-task-slot" class="btn">add task slot</button>
             <span id="slot-new-msg" class="fade" data-alert="alert"><i class="icon-ok"></i></span>
           </div>

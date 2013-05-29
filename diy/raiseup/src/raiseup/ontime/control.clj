@@ -21,8 +21,7 @@
         :ar :task-slot
         :user-id 1
         :description (:description req)
-        :start-time (:start-time req)
-        :estimation (:estimation req)})
+        :estimation 40})
       {:errors (vals error-message)})))
 
 

@@ -36,8 +36,8 @@ function val(input){
         if(e.data.errors){
           showAlert($('#slot-new-msg'),e.data.errors);
         }else{
-          var appendedSlot = '<li>'+val($('#description'))+' '+val($('#start-time'))+' '+val($('#estimation'))+'</li>';
-          $('#module-planned-slot-list').append(appendedSlot);
+          var appendedSlot = '<li>'+val($('#description'))+'</li>';
+          $('#module-planned-slot-list').prepend(appendedSlot);
           resetForm('module-new-slot');
           $('#slot-new-msg').html('<i class="icon-ok"></i>');
           $('#slot-new-msg').addClass('in');
@@ -49,8 +49,8 @@ function val(input){
         }
       });
     $('#add-task-slot').click(function(e){
-      $('#slot-new-msg').removeClass('error-msg in alert').text('')
+      $('#slot-new-msg').removeClass('error-msg in alert').text('');
       websocket.send('message',
-                     readInputsToJson("description","estimation","start-time"));
+                     readInputsToJson("description"));
     });
 })(jQuery);
