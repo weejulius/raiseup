@@ -25,7 +25,7 @@
           <ul id="module-planned-slot-list"></ul>
           <ul id="module-unplanned-slot-list">
                {{#unplanned-slots}}
-                  <li><span>{{description}}</span><button class="destroy"></button></li>
+                  <li><span>{{description}}</span><button class="hidden"></button></li>
                {{/unplanned-slots}}
           </ul>
         </div>
