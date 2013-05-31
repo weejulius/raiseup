@@ -29,17 +29,27 @@
      (str "templates/" file-path template-extension-with-dot)
      params))
 
-(defn create-task-slot-req
+
+
+
+(defn handle-asyn-request
   [ring-request]
   (with-channel ring-request channel
     (if (websocket? channel)
       (on-receive
        channel
        (fn [data]
-         (println "params" (->map data))
-         (let [result (create-task-slot-action (:data (->map data)))]
+         (let [params (->map data)
+               result (handle-command params)]
+           (println "params" params)
            (println "req result:" result)
-           (send! channel (->str {:type :message :data result}))))))))
+           (println "type:" (clojure.string/replace (name(:type params)) #"-" "_"))
+           (send! channel
+                  (->str {:type
+                          (clojure.string/replace (name(:type params)) #"-" "_")
+                          :data result}))))))))
+
+
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
@@ -50,8 +60,9 @@
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (rm/get-readmodel :task-slot (->long id))))
-  (GET "/todo/slots" [];; [description start-time estimation]
-        create-task-slot-req);;(create-task-slot-action description start-time estimation)
+  (GET "/ws" []
+        handle-asyn-request)
+
   (route/resources "/")
   (route/not-found "PAGE NOT FOUND"))
 

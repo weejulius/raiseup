@@ -24,5 +24,9 @@
         :estimation 40})
       {:errors (vals error-message)})))
 
-
-
+(defn handle-command
+  [params]
+  (let [command-type (keyword (:type params))
+        data (:data params)]
+    ((case command-type
+       :create-task-slot create-task-slot-action) data)))
