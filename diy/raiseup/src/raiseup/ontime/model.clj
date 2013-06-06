@@ -57,3 +57,7 @@
 (defn task-slot-created
   [event]
   ())
+
+(defn task-slot-deleted
+  [event]
+  ())

@@ -41,11 +41,9 @@
        (fn [data]
          (let [params (->map data)
                result (handle-command params)]
-           (println "params" params)
-           (println "req result:" result)
-           (println "type:" (clojure.string/replace (name(:type params)) #"-" "_"))
            (send! channel
                   (->str {:type
+                          ;;TODO refactor
                           (clojure.string/replace (name(:type params)) #"-" "_")
                           :data result}))))))))
 
@@ -53,15 +51,16 @@
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       (render "index" {:unplanned-slots
-                          (doall (map
-                                  (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
-                                  (:none (rm/get-readmodel :user-slot 1))))}))
+       (render "index"
+               {:unplanned-slots
+                (doall (map
+                        (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
+                        (:none (rm/get-readmodel :user-slot 1))))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (rm/get-readmodel :task-slot (->long id))))
   (GET "/ws" []
-        handle-asyn-request)
+       handle-asyn-request)
 
   (route/resources "/")
   (route/not-found "PAGE NOT FOUND"))

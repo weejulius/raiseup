@@ -12,3 +12,11 @@
      :estimation estimation
      :user-id user-id
      :ect (java.util.Date.)}))
+
+(defn delete-task-slot
+  [command]
+  {:event :task-slot-deleted
+   :ar (:ar command)
+   :ar-id (:ar-id command)
+   :user-id (:user-id command)
+   :ect (java.util.Date.)})

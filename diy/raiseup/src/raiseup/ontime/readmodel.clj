@@ -19,6 +19,12 @@
        (.put readmodel k v)))
   ([model-name k v]
      (put-in-readmodel model-name k v (md/readmodel-cache))))
+(defn remove-from-readmodel
+  ([model-name k cache]
+     (let [readmodels (.getMap cache (name model-name))]
+       (.remove readmodels k)))
+  ([model-name k]
+     (remove-from-readmodel model-name k (md/readmodel-cache))))
 
 (defn update-in-readmodel
   "update the read model inside the cache"
@@ -40,4 +46,17 @@
        (update-in
         slots
         [(if (empty? start-time):none start-time)]
-        conj ar-id) ))))
+        (comp set conj) ar-id) ))))
+
+(defn task-slot-deleted
+  [event]
+  (remove-from-readmodel (:ar event) (:ar-id event))
+  (update-in-readmodel
+     :user-slot
+     (:user-id event)
+     (fn
+       [slots]
+       (update-in
+        slots
+        [:none]
+        remove #{(:ar-id event)}) )))
