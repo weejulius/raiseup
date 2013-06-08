@@ -22,7 +22,7 @@
   :ring {:handler raiseup.handler/app-routes
          :reload-paths ["src" "resources"]
          :auto-reload? true
-         :auto-refresh? true
+         :auto-refresh? false
          :port 8080
          :nrepl {:start? true :port 4001}}
   :main main

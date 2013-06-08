@@ -36,6 +36,7 @@
   [params]
   (let [command-type (keyword (:type params))
         data (:data params)]
+    (println "command type:" command-type "params:" params)
     ((case command-type
        :create-task-slot create-task-slot-action
        :delete-task-slot delete-task-slot-action) data)))

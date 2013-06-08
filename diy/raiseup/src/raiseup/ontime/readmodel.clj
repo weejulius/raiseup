@@ -50,6 +50,7 @@
 
 (defn task-slot-deleted
   [event]
+  (println "^task-slot-deleted " event)
   (remove-from-readmodel (:ar event) (:ar-id event))
   (update-in-readmodel
      :user-slot
@@ -59,4 +60,4 @@
        (update-in
         slots
         [:none]
-        remove #{(:ar-id event)}) )))
+        disj (:ar-id event)))))
