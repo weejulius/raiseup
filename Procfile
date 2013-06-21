@@ -1,1 +1,1 @@
-web: lein with-profile production trampoline run -m main $PORT
+web: lein  trampoline run -m main $PORT
