@@ -28,6 +28,7 @@
   :main main
   :repositories [["httl" {:url "http://httl.github.io/maven"
                           :checksum :warn}]]
+  :min-lein-version "2.0.0"
   :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
                     :plugins []
                     :repl-options {:port 4001}}})
