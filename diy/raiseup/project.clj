@@ -3,7 +3,7 @@
   :url "http://raiseup-trueyourself.rhcloud.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [http-kit "2.0.1"]
-                 [midje "1.5.0"]
+                 [midje "1.6-alpha2"]
                  [cheshire "5.1.1"]
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
@@ -15,7 +15,7 @@
                  [bouncer "0.2.3-beta1"]
                  [org.clojure/tools.namespace "0.2.3"]
                  [com.taoensso/nippy "1.1.0"]
-                 [org.fusesource.leveldbjni/leveldbjni-all "1.6.1"]
+                 [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "2.5"]]
   :jvm-opts ["-Dhttl.reloadable=true"]
   :plugins [[lein-ring "0.8.5"]]

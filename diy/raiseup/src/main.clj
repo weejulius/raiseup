@@ -1,4 +1,5 @@
 (ns main
+  (:gen-class)
   (:use [org.httpkit.server :only [run-server]]
         raiseup.handler)
   (:require [ring.middleware.reload :as reload]

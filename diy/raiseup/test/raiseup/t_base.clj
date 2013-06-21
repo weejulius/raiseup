@@ -1,7 +1,8 @@
 (ns raiseup.t-base
   (:use raiseup.base
         midje.sweet
-        [clojure.string :only (join split)]))
+        [clojure.string :only (join split)])
+  (:require [clj-time.core :as cc]))
 
 
 
@@ -39,4 +40,4 @@
       (->str {:hello "word"}) => "{\"hello\":\"word\"}")
 
 (fact "date to str"
-      (->str (java.util.Date.)) => "2013-05-16")
+      (->str (.toDate (cc/date-time 2013 06 20))) => "2013-06-21")
