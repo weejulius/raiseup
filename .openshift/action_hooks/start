@@ -4,6 +4,7 @@
 # $OPENSHIFT_INTERNAL_IP:8080
 #nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_INTERNAL_IP $OPENSHIFT_REPO_DIR/diy > $OPENSHIFT_HOMEDIR/diy-0.1/logs/server.log 2>&1 &
 export HTTP_CLIENT="wget --no-check-certificate -O"
+export HTTP_CLIENT="curl --insecure -f -L -o"
 export APPDIR="raiseup"
 export LEIN_REPL_HOST=$OPENSHIFT_INTERNAL_IP
 export PORT=$OPENSHIFT_INTERNAL_PORT
@@ -11,6 +12,7 @@ export HOST=$OPENSHIFT_INTERNAL_IP
 export HOME=$OPENSHIFT_DATA_DIR/home
 export LEIN_JVM_OPTS=-Duser.home=$HOME
 export LEIN_REPL_PORT=35000
+chmod 755 $OPENSHIFT_REPO_DIR/bin/lein
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 echo $OPENSHIFT_REPO_DIR/diy/$APPDIR
 java -server -cp `$OPENSHIFT_REPO_DIR/bin/lein classpath` clojure.main -m  main $HOST $PORT > $OPENSHIFT_DIY_LOG_DIR/server.log 2>&1 &
