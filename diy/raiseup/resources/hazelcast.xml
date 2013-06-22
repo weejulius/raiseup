@@ -1,0 +1,5 @@
+<hazelcast>
+    <network>
+        <port auto-increment="true">15001</port>
+    </network>
+</hazelcast>

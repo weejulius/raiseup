@@ -19,4 +19,4 @@
 
 (defn readmodel-cache
   []
-  (get-cache :readmodel-cache (fn [] (Hazelcast/newHazelcastInstance (Config.)))))
+  (get-cache :readmodel-cache (fn [] (Hazelcast/newHazelcastInstance nil))))

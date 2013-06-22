@@ -7,7 +7,7 @@
   ([model-name k cache]
      (let [readmodels (.getMap cache (name model-name))
            readmodel (.get readmodels k)]
-       (println "key:" k " -> " readmodel " :all " readmodels)
+       (println  model-name "key:" k " -> " readmodel " :all " readmodels)
        readmodel))
   ([model-name k]
      (get-readmodel model-name k (md/readmodel-cache))))
@@ -51,13 +51,15 @@
 (defn task-slot-deleted
   [event]
   (println "^task-slot-deleted " event)
-  (remove-from-readmodel (:ar event) (:ar-id event))
-  (update-in-readmodel
+  (let [ar-id (base/->long (:ar-id event))]
+    (remove-from-readmodel (:ar event) ar-id)
+    (update-in-readmodel
      :user-slot
      (:user-id event)
      (fn
-       [slots]
-       (update-in
-        slots
-        [:none]
-        disj (:ar-id event)))))
+         [slots]
+         (println "slots" slots ar-id (type ar-id))
+         (update-in
+          slots
+          [:none]
+          disj ar-id)))))

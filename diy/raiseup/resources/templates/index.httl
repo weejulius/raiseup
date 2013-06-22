@@ -10,9 +10,8 @@
   </head>
   <body>
     <div class="time-slot-desc">
-      <h1>Make an awesome day, drop your time to slots</h1>
-      <span><p>for 2013-04-30</p></span>
-    </div>
+      <h1>Every day is almost the same but is different </h1>
+     </div>
     <div class="container-fluid">
       <div class="row-fluid" class="time-slot-new">
         <div class="span2"></div>
