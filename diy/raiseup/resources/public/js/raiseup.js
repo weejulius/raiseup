@@ -59,7 +59,7 @@ function onSlotDeleted(e){ alert('deleted');}
   hilightCurrent($('#module-unplanned-slot-list li'));
 
 
-  var websocket = $.websocket("ws://"+location.hostname+(location.port ? ':'+location.port: '')+"/ws",{
+  var websocket = $.websocket("ws://"+location.hostname+(location.port ? ':'+location.port: ':8080')+"/ws",{
     events:{
       create_task_slot:onSlotCreated,
       delete_task_slot:onSlotDeleted
