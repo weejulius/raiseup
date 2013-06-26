@@ -52,14 +52,24 @@ function onSlotCreated(e){
   }
 }
 
+function getWebsocketUrl(scheme,hostName,port){
+  scheme=scheme=='https'?"wss":"ws";
+  if(!port){
+    port = '8000';//port for openshift
+    if(scheme=='wss'){
+      port = '8443';//security webscoket port for openshift
+    }
+  }
+  return scheme+"://"+hostName+":"+port+"/ws";
+}
+
 function onSlotDeleted(e){ alert('deleted');}
 (function ($) {
 
   //events on slot list
   hilightCurrent($('#module-unplanned-slot-list li'));
 
-
-  var websocket = $.websocket("wss://"+location.hostname+(location.port ? ':'+location.port: ':8443')+"/ws",{
+  var websocket = $.websocket(getWebsocketUrl(location.scheme,location.hostname,location.port),{
     events:{
       create_task_slot:onSlotCreated,
       delete_task_slot:onSlotDeleted
