@@ -28,6 +28,18 @@ function val(input){
     return '';
   }
 }
+
+//add event clicking the button to delete slot
+function deleteTaskSlot(websocket){
+    $('#module-unplanned-slot-list button.hidden').click(function(e){
+    var idval= $(this).parent().attr('id').substring(5);
+    var json={};
+    json['ar-id'] = idval;
+    websocket.send('delete-task-slot',json);
+  });
+ }
+
+//hilight the current slot focused on
 function hilightCurrent(el){
     el
     .on({
@@ -36,6 +48,8 @@ function hilightCurrent(el){
     });
 }
 
+
+
 function onSlotCreated(e){
   if(e.data.errors){
     showAlert($('#slot-new-msg'),e.data.errors);
@@ -43,6 +57,7 @@ function onSlotCreated(e){
     var appendedSlot = '<li id="slot-'+e.data+'"><span>'+val($('#description'))+'</span><button class="hidden"></button></li>';
     $(appendedSlot).prependTo($('#module-unplanned-slot-list'));
     hilightCurrent($('#module-unplanned-slot-list li'));
+    deleteTaskSlot(this);
     resetForm('module-new-slot');
     $('#slot-new-msg').html('<i class="icon-ok"></i>');
     $('#slot-new-msg').addClass('in');
@@ -63,7 +78,9 @@ function getWebsocketUrl(scheme,hostName,port){
   return scheme+"://"+hostName+":"+port+"/ws";
 }
 
-function onSlotDeleted(e){ alert('deleted');}
+function onSlotDeleted(e){
+  $('#module-unplanned-slot-list li.current').remove();
+}
 (function ($) {
 
   //events on slot list
@@ -83,11 +100,6 @@ function onSlotDeleted(e){ alert('deleted');}
                    readInputsToJson("description"));
     });
 
+  deleteTaskSlot(websocket);
 
-  $('#module-unplanned-slot-list button.hidden').click(function(e){
-    var idval= $(this).parent().attr('id').substring(5);
-    var json={};
-    json['ar-id'] = idval;
-    websocket.send('delete-task-slot',json);
-  });
 })(jQuery);
