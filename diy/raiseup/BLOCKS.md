@@ -10,3 +10,7 @@ need to restart the nrepl after modifying the defmulti clause
 2.7
 
 the defrecord is immutable,so the assoc fun cannot update itself but return a new record
+
+7.4
+
+read cache by key, the input is string but the key is long actually and print log does not help in this case
