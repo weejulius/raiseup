@@ -3,3 +3,7 @@
 # available.  Otherwise it will execute while your application is stopped
 # before the deploy step.  This script gets executed directly, so it
 # could be python, php, ruby, etc.
+
+mkdir -p ${OPENSHIFT_DATA_DIR}/data
+mkdir -p ${OPENSHIFT_DATA_DIR}/work
+mkdir -p ${OPENSHIFT_DATA_DIR}/logs
