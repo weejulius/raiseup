@@ -52,10 +52,9 @@
 (defroutes app-routes
   (GET "/todo/slots/new" []
        (render "index"
-               {:unplanned-slots
-                (doall (map
-                        (fn [slot-id] (q/find-slot-by-id slot-id))
-                        (:none (rm/get-readmodel :user-slot 1))))}))
+               {:unplanned-slots (sort-by
+                                  :ar-id >
+                                  (q/find-slots-for-user 1))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (q/find-slot-by-id (->long id))))

@@ -1,6 +1,6 @@
 (ns ^{:doc "the query for read model"
       :added "1.0"}
-  raiseup.handler
+  raiseup.ontime.query
   (:require [raiseup.ontime.readmodel :as rm]))
 
 (defn find-slot-by-id
@@ -9,4 +9,4 @@
 
 (defn find-slots-for-user
   [^Long user-id]
-  (rm/query :task-slot (str :user-id "=" user-id)))
+  (rm/query :task-slot (fn [slot] (= (slot :user-id) user-id))))

@@ -1,6 +1,7 @@
 (ns raiseup.ontime.readmodel
   (:require [raiseup.mutable-data :as md]
-            [raiseup.base :as base]))
+            [raiseup.base :as base]
+            [clojure.core.reducers :as r]))
 
 (defn get-readmodels
   "get the read models from cache by model name"
@@ -39,12 +40,18 @@
   (let [v (get-readmodel model-name key)
         v1 (f v)]
     (put-in-readmodel model-name key v1)))
+(defn conj+
+  "conj vararier for fold function"
+  ([a b]
+     (conj a b))
+  ([]
+     []))
 
 (defn query
   "query the cache"
-  [model-name query-clause]
-  (.values (get-readmodels model-name)
-           (com.hazelcast.query.SqlPredicate. query-clause)))
+  [model-name f]
+  (r/fold conj+ (r/filter f
+              (r/map identity (.values (get-readmodels model-name))))))
 
 (defn task-slot-created
   [event]
@@ -54,6 +61,5 @@
 
 (defn task-slot-deleted
   [event]
-  (println "^task-slot-deleted " event)
-  (let [ar-id (base/->long (:ar-id event))]
+   (let [ar-id (base/->long (:ar-id event))]
     (remove-from-readmodel (:ar event) ar-id)))

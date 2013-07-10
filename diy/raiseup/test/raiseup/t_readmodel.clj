@@ -19,6 +19,9 @@
 
 
 (fact "query the read model"
-      (rm/put-in-readmodel :task 2 {"b" "1"})
-       (rm/put-in-readmodel :task 3 {"b" "1"})
-       (.size (rm/query :task (str  "b=1"))) => 2)
+  (rm/put-in-readmodel :task 2 {"b" "1"})
+  (rm/put-in-readmodel :task 3 {"b" "2"})
+  (rm/put-in-readmodel :task 4 {"b" "2"})
+  (rm/query :task #(= (% "b") "1")) => '({"b" "1"})
+  (rm/query :task #(= (% "b") "2")) => '({ "b" "2"}{ "b" "2"})
+  (rm/query :task (fn [n]  (= (n "b") 3))) => ())
