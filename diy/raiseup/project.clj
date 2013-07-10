@@ -2,21 +2,21 @@
   :description "raise up to make to do tool"
   :url "http://raiseup-trueyourself.rhcloud.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [http-kit "2.0.1"]
+                 [http-kit "2.1.5"]
                  [midje "1.6-alpha2"]
-                 [cheshire "5.1.1"]
+                 [cheshire "5.2.0"]
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
                  [ring/ring-devel "1.1.8"]
                  [ring/ring-core "1.1.8"]
-                 [clj-time "0.5.0"]
+                 [clj-time "0.5.1"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [httl/httl "1.0.9"]
                  [bouncer "0.2.3-beta1"]
                  [org.clojure/tools.namespace "0.2.3"]
-                 [com.taoensso/nippy "1.1.0"]
+                 [com.taoensso/nippy "1.2.1"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
-                 [com.hazelcast/hazelcast "2.5"]]
+                 [com.hazelcast/hazelcast "2.6"]]
   :jvm-opts ["-Dhttl.reloadable=true"]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler raiseup.handler/app-routes
@@ -28,6 +28,6 @@
   :main main
   :repositories [["httl" {:url "http://httl.github.io/maven"
                           :checksum :warn}]]
-  :profiles  {:dev {:dependencies [[ring-mock "0.1.2"]]
+  :profiles  {:dev {:dependencies [[ring-mock "0.1.5"]]
                     :plugins []
                     :repl-options {:port 4001}}})
