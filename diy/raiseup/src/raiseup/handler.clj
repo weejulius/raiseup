@@ -2,7 +2,7 @@
   (:require [compojure.core :refer [defroutes GET POST]]
             [compojure.route :as route]
             [raiseup.ontime.control :refer :all]
-            [raiseup.ontime.readmodel :as rm]
+            [raiseup.ontime.query :as q]
             [raiseup.reqres :as reqres]
             [raiseup.base :refer [->long ->map ->str]]
             [raiseup.mutable :refer [template-extension]]
@@ -54,11 +54,11 @@
        (render "index"
                {:unplanned-slots
                 (doall (map
-                        (fn [slot-id] (rm/get-readmodel :task-slot slot-id))
+                        (fn [slot-id] (q/find-slot-by-id slot-id))
                         (:none (rm/get-readmodel :user-slot 1))))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
-               (rm/get-readmodel :task-slot (->long id))))
+               (q/find-slot-by-id (->long id))))
   (GET "/ws" []
        handle-asyn-request)
 

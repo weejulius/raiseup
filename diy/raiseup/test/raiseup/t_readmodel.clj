@@ -16,3 +16,9 @@
       (rm/put-in-readmodel :task 2 {:b #{1}})
       (rm/update-in-readmodel :task 2 #(update-in % [:b] disj 1))
       (:b (rm/get-readmodel :task 2)) => #{})
+
+
+(fact "query the read model"
+      (rm/put-in-readmodel :task 2 {"b" "1"})
+       (rm/put-in-readmodel :task 3 {"b" "1"})
+       (.size (rm/query :task (str  "b=1"))) => 2)
