@@ -14,6 +14,9 @@
 
 
 (defn on-task-created
-  [task event]
-  (merge task event))
+  [ar event]
+  (merge ar event))
 
+(defn on-task-deleted
+  [ar event]
+  (merge ar event))
