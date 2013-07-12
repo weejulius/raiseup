@@ -14,3 +14,7 @@ the defrecord is immutable,so the assoc fun cannot update itself but return a ne
 7.4
 
 read cache by key, the input is string but the key is long actually and print log does not help in this case
+
+7.5
+
+circyle file dependencies

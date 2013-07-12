@@ -6,7 +6,7 @@
 (defn- send-command
   "send command to bus"
   [command]
-  (cb/->send command commandroutes eventroutes))
+  (cb/->send command command-routes event-routes))
 
 
 (defn create-task-slot-action

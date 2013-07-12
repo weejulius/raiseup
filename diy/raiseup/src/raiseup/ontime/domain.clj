@@ -13,10 +13,10 @@
                  :estimation estimation}))
 
 
-(defn on-task-created
+(defn task-slot-created
   [ar event]
   (merge ar event))
 
-(defn on-task-deleted
+(defn task-slot-deleted
   [ar event]
   (merge ar event))
