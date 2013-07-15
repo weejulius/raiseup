@@ -19,7 +19,7 @@
                     event-ids-db))
 
 (defn- populate-id-if-need
-  "if the id is not existing one is given"
+  "if the id is not existing one is given to command"
   [command]
   (if (nil? (:ar-id command))
     (assoc command :ar-id (.inc! ar-id-creator)) command))
@@ -43,6 +43,6 @@
     (dorun (map #(eventbus/->send %  event-router) events-with-id))
     (:ar-id command-with-id)))
 
-(defn <-read
+(defn read-ar-events
   [ar-name ar-id]
   (es/read-events ar-name ar-id event-ids-db events-db))

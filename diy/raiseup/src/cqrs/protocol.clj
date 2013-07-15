@@ -1,3 +1,16 @@
+(defn bs-demo [coll coll1]
+  (if (nil? (next coll))
+    coll
+    (let [l (reduce
+               #(if(< (second %1) %2)
+                  (assoc-in (update-in %1 [0] conj (second %1)) [1] %2)
+                  (update-in %1 [0] conj %2))
+               [[] (first coll)]
+               (next coll))]
+      (println coll coll1 "=>" (first l) (cons (second l) coll1))
+      (recur (first l) (cons (second l) coll1)))))
+
+ (bs-demo [1 6 5 0 3 7 4 10 3 1] [])
 (ns
   ^{:doc "the cqrs basic fun"
     :added "1.0"}
@@ -25,5 +38,4 @@
 (defn send-event
   "send event to its listener"
   )
-
 
