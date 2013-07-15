@@ -1,4 +1,4 @@
-(ns raiseup.base
+(ns base
   (:use [clojure.string :only (join)])
   (:require [raiseup.mutable :as mutable]
             [taoensso.nippy :as nippy]
@@ -41,7 +41,7 @@
   [bytes]
   (nippy/thaw-from-bytes bytes))
 
-(defn int-to-bytes
+(defn ints-to-bytes
   "convert the int collection to bytes"
   [int-coll]
   (if (nil? int-coll)

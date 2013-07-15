@@ -1,12 +1,16 @@
 (ns raiseup.ontime.control
-  (:require [raiseup.commandbus :as cb]
+  (:require [cqrs.protocol :as cqrs]
             [raiseup.cqrsroutes :refer :all]
             [bouncer [core :as b] [validators :as v]]))
 
 (defn- send-command
   "send command to bus"
   [command]
-  (cb/->send command command-routes event-routes))
+  (cqrs/send-command command command-routes
+                     #(get-event-handler-with-exclusion
+                       (:event %)
+                       :domain
+                       event-routes)))
 
 
 (defn create-task-slot-action
