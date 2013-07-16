@@ -9,51 +9,76 @@
 (def short-date-format "yyyy-MM-dd")
 (def long-date-format "yyyy-MM-dd HH:mm:ss")
 
-(defn join-str
-  "join a bunch of items with separator
-   eg. (join-str ',' [1 3]) => 1,3 "
-  ([separator prefix coll]
-     (join separator (cons prefix coll))))
+(defprotocol Cast
+  (->bytes [this] "convert to bytes")
+  (->long [this] "convert to long")
+  (->map [this] "convert to map")
+  (->str [this] "convert to string")
+  (->data [this] "convert to clojure data structure"))
 
 
-(defn to-bytes
-  "convert string to bytes"
-  ([string charset]
-     (if (nil? string)
-       nil
-      (.getBytes string charset)))
-  ([string]
-     (to-bytes string default-charset)))
+(extend-protocol Cast
 
-(defn process-kv
-  ^{:added "1.0"
-    :abbre "kv => a pair of key value"
-    :doc "process key value pair,eg. push them to storage
-          and pre-fun is used to pre process key value before storage"}
-  ([key value process pre-fun]
-    (process (pre-fun key) (pre-fun value))))
+  String
+  (->bytes [this]
+    (.getBytes this default-charset) )
+  (->long [this]
+    (Long/parseLong this))
+  (->map [this]
+    (json/parse-string this true))
+  (->str [this] this)
+  (->data [this] this)
 
+  nil
+  (->bytes [this]
+    nil)
+  (->long [this]
+    nil)
+  (->map [this]
+    {})
+  (->str [this]
+    nil)
+  (->data [this]
+    nil)
 
-(defn data->bytes
-  "convert data to bytes"
-  [data]
-  (nippy/freeze-to-bytes data))
+  Long
+  (->bytes [this]
+    (-> (java.nio.ByteBuffer/allocate 8)
+        (.putLong this)
+        (.array)))
+  (->str [this] (.toString this))
+  (->long [this] this)
+  (->map [this] this)
+  (->data [this] this)
 
-(defn bytes->data
-  "convert bytes to data"
-  [bytes]
-  (nippy/thaw-from-bytes bytes))
+  clojure.lang.IPersistentVector
+  (->bytes [this]
+    (nippy/freeze-to-bytes this))
 
-(defn ints-to-bytes
-  "convert the int collection to bytes"
-  [int-coll]
-  (if (nil? int-coll)
-    nil
-    (let [size (count int-coll)
-          buffer (java.nio.ByteBuffer/allocate (* size 4))]
-      (doseq [int int-coll]
-        (.putInt buffer int))
-      (.array buffer))))
+  clojure.lang.LazySeq
+  (->bytes [this]
+    (nippy/freeze-to-bytes this))
+  
+  clojure.lang.IPersistentMap
+  (->bytes [this]
+    (nippy/freeze-to-bytes this))
+  (->str [this]
+    (json/generate-string this)))
+
+(extend-protocol Cast
+  (Class/forName "[B")
+  (->data [this]
+    (nippy/thaw-from-bytes this))
+  (->long [this]
+    (->> (java.nio.ByteBuffer/wrap this)
+         (.getLong))) )
+
+(extend-protocol Cast
+  (class (java.util.Date.))
+  (->str [this]
+    (t-format/unparse
+     (t-format/formatter short-date-format)
+     (t-convert/from-date this))))
 
 (defn byte-to-int-array
   "convert bytes to int collection"
@@ -63,55 +88,4 @@
     (let [buffer (java.nio.ByteBuffer/wrap int-bytes)
           size (/ (count int-bytes) 4)]
       (repeatedly size #(.getInt buffer)))))
-
-
-(defn long->bytes
-  [l]
-  (if (nil? l) nil
-      (-> (java.nio.ByteBuffer/allocate 8)
-           (.putLong l)
-           (.array))))
-
-(defmulti ->long
-  "convert to long from other types" class)
-
-(defmethod ->long String
-  [str]
-  (Long/parseLong str))
-
-(defmethod ->long (class nil)
-  [p]
-  nil)
-
-(defmethod ->long
-  (Class/forName "[B")
-  [bytes]
- (->> (java.nio.ByteBuffer/wrap bytes)
-       (.getLong)))
-
-(defmulti ->map
-  "convert to map data structure from string or bytes,etc" class)
-
-(defmethod ->map
-  String
-  [str]
-  (json/parse-string str true))
-
-
-(defmulti ->str
-  "convert to str from ds,bytes etc"
-  (fn [param & other] (class param)))
-
-(defmethod ->str
-  (class {})
-  [a-map]
-  (json/generate-string a-map))
-
-(defmethod ->str
-  (class (java.util.Date.))
-  [dt & options]
-  (if (nil? options)
-    (t-format/unparse
-     (t-format/formatter short-date-format)
-     (t-convert/from-date dt))))
 

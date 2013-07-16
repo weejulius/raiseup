@@ -1,5 +1,5 @@
 (ns cqrs.eventstore
-  (:require [common.convert :as convert]))
+  (:require [common.convert :refer [->data ->bytes]]))
 
 (defn- make-store-key-of-event-ids
   "used to make the key for the event ids in the storage,
@@ -13,16 +13,16 @@
   [ar-name-str ar-id-str event-ids storage]
   (let [store-key (make-store-key-of-event-ids ar-name-str ar-id-str)
         event-ids-byte (.ret-value storage store-key)
-        current-eventids (convert/byte-to-int-array event-ids-byte)
+        current-eventids (->data event-ids-byte)
         appended-eventids (distinct (into current-eventids event-ids))]
     (.write storage
-            (convert/to-bytes store-key)
-            (convert/ints-to-bytes appended-eventids))))
+            (->bytes store-key)
+            (->bytes appended-eventids))))
 
 (defn deserialize
   "deser the bytes to data structure"
   [bytes]
-  (convert/bytes->data bytes))
+  (->data bytes))
 
 
 (defn write-events-to-storage
@@ -52,7 +52,7 @@
   (if-let [event-ids-byte
            (.ret-value ar-event-ids-db
                        (make-store-key-of-event-ids ar-name-str ar-id-str))]
-    (convert/byte-to-int-array event-ids-byte)))
+    (->data event-ids-byte)))
 
 (defn read-event
   "read a single event by event id from event store"

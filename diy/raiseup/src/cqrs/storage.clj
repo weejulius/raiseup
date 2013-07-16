@@ -1,5 +1,5 @@
 (ns cqrs.storage
-  (:require [common.convert :as convert]
+  (:require [common.convert :refer [->bytes ->long]]
             [cqrs.leveldb :as leveldb]))
 
 (def flush-recoverable-id-interval 100000)
@@ -14,24 +14,24 @@
 (defn serialize
   "serialize the clojure data structure to bytes"
   [event]
-  (convert/data->bytes event))
+  (->bytes event))
 
 (defrecord LeveldbStore
     [db]
   Store
   (ret-value [this key]
-    (.get db (convert/to-bytes key)))
+    (.get db (->bytes key)))
   (write [this key value]
     (.put db key value))
   (write-in-batch [this items]
     (let [batch  (.createWriteBatch db)]
       (doseq [item items]
         (.put batch
-              (convert/long->bytes (first item))
+              (->bytes (first item))
               (serialize (second item))))
       (.write db batch)))
   (delete [this key]
-    (.delete db (convert/to-bytes key))))
+    (.delete db (->bytes key))))
 
 (defprotocol RecoverableId
   "an uniqure identifier,it can be recoved after restart,
@@ -48,13 +48,13 @@
     [^String store-key storage long-id incremence]
   RecoverableId
   (init! [this]
-    (let [cur-value (convert/->long (.ret-value storage store-key))
+    (let [cur-value (->long (.ret-value storage store-key))
           new-value (if (nil? cur-value) (long 0)
                         (+ cur-value incremence))]
       (reset! long-id new-value)
       (.write storage
-              (convert/to-bytes store-key)
-              (convert/long->bytes new-value))))
+              (->bytes store-key)
+              (->bytes new-value))))
   (get! [this]
     @long-id)
   (inc! [this]
@@ -62,8 +62,8 @@
       (if (= 0 (mod inc-value incremence))
         (.write
          storage
-         (convert/to-bytes store-key)
-         (convert/long->bytes (long inc-value))))
+         (->bytes store-key)
+         (->bytes (long inc-value))))
       inc-value))
   (clear! [this]
     (.delete storage store-key)
