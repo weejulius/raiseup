@@ -4,7 +4,7 @@
             [raiseup.ontime.control :refer :all]
             [raiseup.ontime.query :as q]
             [raiseup.reqres :as reqres]
-            [raiseup.base :refer [->long ->map ->str]]
+            [common.convert :refer [->long ->map ->str]]
             [raiseup.mutable :refer [template-extension]]
             [clostache.parser :as tpl])
   (:import httl.Engine)

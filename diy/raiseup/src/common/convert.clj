@@ -1,10 +1,13 @@
-(ns base
+(ns common.convert
   (:use [clojure.string :only (join)])
-  (:require [raiseup.mutable :as mutable]
-            [taoensso.nippy :as nippy]
+  (:require [taoensso.nippy :as nippy]
             [cheshire.core :as json]
             [clj-time.format :as t-format]
             [clj-time.coerce :as t-convert]))
+
+(def default-charset "UTF-8")
+(def short-date-format "yyyy-MM-dd")
+(def long-date-format "yyyy-MM-dd HH:mm:ss")
 
 (defn join-str
   "join a bunch of items with separator
@@ -20,7 +23,7 @@
        nil
       (.getBytes string charset)))
   ([string]
-     (to-bytes string mutable/charset)))
+     (to-bytes string default-charset)))
 
 (defn process-kv
   ^{:added "1.0"
@@ -109,6 +112,6 @@
   [dt & options]
   (if (nil? options)
     (t-format/unparse
-     (t-format/formatter mutable/short-date-format)
+     (t-format/formatter short-date-format)
      (t-convert/from-date dt))))
 

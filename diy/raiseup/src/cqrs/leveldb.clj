@@ -1,7 +1,6 @@
 (ns ^{:doc "level db implementation of cqrs"}
   cqrs.leveldb
-  (:require [raiseup.base :as base]
-            [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]))
 
 (def opened-leveldb (atom {}))
 

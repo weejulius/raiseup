@@ -1,7 +1,5 @@
 (ns cqrs.eventstore
-  (:require [raiseup.mutable :as default]
-            [raiseup.storage :as store]
-            [raiseup.base :as base]))
+  (:require [common.convert :as convert]))
 
 (defn- make-store-key-of-event-ids
   "used to make the key for the event ids in the storage,
@@ -15,23 +13,23 @@
   [ar-name-str ar-id-str event-ids storage]
   (let [store-key (make-store-key-of-event-ids ar-name-str ar-id-str)
         event-ids-byte (.ret-value storage store-key)
-        current-eventids (base/byte-to-int-array event-ids-byte)
+        current-eventids (convert/byte-to-int-array event-ids-byte)
         appended-eventids (distinct (into current-eventids event-ids))]
     (.write storage
-            (base/to-bytes store-key)
-            (base/ints-to-bytes appended-eventids))))
+            (convert/to-bytes store-key)
+            (convert/ints-to-bytes appended-eventids))))
 
 (defn deserialize
   "deser the bytes to data structure"
   [bytes]
-  (base/bytes->data bytes))
+  (convert/bytes->data bytes))
 
 
 (defn write-events-to-storage
   "the events are stored in the storage and the event id is the store key"
   [events events-db]
   (.write-in-batch events-db
-                   (map #([(:event-id %) %]) events)))
+                   (map (fn [event] [(:event-id event) event]) events)))
 
 (defn store-events
   ^{:added "1.0"
@@ -54,12 +52,12 @@
   (if-let [event-ids-byte
            (.ret-value ar-event-ids-db
                        (make-store-key-of-event-ids ar-name-str ar-id-str))]
-    (base/byte-to-int-array event-ids-byte)))
+    (convert/byte-to-int-array event-ids-byte)))
 
 (defn read-event
   "read a single event by event id from event store"
   [event-id events-db]
-  (if-let [event-byte (.ret-value events-db event-id)]
+  (if-let [event-byte (.ret-value events-db (str event-id))]
     (deserialize event-byte)))
 
 

@@ -1,8 +1,8 @@
 (ns cqrs.storage
-  (:require [raiseup.mutable :as mutable]
-            [raiseup.base :as base]
+  (:require [common.convert :as convert]
             [cqrs.leveldb :as leveldb]))
 
+(def flush-recoverable-id-interval 100000)
 
 (defprotocol Store
   "the protocol to utilize the store"
@@ -14,24 +14,24 @@
 (defn serialize
   "serialize the clojure data structure to bytes"
   [event]
-  (base/data->bytes event))
+  (convert/data->bytes event))
 
 (defrecord LeveldbStore
     [db]
   Store
   (ret-value [this key]
-    (.get db (base/to-bytes key)))
+    (.get db (convert/to-bytes key)))
   (write [this key value]
     (.put db key value))
   (write-in-batch [this items]
     (let [batch  (.createWriteBatch db)]
       (doseq [item items]
         (.put batch
-              (base/ints-to-bytes (first item))
+              (convert/long->bytes (first item))
               (serialize (second item))))
       (.write db batch)))
   (delete [this key]
-    (.delete db (base/to-bytes key))))
+    (.delete db (convert/to-bytes key))))
 
 (defprotocol RecoverableId
   "an uniqure identifier,it can be recoved after restart,
@@ -48,11 +48,13 @@
     [^String store-key storage long-id incremence]
   RecoverableId
   (init! [this]
-    (let [cur-value (base/->long (.ret-value storage store-key))
+    (let [cur-value (convert/->long (.ret-value storage store-key))
           new-value (if (nil? cur-value) (long 0)
                         (+ cur-value incremence))]
       (reset! long-id new-value)
-      (.write storage (base/to-bytes store-key) (base/long->bytes new-value))))
+      (.write storage
+              (convert/to-bytes store-key)
+              (convert/long->bytes new-value))))
   (get! [this]
     @long-id)
   (inc! [this]
@@ -60,8 +62,8 @@
       (if (= 0 (mod inc-value incremence))
         (.write
          storage
-         (base/to-bytes store-key)
-         (base/long->bytes (long inc-value))))
+         (convert/to-bytes store-key)
+         (convert/long->bytes (long inc-value))))
       inc-value))
   (clear! [this]
     (.delete storage store-key)
@@ -71,7 +73,7 @@
   "factory of recoverable long id"
   [name storage]
   (let [recoverable (->RecoverableLongId name storage (atom -1)
-                                         mutable/flush-recoverable-id-interval)]
+                                         flush-recoverable-id-interval)]
     (.init! recoverable)
     recoverable))
 
