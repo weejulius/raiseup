@@ -1,6 +1,6 @@
 (ns common.convert
   (:use [clojure.string :only (join)])
-  (:require [taoensso.nippy :as nippy]
+  (:require [taoensso.nippy :refer [freeze-to-bytes thaw-from-bytes]]
             [cheshire.core :as json]
             [clj-time.format :as t-format]
             [clj-time.coerce :as t-convert]))
@@ -35,7 +35,7 @@
   (->long [this]
     nil)
   (->map [this]
-    {})
+    nil)
   (->str [this]
     nil)
   (->data [this]
@@ -48,27 +48,26 @@
         (.array)))
   (->str [this] (.toString this))
   (->long [this] this)
-  (->map [this] this)
   (->data [this] this)
 
   clojure.lang.IPersistentVector
   (->bytes [this]
-    (nippy/freeze-to-bytes this))
+    (freeze-to-bytes this))
 
   clojure.lang.LazySeq
   (->bytes [this]
-    (nippy/freeze-to-bytes this))
-  
+    (freeze-to-bytes this))
+
   clojure.lang.IPersistentMap
   (->bytes [this]
-    (nippy/freeze-to-bytes this))
+    (freeze-to-bytes this))
   (->str [this]
     (json/generate-string this)))
 
 (extend-protocol Cast
   (Class/forName "[B")
   (->data [this]
-    (nippy/thaw-from-bytes this))
+    (thaw-from-bytes this))
   (->long [this]
     (->> (java.nio.ByteBuffer/wrap this)
          (.getLong))) )

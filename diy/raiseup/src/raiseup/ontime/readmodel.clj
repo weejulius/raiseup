@@ -1,6 +1,6 @@
 (ns raiseup.ontime.readmodel
   (:require [raiseup.mutable-data :as md]
-            [raiseup.base :as base]
+            [common.convert :as convert]
             [clojure.core.reducers :as r]))
 
 (defn get-readmodels
@@ -61,5 +61,5 @@
 
 (defn task-slot-deleted
   [event]
-   (let [ar-id (base/->long (:ar-id event))]
+   (let [ar-id (convert/->long (:ar-id event))]
     (remove-from-readmodel (:ar event) ar-id)))
