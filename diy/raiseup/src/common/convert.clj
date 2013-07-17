@@ -3,11 +3,9 @@
   (:require [taoensso.nippy :refer [freeze thaw]]
             [cheshire.core :as json]
             [clj-time.format :as t-format]
-            [clj-time.coerce :as t-convert]))
+            [clj-time.coerce :as t-convert]
+            [common.config :as cfg]))
 
-(def default-charset "UTF-8")
-(def short-date-format "yyyy-MM-dd")
-(def long-date-format "yyyy-MM-dd HH:mm:ss")
 
 (defprotocol Cast
   (->bytes [this] "convert to bytes")
@@ -21,7 +19,7 @@
 
   String
   (->bytes [this]
-    (.getBytes this default-charset) )
+    (.getBytes this (cfg/get :charset)))
   (->long [this]
     (Long/parseLong this))
   (->map [this]
@@ -76,7 +74,7 @@
   (class (java.util.Date.))
   (->str [this]
     (t-format/unparse
-     (t-format/formatter short-date-format)
+     (t-format/formatter (cfg/get :short-date-format))
      (t-convert/from-date this))))
 
 (defn byte-to-int-array

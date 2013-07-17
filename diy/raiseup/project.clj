@@ -30,4 +30,5 @@
                           :checksum :warn}]]
   :profiles  {:dev {:dependencies [[ring-mock "0.1.5"]]
                     :plugins []
-                    :repl-options {:port 4001}}})
+                    :repl-options {:port 4001}}
+              :production {:jvm-opts ["-Dproduction=true"]}})

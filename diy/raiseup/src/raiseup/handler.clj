@@ -5,12 +5,12 @@
             [raiseup.ontime.query :as q]
             [raiseup.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
-            [raiseup.mutable :refer [template-extension]]
+            [common.config :as cfg]
             [clostache.parser :as tpl])
   (:import httl.Engine)
   (:use org.httpkit.server))
 
-(def template-extension-with-dot (str "." template-extension))
+(def template-extension-with-dot (str "." (cfg/get :template-extension)))
 
 (defn- render1
   "render the template using the params"

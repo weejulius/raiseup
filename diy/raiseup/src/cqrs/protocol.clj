@@ -4,13 +4,14 @@
   cqrs.protocol
   (:require [cqrs.eventstore :as es]
             [cqrs.storage :as storage]
-            [clojure.core.reducers :as r]))
+            [clojure.core.reducers :as r]
+            [common.config :as cfg]))
 
-(def eventids-db-path "/tmp/event-ids-real")
-(def events-db-path "/tmp/events-real")
-(def event-identifier "event-rc-id-real")
-(def ar-identifier "ar-id-real")
-(def default-leveldb-option {})
+(def eventids-db-path (cfg/get :es :event-id-db-path))
+(def events-db-path (cfg/get :es :events-db-path) )
+(def event-identifier (cfg/get :es :recoverable-event-id-key))
+(def ar-identifier (cfg/get :es :recoverable-ar-id-key))
+(def default-leveldb-option (cfg/get :leveldb-option))
 
 
 (def event-ids-db (storage/init-store eventids-db-path

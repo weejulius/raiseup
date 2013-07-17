@@ -6,7 +6,8 @@
 (defn- send-command
   "send command to bus"
   [command]
-  (cqrs/send-command command command-routes
+  (cqrs/send-command command
+                     command-routes
                      #(get-event-handler-with-exclusion
                        (:event %)
                        :domain

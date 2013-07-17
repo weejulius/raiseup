@@ -1,4 +1,9 @@
-# Clojure开发流程
+# Drinkup #1 
+
+##Clojure开发流程
+
+---
+
 
 ## ACUG (Alibaba Clojure User Group)
 
@@ -28,11 +33,13 @@
 
 ## Raiseup
 
-https://openshift.redhat.com/app/console/applications
+https://github.com/weejulius/raiseup
 
-*  host on Open shift (PAAS)
+*  Host on Open shift (PAAS)
 *  目的是实践clojure,cqrs,以及event sourcing
 *  一个简单的时间管理,类似http://todomvc.com/architecture-examples/angularjs/
+
+以emacs做演示
 
 ---
 
@@ -60,25 +67,35 @@ https://openshift.redhat.com/app/console/applications
 
 
 
+# 常用库介绍
+
+---
+
+
 # 测试
 
 *  clojure.test
 *  midje (目前的使用)
 *  speclj (偏向bdd风格)
 
+
+---
+
+#  运行
+
 ## 执行方式一般有两种,自动和手动
+
 * 自动方式 : lein midje :autotest
 * 手动方式 : 手动加载代码到repl 
 https://github.com/marick/Midje/wiki/Repl-tools
 https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.6
 
-展示例子
 
 ---
 
 #  调试
 
-*  print 
+*  print
   *  https://github.com/AlexBaranosky/print-foo
 *  debugger
   *  尝试ritz
@@ -89,6 +106,12 @@ https://github.com/marick/Midje/wiki/What%27s-new-in-midje-1.6
 
 *  lein uberjar
 *  lein deploy clojars
+
+---
+
+* https://github.com/organizations/acug
+* https://github.com/weejulius
+
 
 ---
 

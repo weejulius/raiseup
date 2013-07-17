@@ -1,10 +1,9 @@
 (ns ^{:doc "level db implementation of cqrs"}
   cqrs.leveldb
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io]
+            [common.config :as cfg]))
 
 (def opened-leveldb (atom {}))
-
-(def default-leveldb-option {})
 
 (defn- open-new-leveldb
   "before using the leveldb open it"
@@ -41,7 +40,7 @@
                   (assoc dbs db-dir opened-new-db)))
          opened-new-db)))
   ([db-dir]
-     (open-leveldb db-dir default-leveldb-option)))
+     (open-leveldb db-dir (cfg/get :leveldb-option))))
 
 
 (defn destroy-leveldb
@@ -50,4 +49,4 @@
                (io/file file)
                (org.iq80.leveldb.Options.)))
   ([file]
-     (destroy-leveldb file default-leveldb-option)))
+     (destroy-leveldb file (cfg/get :leveldb-option))))

@@ -40,6 +40,7 @@
   (let [v (get-readmodel model-name key)
         v1 (f v)]
     (put-in-readmodel model-name key v1)))
+
 (defn conj+
   "conj vararier for fold function"
   ([a b]

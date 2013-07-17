@@ -1,8 +1,9 @@
 (ns cqrs.storage
   (:require [common.convert :refer [->bytes ->long]]
-            [cqrs.leveldb :as leveldb]))
+            [cqrs.leveldb :as leveldb]
+            [common.config :as cfg]))
 
-(def flush-recoverable-id-interval 100000)
+(def flush-recoverable-id-interval (cfg/get :flush-recoverable-id-interval))
 
 (defprotocol Store
   "the protocol to utilize the store"

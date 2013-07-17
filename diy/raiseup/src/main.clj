@@ -3,13 +3,19 @@
   (:use [org.httpkit.server :only [run-server]]
         raiseup.handler)
   (:require [ring.middleware.reload :as reload]
-            [compojure.handler :refer [site]]))
+            [compojure.handler :refer [site]]
+            [common.config :as cfg]))
 
 (defn- start-server
   [port-str ip]
-  (let [handler (reload/wrap-reload (site #'app-routes))
+  (let [handler (site #'app-routes)
         port (Integer/parseInt port-str)]
-    (run-server handler {:port port :ip ip})
+    (run-server
+     (if (cfg/dev-mode?)
+       ;;auto load changes for dev mode
+       (reload/wrap-reload handler)
+       handler)
+     {:port port :ip ip})
     (println (str "Server started. listen at " ip ":" port))))
 
 (defn -main
