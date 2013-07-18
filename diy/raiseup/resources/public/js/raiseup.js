@@ -30,8 +30,8 @@ function val(input){
 }
 
 //add event clicking the button to delete slot
-function deleteTaskSlot(websocket){
-    $('#module-unplanned-slot-list button.hidden').click(function(e){
+function onDeleteTaskSlotEvent(websocket){
+    $('#module-unplanned-slot-list').on("click", ".hidden", function(e){
     var idval= $(this).parent().attr('id').substring(5);
     var json={};
     json['ar-id'] = idval;
@@ -41,11 +41,18 @@ function deleteTaskSlot(websocket){
 
 //hilight the current slot focused on
 function hilightCurrent(el){
-    el
-    .on({
-      mouseenter: function(){$(this).addClass('current');},
-      mouseleave: function(){$(this).removeClass('current');}
-    });
+  el
+    .on( "mouseenter","li",
+         function(e){
+           $(this).addClass('current');
+         }
+       );
+  el
+    .on( "mouseleave","li",
+         function(e){
+           $(this).removeClass('current');
+         }
+       );
 }
 
 
@@ -56,8 +63,6 @@ function onSlotCreated(e){
   }else{
     var appendedSlot = '<li id="slot-'+e.data+'"><span>'+val($('#description'))+'</span><button class="hidden"></button></li>';
     $(appendedSlot).prependTo($('#module-unplanned-slot-list'));
-    hilightCurrent($('#module-unplanned-slot-list li'));
-    deleteTaskSlot(this);
     resetForm('module-new-slot');
     $('#slot-new-msg').html('<i class="icon-ok"></i>');
     $('#slot-new-msg').addClass('in');
@@ -84,7 +89,7 @@ function onSlotDeleted(e){
 (function ($) {
 
   //events on slot list
-  hilightCurrent($('#module-unplanned-slot-list li'));
+  hilightCurrent($('#module-unplanned-slot-list'));
 
   var websocket = $.websocket(getWebsocketUrl(location.scheme,location.hostname,location.port),{
     events:{
@@ -100,6 +105,6 @@ function onSlotDeleted(e){
                    readInputsToJson("description"));
     });
 
-  deleteTaskSlot(websocket);
+  onDeleteTaskSlotEvent(websocket);
 
 })(jQuery);
