@@ -17,7 +17,6 @@
                  [com.taoensso/nippy "2.0.0-RC1"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "2.6"]]
-  :jvm-opts ["-Dhttl.reloadable=true"]
   :plugins [[lein-ring "0.8.5"]]
   :ring {:handler raiseup.handler/app-routes
          :reload-paths ["src" "resources"]
@@ -28,7 +27,8 @@
   :main main
   :repositories [["httl" {:url "http://httl.github.io/maven"
                           :checksum :warn}]]
-  :profiles  {:dev {:dependencies [[ring-mock "0.1.5"]]
+  :profiles  {:dev {:jvm-opts ["-Dhttl.reloadable=true"]
+                    :dependencies [[ring-mock "0.1.5"]]
                     :plugins []
                     :repl-options {:port 4001}}
-              :production {:jvm-opts ["-Dproduction=true"]}})
+              :production {:jvm-opts ["-Dproduction=true" "-Dconfig=config.pro.clj"]}})

@@ -36,7 +36,7 @@
     (if (empty? (env :config))
       (throw
        (java.lang.IllegalArgumentException.
-        "config file is not specified for production mode"))
+        (str "config file is not specified for production mode" (env :config))))
       (merge (read-edn-file dev-config-file)
              (read-edn-file (env :config))))))
 

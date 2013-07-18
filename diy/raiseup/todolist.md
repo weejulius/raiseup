@@ -1,4 +1,4 @@
-
+ 
 * time slot associates with a specific user
 * remove the estimation and start time input box in the area to add slot
 == delete the slot
@@ -21,5 +21,5 @@ configuration rd
 * switch mode
 * override config
 * comment is must
-* 
+* validate items
 
