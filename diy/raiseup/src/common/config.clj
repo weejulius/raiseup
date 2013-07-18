@@ -3,6 +3,8 @@
 
 (def dev-config-file "config-dev.clj")
 
+(def ^{:doc "placehold when the config is not found"}  not-found-placehold "_-config-_placehold")
+
 (defn env
   "get system env property"
   ([key default]
@@ -18,8 +20,9 @@
 
 (defn read-edn-file
   [file]
-  (read (java.io.PushbackReader.
-         (-> file clojure.java.io/resource clojure.java.io/reader))))
+  (with-open [r (java.io.PushbackReader.
+                 (-> file clojure.java.io/resource clojure.java.io/reader))]
+    (read r)))
 
 
 
@@ -37,11 +40,25 @@
       (merge (read-edn-file dev-config-file)
              (read-edn-file (env :config))))))
 
+(defn- exception-when-config-not-found
+  "hanle when config not found"
+  [f configs keys]
+  (let [config (f configs keys not-found-placehold)]
+    (if (= config not-found-placehold)
+      (throw
+       (java.lang.IllegalArgumentException.
+        (apply str keys  " not found"))))
+    config))
+
+
 (defn ret
   ^{:doc "return a config by key"}
   ([key]
-     ((read-config) key))
+     (exception-when-config-not-found
+      get (read-config) key))
   ([k1 k2]
-     (get-in (read-config) [k1 k2]))
+     (exception-when-config-not-found
+      get-in (read-config) [k1 k2]))
   ([k1 k2 k3]
-     (get-in (read-config) [k1 k2 k3])))
+     (exception-when-config-not-found
+      get-in (read-config) [k1 k2 k3])))

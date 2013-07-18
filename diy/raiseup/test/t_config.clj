@@ -11,3 +11,6 @@
 
 (fact "read nested key"
   (cfg/ret :es :recoverable-ar-id-key) => "rvb-ar-id-key")
+
+(fact "read unknown key throw exception"
+  (cfg/ret :un)=> (throws java.lang.IllegalArgumentException ":un not found"))

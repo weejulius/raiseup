@@ -2,6 +2,7 @@
  :charset "UTF-8"
  :short-data-format "yyyy-MM-dd"
  :long-date-format "yyyy-MM-dd HH:mm:ss"
+
  ;; separator for string, like 1,2,3
  :separator ","
  :template-extension "httl"
@@ -15,6 +16,7 @@
  ;;event store configs
  :es {:event-id-db-path "/tmp/event-ids-real"
       :events-db-path "/tmp/events-real"
-      ;;the key used to persist the id for recovery
+
+      ;;the keys used to persist the id for recovery
       :recoverable-ar-id-key "rvb-ar-id-key"
       :recoverable-event-id-key "rvb-event-id-key"}}
