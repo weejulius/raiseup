@@ -16,9 +16,10 @@ export HOST=$OPENSHIFT_DIY_IP
 export HOME=$OPENSHIFT_DATA_DIR/home
 export LEIN_JVM_OPTS=-Duser.home=$HOME
 export LEIN_REPL_PORT=35000
+export JAVA_OPTS=-Dhazelcast.local.localAddress=${OPENSHIFT_DIY_IP} -Dhazelcast.socket.bind.any=false
 chmod 755 $OPENSHIFT_REPO_DIR/bin/lein
 cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 echo $OPENSHIFT_REPO_DIR/diy/$APPDIR "host" $HOST ":" $PORT
-$OPENSHIFT_REPO_DIR/bin/lein  with-profile production trampoline run -Dhazelcast.local.localAddress=${OPENSHIFT_DIY_IP} -Dhazelcast.socket.bind.any=false  $HOST $PORT > $OPENSHIFT_DIY_LOG_DIR/server.log 2>&1 &
+$OPENSHIFT_REPO_DIR/bin/lein  with-profile production trampoline run $HOST $PORT > $OPENSHIFT_DIY_LOG_DIR/server.log 2>&1 &
 disown
 echo 'Ring server is started'
