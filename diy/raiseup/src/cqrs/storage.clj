@@ -3,7 +3,7 @@
             [cqrs.leveldb :as leveldb]
             [common.config :as cfg]))
 
-(def flush-recoverable-id-interval (cfg/get :flush-recoverable-id-interval))
+(def flush-recoverable-id-interval (cfg/ret :recoverable-id-flush-interval))
 
 (defprotocol Store
   "the protocol to utilize the store"

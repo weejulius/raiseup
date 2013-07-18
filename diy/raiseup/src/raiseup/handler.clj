@@ -10,7 +10,7 @@
   (:import httl.Engine)
   (:use org.httpkit.server))
 
-(def template-extension-with-dot (str "." (cfg/get :template-extension)))
+(def template-extension-with-dot (str "." (cfg/ret :template-extension)))
 
 (defn- render1
   "render the template using the params"

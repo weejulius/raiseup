@@ -19,7 +19,7 @@
 
   String
   (->bytes [this]
-    (.getBytes this (cfg/get :charset)))
+    (.getBytes this (cfg/ret :charset)))
   (->long [this]
     (Long/parseLong this))
   (->map [this]
@@ -74,7 +74,7 @@
   (class (java.util.Date.))
   (->str [this]
     (t-format/unparse
-     (t-format/formatter (cfg/get :short-date-format))
+     (t-format/formatter (cfg/ret :short-date-format))
      (t-convert/from-date this))))
 
 (defn byte-to-int-array

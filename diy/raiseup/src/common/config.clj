@@ -2,10 +2,11 @@
   common.config)
 
 (def dev-config-file "config-dev.clj")
+
 (defn env
   "get system env property"
   ([key default]
-      (System/getProperty (name key) default))
+     (System/getProperty (name key) default))
   ([key]
      (env key "")))
 
@@ -15,21 +16,28 @@
   []
   (empty? (env :production)))
 
+(defn read-edn-file
+  [file]
+  (read (java.io.PushbackReader.
+         (-> file clojure.java.io/resource clojure.java.io/reader))))
+
+
+
 (defn read-config
   ^{:doc "read config file, if production mode is activated,
           the specified config will merge the dev configs"
     :side-affect "read config file"}
   []
   (if (dev-mode?)
-    (read-string (env :config dev-config-file))
+    (read-edn-file (env :config dev-config-file))
     (if (empty? (env :config))
       (throw
        (java.lang.IllegalArgumentException.
         "config file is not specified for production mode"))
-      (merge (read-string dev-config-file)
-             (read-string (env :config))))))
+      (merge (read-edn-file dev-config-file)
+             (read-edn-file (env :config))))))
 
-(defn get
+(defn ret
   ^{:doc "return a config by key"}
   ([key]
      ((read-config) key))

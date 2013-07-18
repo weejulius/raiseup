@@ -40,7 +40,7 @@
                   (assoc dbs db-dir opened-new-db)))
          opened-new-db)))
   ([db-dir]
-     (open-leveldb db-dir (cfg/get :leveldb-option))))
+     (open-leveldb db-dir (cfg/ret :leveldb-option))))
 
 
 (defn destroy-leveldb
@@ -49,4 +49,4 @@
                (io/file file)
                (org.iq80.leveldb.Options.)))
   ([file]
-     (destroy-leveldb file (cfg/get :leveldb-option))))
+     (destroy-leveldb file (cfg/ret :leveldb-option))))
