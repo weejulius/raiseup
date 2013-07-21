@@ -31,7 +31,7 @@ function val(input){
 
 //add event clicking the button to delete slot
 function onDeleteTaskSlotEvent(websocket){
-    $('#module-unplanned-slot-list').on("click", ".hidden", function(e){
+    $('#slots').on("click", ".hidden", function(e){
     var idval= $(this).parent().attr('id').substring(5);
     var json={};
     json['ar-id'] = idval;
@@ -46,6 +46,7 @@ function onClickToStartTaskSlot(websocket){
     var idval= $(this).parent().attr('id').substring(5);
     var json={};
     json['ar-id'] = idval;
+    json['start-time'] = new Date();
     websocket.send('start-task-slot',json);
   });
  }
@@ -93,13 +94,14 @@ function getWebsocketUrl(scheme,hostName,port){
 }
 
 function onSlotDeleted(e){
-  $('#module-unplanned-slot-list li.current').remove();
+  $('#slots li.current').remove();
 }
 
 
 
 function onSlotStarted(e){
-  $('#module-unplanned-slot-list li.current').prependTo($('#module-planned-slot-list'));
+  $('#module-unplanned-slot-list li.current')
+    .prependTo($('#module-planned-slot-list'));
 }
 
 (function ($) {

@@ -23,3 +23,10 @@ configuration rd
 * comment is must
 * validate items
 
+
+Validation rd
+---
+
+* validate a chain of params
+* at least two strategy , one is failed once any one of param is invalid, the other is go through all of params.
+* convert params like string to long and so on

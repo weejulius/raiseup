@@ -28,5 +28,5 @@
   {:event :task-slot-started
    :ar (:ar command)
    :ar-id (:ar-id command)
-   :etc (java.util.Date.)
-   })
+   :start-time (:start-time command)
+   :etc (java.util.Date.)})

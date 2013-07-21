@@ -4,40 +4,41 @@
     <title>add a time slot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="/css/bootstrap.css" rel="stylesheet" media="screen">
-    <link rel="stylesheet" href="/css/font-awesome.min.css" media="screen">
+    <!--   <link href="/css/bootstrap.css" rel="stylesheet" media="screen">-->
+    <!--   <link rel="stylesheet" href="/css/font-awesome.min.css" media="screen"> -->
     <link href="/css/raiseup.css" rel="stylesheet" media="screen">
   </head>
   <body>
     <div class="time-slot-desc">
       <h1>Every day is almost the same but different completely </h1>
     </div>
-    <div class="container-fluid">
-      <div class="row-fluid" class="time-slot-new">
-        <div class="span2"></div>
-        <div class="span8">
-          <div id="module-new-slot"  class="form-inline">
-            <input type="text" name="description" id="description" class="input-xxlarge" placeholder="description" value="{{description}}">
-            <button id="add-task-slot" class="btn">add task slot</button>
-            <span id="slot-new-msg" class="fade" data-alert="alert"><i class="icon-ok"></i></span>
-          </div>
-          <ul id="module-planned-slot-list"></ul>
-          <ul id="module-unplanned-slot-list">
-               {{#unplanned-slots}}
-            <li id="slot-{{ar-id}}" class="slot-item">
-              <button class="start">></button>
-              <span>{{description}}</span>
-              <button class="hidden"></button>
-            </li>
-               {{/unplanned-slots}}
-          </ul>
-        </div>
-        <div class="span2"></div>
-      </div>
+    <div id="module-new-slot"  class="form-inline">
+      <input type="text" name="description" id="description" class="input-xxlarge" placeholder="description" value="{{description}}">
+      <button id="add-task-slot" class="btn">add task slot</button>
+      <span id="slot-new-msg" class="fade" data-alert="alert"><i class="icon-ok"></i></span>
     </div>
-
+    <div id="slots">
+      <ul id="module-planned-slot-list">
+        {{#planned-slots}}
+          <li id="slot-{{ar-id}}" class="slot-item">
+            <button class="stop">></button>
+            <span>{{description}}</span>
+            <button class="hidden"></button>
+          </li>
+        {{/planned-slots}}
+      </ul>
+      <ul id="module-unplanned-slot-list">
+        {{#unplanned-slots}}
+          <li id="slot-{{ar-id}}" class="slot-item">
+            <button class="start">></button>
+            <span>{{description}}</span>
+            <button class="hidden"></button>
+          </li>
+        {{/unplanned-slots}}
+      </ul>
+    </div>
     <script src="/js/jquery-2.0.0.min.js"></script>
-    <script src="/js/bootstrap.min.js"></script>
+    <!-- <script src="/js/bootstrap.min.js"></script>-->
     <script src="/js/jquery.websocket.js"></script>
     <script src="/js/jquery.json-2.4.js"></script>
     <script src="/js/raiseup.js"></script>

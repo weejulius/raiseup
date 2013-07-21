@@ -39,6 +39,7 @@
   [model-name key f]
   (let [v (get-readmodel model-name key)
         v1 (f v)]
+    (println "update read model from " v "to" v1)
     (put-in-readmodel model-name key v1)))
 
 (defn conj+

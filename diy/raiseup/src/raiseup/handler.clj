@@ -51,8 +51,8 @@
 (defroutes app-routes
   (GET "/todo/slots/new" []
        (render "index"
-               {:unplanned-slots (sort-by :ar-id >
-                                          (q/find-slots-for-user 1))}))
+              (index-view nil)))
+  
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (q/find-slot-by-id (->long id))))
