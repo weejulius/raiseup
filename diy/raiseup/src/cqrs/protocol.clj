@@ -59,12 +59,14 @@
           (fn-get-event-handlers event)]
     (handler event)))
 
+(defprotocol Command
+  (handle-command [this] "handle command received from bus" ))
+
 (defn send-command
   "send command to bus"
-  [command command-router fn-get-event-handlers]
-  (let [cmd-handler ((:command command) command-router)
-        command-with-id (populate-id-if-need command)
-        produced-events (cmd-handler command-with-id)
+  [command fn-get-event-handlers]
+  (let [command-with-id (populate-id-if-need command)
+        produced-events (handle-command command-with-id)
         events-with-id (map
                         #(assoc % :event-id (.inc! event-id-creator))
                         [produced-events])]
@@ -75,7 +77,3 @@
                      events-db)
     (dorun (map #(send-event %  fn-get-event-handlers) events-with-id))
     (:ar-id command-with-id)))
-
-
-
-

@@ -40,7 +40,7 @@
        channel
        (fn [data]
          (let [params (->map data)
-               result (handle-command params)]
+               result (handle-request params)]
            (send! channel
                   (->str {:type
                           ;;TODO refactor

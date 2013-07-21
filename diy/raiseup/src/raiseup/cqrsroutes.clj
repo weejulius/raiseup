@@ -3,10 +3,6 @@
             [raiseup.ontime.domain :as domain]
             [raiseup.ontime.readmodel :as readmodel]))
 
-(def command-routes
-  {:create-task-slot commands/create-task-slot
-   :delete-task-slot commands/delete-task-slot
-   :start-task-slot commands/start-task-slot} )
 
 (def event-routes
   {:task-slot-created {:domain [domain/task-slot-created]

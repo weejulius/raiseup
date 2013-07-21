@@ -1,5 +1,6 @@
 (ns raiseup.ontime.control
   (:require [cqrs.protocol :as cqrs]
+            [raiseup.ontime.commands :refer :all]
             [raiseup.cqrsroutes :refer :all]
             [bouncer [core :as b] [validators :as v]]
             [raiseup.ontime.query :as q]
@@ -9,7 +10,6 @@
   "send command to bus"
   [command]
   (cqrs/send-command command
-                     command-routes
                      #(get-event-handler-with-exclusion (:event %)
                                                         :domain
                                                         event-routes)))
@@ -38,19 +38,13 @@
   (handle-with-validation  params
                            #(b/validate % :description v/required)
                            #(send-command
-                             {:command :create-task-slot
-                              :ar :task-slot
-                              :user-id 1
-                              :description (:description %)
-                              :estimation 40})))
+                             (->CreateTaskSlot :task-slot nil
+                                               1 (:description %) nil 40))))
 
 (defn delete-task-slot-action
   [req]
   (send-command
-   {:command :delete-task-slot
-    :ar :task-slot
-    :user-id 1
-    :ar-id (:ar-id req)}))
+   (->DeleteTaskSlot :task-slot (:ar-id req) 1)))
 
 (defn start-task-slot-action
   "action to start task slot"
@@ -60,19 +54,19 @@
                                        :ar-id [v/required]
                                        :start-time v/required)
                           (fn [params]
-                             (send-command
-                             {:command :start-task-slot
-                              :ar :task-slot
-                              :ar-id (convert/->long (:ar-id params))
-                              :start-time (:start-time params)}))))
+                            (send-command
+                             (->StartTaskSlot
+                              :task-slot
+                              (convert/->long (:ar-id params))
+                              (:start-time params))))))
 
-(defn handle-command
+(defn handle-request
   "handle the http request"
   [request]
-  (let [command-type (keyword (:type request))
-        command-params (:data request)]
-    (println "command type:" command-type "params:" command-params)
-    ((case command-type
+  (let [request-type (keyword (:type request))
+        request-params (:data request)]
+    (println "type:" request-type "params:" request-params)
+    ((case request-type
        :create-task-slot create-task-slot-action
        :delete-task-slot delete-task-slot-action
-       :start-task-slot start-task-slot-action) command-params)))
+       :start-task-slot start-task-slot-action) request-params)))
