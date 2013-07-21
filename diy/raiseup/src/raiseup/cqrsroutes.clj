@@ -5,13 +5,16 @@
 
 (def command-routes
   {:create-task-slot commands/create-task-slot
-   :delete-task-slot commands/delete-task-slot} )
+   :delete-task-slot commands/delete-task-slot
+   :start-task-slot commands/start-task-slot} )
 
 (def event-routes
   {:task-slot-created {:domain [domain/task-slot-created]
                        :readmodel [readmodel/task-slot-created]}
    :task-slot-deleted {:domain [domain/task-slot-deleted]
-                       :readmodel [readmodel/task-slot-deleted]}})
+                       :readmodel [readmodel/task-slot-deleted]}
+   :task-slot-started {:domain [domain/task-slot-started]
+                       :readmodel [readmodel/task-slot-started]}})
 
 
 (defn get-event-handler

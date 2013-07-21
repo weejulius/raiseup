@@ -39,16 +39,25 @@ function onDeleteTaskSlotEvent(websocket){
   });
  }
 
+
+//add event clicking the button to start slot
+function onClickToStartTaskSlot(websocket){
+    $('#module-unplanned-slot-list').on("click", ".start", function(e){
+    var idval= $(this).parent().attr('id').substring(5);
+    var json={};
+    json['ar-id'] = idval;
+    websocket.send('start-task-slot',json);
+  });
+ }
+
 //hilight the current slot focused on
 function hilightCurrent(el){
-  el
-    .on( "mouseenter","li",
+  el.on( "mouseenter","li",
          function(e){
            $(this).addClass('current');
          }
        );
-  el
-    .on( "mouseleave","li",
+  el.on( "mouseleave","li",
          function(e){
            $(this).removeClass('current');
          }
@@ -61,7 +70,7 @@ function onSlotCreated(e){
   if(e.data.errors){
     showAlert($('#slot-new-msg'),e.data.errors);
   }else{
-    var appendedSlot = '<li id="slot-'+e.data+'"><span>'+val($('#description'))+'</span><button class="hidden"></button></li>';
+    var appendedSlot = '<li id="slot-'+e.data+'"><button class="start">></button><span>'+val($('#description'))+'</span><button class="hidden"></button></li>';
     $(appendedSlot).prependTo($('#module-unplanned-slot-list'));
     resetForm('module-new-slot');
     $('#slot-new-msg').html('<i class="icon-ok"></i>');
@@ -86,6 +95,13 @@ function getWebsocketUrl(scheme,hostName,port){
 function onSlotDeleted(e){
   $('#module-unplanned-slot-list li.current').remove();
 }
+
+
+
+function onSlotStarted(e){
+  $('#module-unplanned-slot-list li.current').prependTo($('#module-planned-slot-list'));
+}
+
 (function ($) {
 
   //events on slot list
@@ -94,7 +110,8 @@ function onSlotDeleted(e){
   var websocket = $.websocket(getWebsocketUrl(location.scheme,location.hostname,location.port),{
     events:{
       create_task_slot:onSlotCreated,
-      delete_task_slot:onSlotDeleted
+      delete_task_slot:onSlotDeleted,
+      start_task_slot:onSlotStarted
     }
   });
 
@@ -106,5 +123,5 @@ function onSlotDeleted(e){
     });
 
   onDeleteTaskSlotEvent(websocket);
-
+  onClickToStartTaskSlot(websocket);
 })(jQuery);

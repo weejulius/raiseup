@@ -64,3 +64,9 @@
   [event]
    (let [ar-id (convert/->long (:ar-id event))]
     (remove-from-readmodel (:ar event) ar-id)))
+
+(defn task-slot-started
+  [event]
+  (update-in-readmodel (:ar event)
+                       (:ar-id event)
+                       #(assoc % :start-time (:start-time event))))

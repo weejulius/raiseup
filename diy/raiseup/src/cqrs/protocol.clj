@@ -1,6 +1,6 @@
 (ns
-  ^{:doc "the cqrs basic fun"
-    :added "1.0"}
+    ^{:doc "the cqrs basic fun"
+      :added "1.0"}
   cqrs.protocol
   (:require [cqrs.eventstore :as es]
             [cqrs.storage :as storage]
@@ -19,9 +19,9 @@
 (def events-db  (storage/init-store events-db-path
                                     default-leveldb-option))
 
-(def event-id-creator (storage/init-recoverable-long-id
-                       event-identifier
-                       event-ids-db))
+(def event-id-creator
+  (storage/init-recoverable-long-id event-identifier
+                                    event-ids-db))
 
 (def ar-id-creator (storage/init-recoverable-long-id
                     ar-identifier
@@ -40,15 +40,15 @@
       (fn [state event]
         ((get-handler (:event event) :domain) state event)) {} events))
   ([ar-name ar-id fn-get-event-handler]
-     (get-ar
-      (read-ar-events ar-name ar-id)
-      fn-get-event-handler)))
+     (get-ar (read-ar-events ar-name ar-id)
+             fn-get-event-handler)))
 
 (defn- populate-id-if-need
   "if the id is not existing one is given to command"
   [command]
   (if (nil? (:ar-id command))
-    (assoc command :ar-id (.inc! ar-id-creator)) command))
+    (assoc command :ar-id (.inc! ar-id-creator))
+    command))
 
 
 (defn- send-event

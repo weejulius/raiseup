@@ -22,3 +22,11 @@
    :ar-id (:ar-id command)
    :user-id (:user-id command)
    :ect (java.util.Date.)})
+
+(defn start-task-slot
+  [command]
+  {:event :task-slot-started
+   :ar (:ar command)
+   :ar-id (:ar-id command)
+   :etc (java.util.Date.)
+   })

@@ -20,3 +20,7 @@
 (defn task-slot-deleted
   [ar event]
   (merge ar event))
+
+(defn task-slot-started
+  [ar event]
+  (merge ar event))

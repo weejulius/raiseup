@@ -23,7 +23,7 @@
      (.evaluate template template-params))))
 
 (defn- render
-  "reader the template using the params"
+  "render the template with the params"
   [file-path params]
   (tpl/render-resource
      (str "templates/" file-path template-extension-with-dot)
@@ -48,13 +48,11 @@
                           :data result}))))))))
 
 
-
 (defroutes app-routes
   (GET "/todo/slots/new" []
        (render "index"
-               {:unplanned-slots (sort-by
-                                  :ar-id >
-                                  (q/find-slots-for-user 1))}))
+               {:unplanned-slots (sort-by :ar-id >
+                                          (q/find-slots-for-user 1))}))
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (q/find-slot-by-id (->long id))))
