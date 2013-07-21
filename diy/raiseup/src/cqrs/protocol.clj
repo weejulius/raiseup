@@ -1,5 +1,4 @@
-(ns
-    ^{:doc "the cqrs basic fun"
+(ns ^{:doc "the cqrs basic fun"
       :added "1.0"}
   cqrs.protocol
   (:require [cqrs.eventstore :as es]

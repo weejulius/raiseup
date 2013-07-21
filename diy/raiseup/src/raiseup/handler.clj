@@ -52,7 +52,7 @@
   (GET "/todo/slots/new" []
        (render "index"
               (index-view nil)))
-  
+
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
                (q/find-slot-by-id (->long id))))
