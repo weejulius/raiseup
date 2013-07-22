@@ -8,4 +8,4 @@
 
 
 (fact "on task created"
- (:owner (on-task-created {} (create-event {:id 100 :owner "jyu"}))) => "jyu")
+ (:owner (task-slot-created {} (create-event  {:id 100 :owner "jyu"}))) => "jyu")
