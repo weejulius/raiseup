@@ -30,7 +30,8 @@
                        (q/find-slots-for-user 1))
         grouped-slots (group-by #(nil? (:start-time %)) slots)]
     {:unplanned-slots (grouped-slots true)
-     :planned-slots (grouped-slots false)}))
+     :planned-slots (grouped-slots false)
+     :date-fmt #(convert/->str (convert/->date (convert/->long %)))}))
 
 (defn create-task-slot-action
   "create an task slot"

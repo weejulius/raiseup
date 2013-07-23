@@ -22,7 +22,7 @@
         {{#planned-slots}}
           <li id="slot-{{ar-id}}" class="slot-item">
             <button class="stop">></button>
-            <span>{{start-time}}</span>
+            <span>}{{#date-fmt}}{{start-time}}{{/date-fmt}}</span>
             <span>{{description}}</span>
             <button class="hidden"></button>
           </li>

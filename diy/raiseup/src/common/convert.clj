@@ -12,6 +12,7 @@
   (->long [this] "convert to long")
   (->map [this] "convert to map")
   (->str [this] "convert to string")
+  (->date [this] "convert to date")
   (->data [this] "convert to clojure data structure"))
 
 
@@ -47,6 +48,7 @@
   (->str [this] (.toString this))
   (->long [this] this)
   (->data [this] this)
+  (->date [this] (t-convert/to-date (t-convert/from-long this)))
 
   clojure.lang.IPersistentVector
   (->bytes [this]
