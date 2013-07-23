@@ -39,6 +39,9 @@ function onDeleteTaskSlotEvent(websocket){
   });
  }
 
+function formattedDate(date){
+  return ('0'+date.getDate()).substr(-2,2)+' '+('0'+date.getMonth()).substr(-2,2)+' '+('0'+date.getFullYear()).substr(-2,2);
+ }
 
 //add event clicking the button to start slot
 function onClickToStartTaskSlot(websocket){
@@ -46,7 +49,7 @@ function onClickToStartTaskSlot(websocket){
     var idval= $(this).parent().attr('id').substring(5);
     var json={};
     json['ar-id'] = idval;
-    json['start-time'] = new Date();
+    json['start-time'] = new Date().getTime();
     websocket.send('start-task-slot',json);
   });
  }
