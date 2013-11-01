@@ -61,6 +61,16 @@
 (defprotocol Command
   (handle-command [this] "handle command received from bus" ))
 
+(defn gen-event
+  ^{:doc "generate event"
+    :added "1.0"}
+  [event-type ar-type ar-id others]
+  (merge {:event event-type
+          :ar ar-type
+          :ar-id ar-id
+          :etc (java.util.Date.)}
+         others))
+
 (defn send-command
   "send command to bus"
   [command fn-get-event-handlers]
