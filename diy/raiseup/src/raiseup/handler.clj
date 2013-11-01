@@ -6,6 +6,8 @@
             [raiseup.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
+            [raiseup.views.common :as vc]
+            [raiseup.views.index :as vi]
             [clostache.parser :as tpl])
   (:import httl.Engine)
   (:use org.httpkit.server))
@@ -50,8 +52,9 @@
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       (render "index"
-              (index-view nil)))
+       (vc/layout
+        "care every day"
+        vi/index-view))
 
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
