@@ -20,7 +20,7 @@
                  [com.taoensso/timbre "2.3.4"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "2.6"]]
-  :plugins [[lein-ring "0.8.5"] [lqein-cljsbuild "0.3.2"]]
+  :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"]]
   :ring {:handler raiseup.handler/app-routes
          :reload-paths ["src" "resources"]
          :auto-reload? true
