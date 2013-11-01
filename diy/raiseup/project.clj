@@ -3,7 +3,7 @@
   :url "http://raiseup-trueyourself.rhcloud.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [http-kit "2.1.13"]
-                 [midje "1.6-alpha2" :scope "test"]
+                 [midje "1.6-beta1" :scope "test"]
                  [cheshire "5.2.0"]
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
@@ -20,7 +20,7 @@
                  [com.taoensso/timbre "2.3.4"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "2.6"]]
-  :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"]]
+  :plugins [[lein-ring "0.8.5"] [lqein-cljsbuild "0.3.2"]]
   :ring {:handler raiseup.handler/app-routes
          :reload-paths ["src" "resources"]
          :auto-reload? true
