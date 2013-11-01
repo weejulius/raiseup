@@ -10,15 +10,15 @@
   "send command to bus"
   [command]
   (cqrs/send-command command
-                     #(get-event-handler-with-exclusion (:event %)
-                                                        :domain
-                                                        event-routes)))
+                     #(get-event-handler-with-exclusion
+                       (:event %)
+                       :domain
+                       event-routes)))
 
 (defn- handle-with-validation
-  "validate the params before handlers"
+  "validate the params before handle commands"
   [params validate-fn handle]
   (let [errors (first (validate-fn params))]
-    (println "errors" errors)
     (if (nil? errors)
       (handle params)
       {:errors (vals errors)})))
@@ -66,7 +66,6 @@
   [request]
   (let [request-type (keyword (:type request))
         request-params (:data request)]
-    (println "type:" request-type "params:" request-params)
     ((case request-type
        :create-task-slot create-task-slot-action
        :delete-task-slot delete-task-slot-action

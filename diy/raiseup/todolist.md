@@ -30,3 +30,11 @@ Validation rd
 * validate a chain of params
 * at least two strategy , one is failed once any one of param is invalid, the other is go through all of params.
 * convert params like string to long and so on
+
+
+Improvements
+------------
+* the command protocol do the validation
+* handle-with-validation do sending the commands
+* add fun to new event or command
+

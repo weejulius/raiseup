@@ -15,7 +15,6 @@
                  [prismatic/dommy "0.1.1"]
                  [hiccup "1.0.4"]
                  [bouncer "0.2.3-beta1"]
-                 [org.clojure/tools.namespace "0.2.4"]
                  [com.taoensso/nippy "2.0.0"]
                  [com.taoensso/timbre "2.3.4"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]

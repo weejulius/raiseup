@@ -13,8 +13,7 @@
      :start-time start-time
      :estimation estimation
      :user-id user-id
-     :ect (java.util.Date.)})
-  )
+     :ect (java.util.Date.)}))
 
 (defrecord DeleteTaskSlot [ar ar-id user-id]
   cqrs/Command
