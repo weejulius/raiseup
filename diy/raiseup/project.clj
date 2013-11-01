@@ -2,7 +2,7 @@
   :description "raise up to make to do tool"
   :url "http://raiseup-trueyourself.rhcloud.com"
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [http-kit "2.1.6"]
+                 [http-kit "2.1.13"]
                  [midje "1.6-alpha2" :scope "test"]
                  [cheshire "5.2.0"]
                  [com.datomic/datomic-free "0.8.3848"]
