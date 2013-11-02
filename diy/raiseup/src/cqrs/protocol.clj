@@ -4,7 +4,8 @@
   (:require [cqrs.eventstore :as es]
             [cqrs.storage :as storage]
             [clojure.core.reducers :as r]
-            [common.config :as cfg]))
+            [common.config :as cfg]
+            [clojure.core.async :as async :refer [<! >! go chan]]))
 
 (def eventids-db-path (cfg/ret :es :event-id-db-path))
 (def events-db-path (cfg/ret :es :events-db-path))
@@ -87,22 +88,35 @@
         {:ok? true :result command}
         {:ok? false :result (vals errors)}))))
 
+
+(defn- asyn-handle-command
+  [handle-command-fn cmd]
+  (let [ch (chan)]
+    (go (while true
+          (let [cmd (<! ch)]
+            (handle-command-fn cmd))))
+    (go (>! ch cmd))))
+
 (defn send-command
   "send command to bus"
   [command fn-get-event-handlers]
   (let [command-with-id (populate-id-if-need command)
         validated-command (validate-command command-with-id)]
-    (if-not (:ok? validated-command) validated-command
-            (let [produced-events
-                  (handle-command (:result validated-command))
-                  events-with-id
-                  (map
-                   #(assoc % :event-id (.inc! event-id-creator))
-                   [produced-events])]
-              (es/store-events (:ar command-with-id)
-                               (:ar-id command-with-id)
-                               events-with-id
-                               event-ids-db
-                               events-db)
-              (dorun (map #(send-event %  fn-get-event-handlers) events-with-id))
-              (:ar-id command-with-id)))))
+    (if-not
+        (:ok? validated-command) validated-command
+        (let []
+          (asyn-handle-command
+           (fn [c] (let [produced-events
+                         (handle-command (:result c))
+                         events-with-id
+                         (map
+                          #(assoc % :event-id (.inc! event-id-creator))
+                          [produced-events])]
+                     (es/store-events (:ar command-with-id)
+                                      (:ar-id command-with-id)
+                                      events-with-id
+                                      event-ids-db
+                                      events-db)
+                     (dorun (map #(send-event %  fn-get-event-handlers)
+                                 events-with-id)))) validated-command)
+          (:ar-id command-with-id)))))
