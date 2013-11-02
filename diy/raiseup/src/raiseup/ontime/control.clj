@@ -6,22 +6,15 @@
             [raiseup.ontime.query :as q]
             [common.convert :as convert]))
 
+
 (defn- send-command
   "send command to bus"
   [command]
-  (cqrs/send-command command
-                     #(get-event-handler-with-exclusion
-                       (:event %)
-                       :domain
-                       event-routes)))
-
-(defn- handle-with-validation
-  "validate the params before handle commands"
-  [params validate-fn handle]
-  (let [errors (first (validate-fn params))]
-    (if (nil? errors)
-      (handle params)
-      {:errors (vals errors)})))
+  (cqrs/send-command
+   command
+   #(get-event-handler-with-exclusion (:event %)
+                                      :domain
+                                      event-routes)))
 
 (defn index-view
   "fetch data for index view"
@@ -36,11 +29,8 @@
 (defn create-task-slot-action
   "create an task slot"
   [params]
-  (handle-with-validation  params
-                           #(b/validate % :description v/required)
-                           #(send-command
-                             (->CreateTaskSlot :task-slot nil
-                                               1 (:description %) nil 40))))
+  (send-command
+   (->CreateTaskSlot :task-slot nil 1 (:description params) nil 40)))
 
 (defn delete-task-slot-action
   [req]
@@ -50,16 +40,11 @@
 (defn start-task-slot-action
   "action to start task slot"
   [params]
-  (handle-with-validation params
-                          #(b/validate %
-                                       :ar-id [v/required]
-                                       :start-time v/required)
-                          (fn [params]
-                            (send-command
-                             (->StartTaskSlot
-                              :task-slot
-                              (convert/->long (:ar-id params))
-                              (:start-time params))))))
+  (send-command
+   (->StartTaskSlot
+    :task-slot
+    (convert/->long (:ar-id params))
+    (:start-time params))))
 
 (defn handle-request
   "handle the http request"

@@ -52,9 +52,7 @@
 
 (defroutes app-routes
   (GET "/todo/slots/new" []
-       (vc/layout
-        "care every day"
-        vi/index-view))
+       (render "index" (index-view nil)))
 
   (GET "/todo/slots/edit/:id" [id]
        (render "index"

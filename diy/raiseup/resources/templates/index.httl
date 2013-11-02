@@ -4,7 +4,7 @@
     <title>add a time slot</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!--   <link href="/css/bootstrap.css" rel="stylesheet" media="screen">-->
+    <link href="/css/bootstrap.css" rel="stylesheet" media="screen">
     <!--   <link rel="stylesheet" href="/css/font-awesome.min.css" media="screen"> -->
     <link href="/css/raiseup.css" rel="stylesheet" media="screen">
   </head>
@@ -39,7 +39,7 @@
       </ul>
     </div>
     <script src="/js/jquery-2.0.0.min.js"></script>
-    <!-- <script src="/js/bootstrap.min.js"></script>-->
+    <script src="/js/bootstrap.min.js"></script>
     <script src="/js/jquery.websocket.js"></script>
     <script src="/js/jquery.json-2.4.js"></script>
     <script src="/js/raiseup.js"></script>

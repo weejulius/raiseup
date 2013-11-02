@@ -36,5 +36,9 @@ Improvements
 ------------
 * the command protocol do the validation
 * handle-with-validation do sending the commands
-* add fun to new event or command
+[DONE] add fun to new event or command
+* the command and query is defined by protocol as part of the public api
+* the command/event bus utilize the core.asyn handle commands/events
+* the code is divided into three module web/api/core/query
+
 

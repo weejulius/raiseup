@@ -58,31 +58,51 @@
           (fn-get-event-handlers event)]
     (handler event)))
 
-(defprotocol Command
-  (handle-command [this] "handle command received from bus" ))
+(defprotocol Validatable
+  "the validation definition"
+  (validate [this] "validate the command"))
+
+(defmulti handle-command
+  ^{:doc "handle the  command"
+    :added "1.0"}
+  (fn [command] (type command)))
 
 (defn gen-event
-  ^{:doc "generate event"
+  ^{:doc "generate event from cmd"
     :added "1.0"}
-  [event-type ar-type ar-id others]
-  (merge {:event event-type
-          :ar ar-type
-          :ar-id ar-id
-          :etc (java.util.Date.)}
-         others))
+  [event-type cmd & keys]
+  (let [event {:event event-type
+          :ar (:ar cmd)
+          :ar-id (:ar-id cmd)
+          :etc (java.util.Date.)}]
+        (reduce #(assoc % %2 (%2 cmd)) event keys)))
+
+(defn- validate-command
+  "validate command"
+  [command]
+  (if-not (extends? Validatable (type command))
+    {:ok? true :result command}
+    (let [errors (first (.validate command))]
+      (if (nil? errors)
+        {:ok? true :result command}
+        {:ok? false :result (vals errors)}))))
 
 (defn send-command
   "send command to bus"
   [command fn-get-event-handlers]
   (let [command-with-id (populate-id-if-need command)
-        produced-events (handle-command command-with-id)
-        events-with-id (map
-                        #(assoc % :event-id (.inc! event-id-creator))
-                        [produced-events])]
-    (es/store-events (:ar command-with-id)
-                     (:ar-id command-with-id)
-                     events-with-id
-                     event-ids-db
-                     events-db)
-    (dorun (map #(send-event %  fn-get-event-handlers) events-with-id))
-    (:ar-id command-with-id)))
+        validated-command (validate-command command-with-id)]
+    (if-not (:ok? validated-command) validated-command
+            (let [produced-events
+                  (handle-command (:result validated-command))
+                  events-with-id
+                  (map
+                   #(assoc % :event-id (.inc! event-id-creator))
+                   [produced-events])]
+              (es/store-events (:ar command-with-id)
+                               (:ar-id command-with-id)
+                               events-with-id
+                               event-ids-db
+                               events-db)
+              (dorun (map #(send-event %  fn-get-event-handlers) events-with-id))
+              (:ar-id command-with-id)))))
