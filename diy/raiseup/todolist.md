@@ -34,11 +34,17 @@ Validation rd
 
 Improvements
 ------------
-* the command protocol do the validation
-* handle-with-validation do sending the commands
+[DONE] the command protocol do the validation
 [DONE] add fun to new event or command
-* the command and query is defined by protocol as part of the public api
-* the command/event bus utilize the core.asyn handle commands/events
+[==]   the command and query is defined by protocol as part of the public api
+[DONE] the command/event bus utilize the core.asyn handle commands/events
 * the code is divided into three module web/api/core/query
+
+Blocks
+------
+* the defmethod/extend-protocol stay different place with defmulti/defprotocol, throw no implentation.
+** :use the extend-protocols/defmethod when ceating the record
+** care about the order if there are two related defmulti/defprotocol
+
 
 

@@ -1,26 +1,25 @@
-(ns raiseup.ontime.domain)
-
-(defn create-event
- [event]
- (assoc event :event-dt (java.util.Date.)))
+(ns raiseup.ontime.domain
+  (:require [cqrs.core :as cqrs]))
 
 (defn create-task
   "create a task"
-  [id description owner estimation]
-  (create-event {:id id
-                 :description description
-                 :owner owner
-                 :estimation estimation}))
+  [{:keys [ar ar-id description user-id estimation]}]
+  {:event :task-slot-created
+   :ar ar
+   :ar-id ar-id
+   :description description
+   :user-id user-id
+   :estimation estimation})
 
+(defn start-task
+  [{:keys [ar ar-id start-time]}]
+  {:event :task-slot-started
+   :ar ar
+   :ar-id ar-id
+   :start-time start-time})
 
-(defn task-slot-created
-  [ar event]
-  (merge ar event))
-
-(defn task-slot-deleted
-  [ar event]
-  (merge ar event))
-
-(defn task-slot-started
-  [ar event]
-  (merge ar event))
+(defn delete-task
+  [{:keys [ar ar-id]}]
+  {:event :task-slot-deleted
+   :ar ar
+   :ar-id ar-id})

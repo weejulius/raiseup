@@ -22,7 +22,7 @@
         {{#planned-slots}}
           <li id="slot-{{ar-id}}" class="slot-item">
             <button class="stop">></button>
-            <span>{{#date-fmt}}{{start-time}}{{/date-fmt}}</span>
+            <span>{{start-time}}</span>
             <span>{{description}}</span>
             <button class="hidden"></button>
           </li>
@@ -31,7 +31,7 @@
       <ul id="module-unplanned-slot-list">
         {{#unplanned-slots}}
           <li id="slot-{{ar-id}}" class="slot-item">
-            <button class="start">></button>
+            <button class="start">|>></button>
             <span>{{description}}</span>
             <button class="hidden"></button>
           </li>

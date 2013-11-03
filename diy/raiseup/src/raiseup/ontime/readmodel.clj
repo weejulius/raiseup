@@ -1,7 +1,8 @@
 (ns raiseup.ontime.readmodel
   (:require [raiseup.mutable-data :as md]
             [common.convert :as convert]
-            [clojure.core.reducers :as r]))
+            [clojure.core.reducers :as r]
+            [cqrs.protocol :refer [on-event]]))
 
 (defn get-readmodels
   "get the read models from cache by model name"
@@ -15,7 +16,6 @@
   ([model-name k cache]
      (let [readmodels (get-readmodels cache model-name)
            readmodel (.get readmodels k)]
-       (println  model-name "key:" k " -> " readmodel " :all " readmodels)
        readmodel))
   ([model-name k]
      (get-readmodel model-name k (md/readmodel-cache))))
@@ -39,7 +39,6 @@
   [model-name key f]
   (let [v (get-readmodel model-name key)
         v1 (f v)]
-    (println "update read model from " v "to" v1)
     (put-in-readmodel model-name key v1)))
 
 (defn conj+
@@ -55,18 +54,21 @@
   (r/fold conj+ (r/filter f
               (r/map identity (.values (get-readmodels model-name))))))
 
-(defn task-slot-created
+(defmethod on-event
+  :task-slot-created
   [event]
   (let [ar-id (:ar-id event)
         start-time (:start-time event)]
     (put-in-readmodel (:ar event) ar-id event)))
 
-(defn task-slot-deleted
+(defmethod on-event
+  :task-slot-deleted
   [event]
-   (let [ar-id (convert/->long (:ar-id event))]
+  (let [ar-id (convert/->long (:ar-id event))]
     (remove-from-readmodel (:ar event) ar-id)))
 
-(defn task-slot-started
+(defmethod on-event
+  :task-slot-started
   [event]
   (update-in-readmodel (:ar event)
                        (:ar-id event)

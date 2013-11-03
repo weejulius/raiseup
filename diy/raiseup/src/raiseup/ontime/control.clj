@@ -1,20 +1,12 @@
 (ns raiseup.ontime.control
-  (:require [cqrs.protocol :as cqrs]
+  (:require [cqrs.core :as cqrs]
             [raiseup.ontime.commands :refer :all]
+            [raiseup.ontime.command-handler :refer :all]
             [raiseup.cqrsroutes :refer :all]
             [bouncer [core :as b] [validators :as v]]
             [raiseup.ontime.query :as q]
             [common.convert :as convert]))
 
-
-(defn- send-command
-  "send command to bus"
-  [command]
-  (cqrs/send-command
-   command
-   #(get-event-handler-with-exclusion (:event %)
-                                      :domain
-                                      event-routes)))
 
 (defn index-view
   "fetch data for index view"
@@ -24,23 +16,26 @@
         grouped-slots (group-by #(nil? (:start-time %)) slots)]
     {:unplanned-slots (grouped-slots true)
      :planned-slots (grouped-slots false)
-     :date-fmt #(convert/->str (convert/->date (convert/->long %)))}))
+     :date-fmt (fn [text f]
+                 (convert/->str
+                  (convert/->date
+                   (convert/->long (f text)))))}))
 
 (defn create-task-slot-action
   "create an task slot"
   [params]
-  (send-command
+  (cqrs/send-command
    (->CreateTaskSlot :task-slot nil 1 (:description params) nil 40)))
 
 (defn delete-task-slot-action
   [req]
-  (send-command
+  (cqrs/send-command
    (->DeleteTaskSlot :task-slot (:ar-id req) 1)))
 
 (defn start-task-slot-action
   "action to start task slot"
   [params]
-  (send-command
+  (cqrs/send-command
    (->StartTaskSlot
     :task-slot
     (convert/->long (:ar-id params))

@@ -17,7 +17,6 @@
 
 
 (extend-protocol Cast
-
   String
   (->bytes [this]
     (.getBytes this (cfg/ret :charset)))
