@@ -8,7 +8,7 @@
   [event]
   (let [ar-id (:ar-id event)
         start-time (:start-time event)]
-    (.put-entry models (:ar event) ar-id event)))
+    (.put-entry models event)))
 
 (defmethod on-event
   :task-slot-deleted
