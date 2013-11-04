@@ -39,12 +39,15 @@ Improvements
 [==]   the command and query is defined by protocol as part of the public api
 [DONE] the command/event bus utilize the core.asyn handle commands/events
 * the code is divided into three module web/api/core/query
+* abstract the read model
+* add lifecycle management
 
 Blocks
 ------
 * the defmethod/extend-protocol stay different place with defmulti/defprotocol, throw no implentation.
 ** :use the extend-protocols/defmethod when ceating the record
 ** care about the order if there are two related defmulti/defprotocol
+
 
 
 
