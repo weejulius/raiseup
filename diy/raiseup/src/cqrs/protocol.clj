@@ -20,7 +20,7 @@
   (fn [event] (:event event)))
 
 (defprotocol ReadModel
-  "manipulate the entries in the read model"
+  "manipulate the entries in read model"
   (load-entry [this entry-type entry-id]
     "return the entry by its type and id")
   (update-entry [this entry-type entry-id fn]

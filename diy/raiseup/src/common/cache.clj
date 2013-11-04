@@ -15,13 +15,16 @@
                                  (cached-item))))
           cache-name)
          cache)))
-  ([cache-kw keys cached-item]
+  ([cache-kw keys new-cache-fn]
      (let [cache-name (str cache-kw)
-           cache (@caches cache-name)
-           path (vec (cons  cache-name keys))]
-       (if (nil? cache)
-         (let []
-           (log/debug "cache new item" cache-kw keys cached-item)
-           (swap! caches
-                  (fn [c] (assoc-in c path (cached-item))))))
-       (get-in @caches path))))
+           path (vec (cons  cache-name keys))
+           cache  (get-in @caches path)]
+       (if-not (nil? cache) cache
+               (let [new-cache (new-cache-fn)]
+                 (log/debug "cache new item" cache-kw keys new-cache)
+                 (if-not (nil? new-cache)
+                   (get-in
+                    (swap! caches
+                           (fn [c] (assoc-in c path new-cache)))
+                    path)
+                   nil))))))

@@ -2,7 +2,8 @@
       :added "1.0"}
   raiseup.ontime.commands
   (:require [cqrs.protocol :as cqrs]
-            [bouncer [core :as b] [validators :as v]]))
+            [bouncer [core :as b] [validators :as v]])
+  (:gen-class))
 
 (defrecord CreateTaskSlot [ar ar-id user-id description start-time estimation]
   cqrs/Validatable

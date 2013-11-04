@@ -2,7 +2,7 @@
   (:require [cqrs.core :as cqrs]
             [raiseup.ontime.commands :refer :all]
             [raiseup.ontime.command-handler :refer :all]
-            [raiseup.cqrsroutes :refer :all]
+            [raiseup.ontime.readmodel :refer :all]
             [bouncer [core :as b] [validators :as v]]
             [raiseup.ontime.query :as q]
             [common.convert :as convert]))

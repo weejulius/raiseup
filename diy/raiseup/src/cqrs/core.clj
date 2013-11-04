@@ -68,19 +68,24 @@
              fn-get-event-handler)))
 
 (defn register-handler
-  "register the channel to listen event/command and handle the comming ones"
-  [event-type f]
-  (let [ch (cache/get-cache event-type [*ns*] chan)]
-    (go (while true
-          (let [cmd (<! ch)]
-            (f cmd))))))
+  "register the channel to listen event/command and handle the comming ones
+   the handlers is binded as {$:type {$:from handler}}"
+  [type from f]
+  (if (nil? (cache/get-cache type from (fn [] nil)))
+    (let [ch (cache/get-cache type from chan)]
+      (println "registed type" ch type from)
+      (go (while true
+            (let [cmd (<! ch)]
+              (println "receiving " cmd)
+              (f cmd)))))))
 
 
 (defn emit
   "emit event/command to the listening channel"
-  [event]
-  (let [chs (cache/get-cache (or (:event event) (type event)) (fn [] nil))]
-    (if (nil? chs) (throw "no handler for event" event)
+  [event type]
+  (let [chs (cache/get-cache type (fn [] nil))]
+    (println "emitting" event chs)
+    (if (nil? chs) (throw "no any handler for event" event)
         (doseq [[key ch] chs]
           (go (>! ch event))))))
 
@@ -89,8 +94,15 @@
   "register the unregistered command before emitting "
   [handle-command-fn cmd]
   (let []
-    (register-handler (type cmd) handle-command-fn)
-    (emit cmd)))
+    (register-handler (type cmd) [:command] handle-command-fn)
+    (emit cmd (type cmd))))
+
+(defn prepare-and-emit-event
+  "emit the event, but register handler for the event if unregistered"
+  [event]
+  (let [event-type (:event event)]
+    (register-handler event-type [(str on-event)] on-event)
+    (emit event event-type)))
 
 (defn- validate-command
   "validate command"
@@ -102,13 +114,6 @@
         {:ok? true :result command}
         {:ok? false :result (vals errors)}))))
 
-(defn prepare-and-emit-event
-  "emit the event, but register handler for the event if unregistered"
-  [event]
-  (let [chs (cache/get-cache (:event event) (fn []  nil))]
-    (if (nil? chs) (register-handler (:event event) on-event))
-    (emit event)))
-
 (defn send-command
   "send command to channel, the channel will handle the command,
    and then store and emit the produced events"
@@ -118,15 +123,16 @@
     (if-not (:ok? validated-command) validated-command
             (asyn-handle-command
              (fn [c]
-               (let [produced-events [(handle-command (:result c))]
+               (let [produced-events [(handle-command c)]
                      events-with-id
                      (map
-                      #(assoc % :event-id (.inc! event-id-creator)) produced-events)]
+                      #(assoc % :event-id (.inc! event-id-creator))
+                      produced-events)]
                  (es/store-events (:ar command-with-id)
                                   (:ar-id command-with-id)
                                   events-with-id
                                   event-ids-db
                                   events-db)
                  (dorun (map #(prepare-and-emit-event %) events-with-id))))
-             validated-command))
+             (:result validated-command)))
     (:ar-id command-with-id)))

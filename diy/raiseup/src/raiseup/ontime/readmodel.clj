@@ -1,7 +1,8 @@
 (ns raiseup.ontime.readmodel
   (:require [common.convert :as convert]
             [ontime :refer [models]]
-            [cqrs.protocol :refer [on-event]]))
+            [cqrs.protocol :refer [on-event]])
+  (:gen-class))
 
 (defmethod on-event
   :task-slot-created
