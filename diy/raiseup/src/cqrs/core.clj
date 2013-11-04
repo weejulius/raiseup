@@ -1,4 +1,7 @@
-(ns cqrs.core
+(ns ^{:doc "utilizes applying the CQRS pattern,
+            including the event/command bus and event store"
+      :added "1.0"}
+  cqrs.core
   (:require [cqrs.eventstore :as es]
             [cqrs.protocol :refer :all]
             [cqrs.storage :as storage]
@@ -53,7 +56,7 @@
           :ar-id (:ar-id cmd)
           :ctime (java.util.Date.)}]
         (reduce #(assoc % %2 (%2 cmd)) event keys)))
-
+nnnnn
 (defn get-ar
   "retrieve the aggregate root state by replay events for ar"
   ([events get-handler]
@@ -64,16 +67,18 @@
      (get-ar (read-ar-events ar-name ar-id)
              fn-get-event-handler)))
 
-(defn register-handler [event-type f]
+(defn register-handler
   "register the channel to listen event/command and handle the comming ones"
+  [event-type f]
   (let [ch (cache/get-cache event-type [*ns*] chan)]
     (go (while true
           (let [cmd (<! ch)]
             (f cmd))))))
 
 
-(defn emit [event]
+(defn emit
   "emit event/command to the listening channel"
+  [event]
   (let [chs (cache/get-cache (or (:event event) (type event)) (fn [] nil))]
     (if (nil? chs) (throw "no handler for event" event)
         (doseq [[key ch] chs]
@@ -97,8 +102,8 @@
         {:ok? true :result command}
         {:ok? false :result (vals errors)}))))
 
-(defn emit-with-start-event-handler
-  "emit the event, but register the event if unregistered"
+(defn prepare-and-emit-event-handler
+  "emit the event, but register handler for the event if unregistered"
   [event]
   (let [chs (cache/get-cache (:event event) (fn []  nil))]
     (if (nil? chs) (register-handler (:event event) on-event))
@@ -106,7 +111,7 @@
 
 (defn send-command
   "send command to channel, the channel will handle the command,
-   and store the produced event and emit the events"
+   and then store and emit the produced events"
   [command]
   (let [command-with-id (populate-id-if-need command)
         validated-command (validate-command command-with-id)]
@@ -122,6 +127,6 @@
                                   events-with-id
                                   event-ids-db
                                   events-db)
-                 (dorun (map #(emit-with-start-event-handler %) events-with-id))))
+                 (dorun (map #(prepare-and-emit-event %) events-with-id))))
              validated-command))
     (:ar-id command-with-id)))

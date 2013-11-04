@@ -18,3 +18,11 @@
 (defmulti on-event
   "handle the comming event"
   (fn [event] (:event event)))
+
+(defprotocol ReadModel
+  "manipulate the read models"
+  (load-entry [entry-type entry-id] "return the entry by its type and id")
+  (update-entry [entry-type entry-id new-entry-or-fn]
+    "update then entry with new entry or utilize fn to update it")
+  (remove-entry [entry-type entry-id] "remote the entry")
+  (query [entry-type f] "query the entries"))
