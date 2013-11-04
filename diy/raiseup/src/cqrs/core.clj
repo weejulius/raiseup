@@ -56,7 +56,7 @@
           :ar-id (:ar-id cmd)
           :ctime (java.util.Date.)}]
         (reduce #(assoc % %2 (%2 cmd)) event keys)))
-nnnnn
+
 (defn get-ar
   "retrieve the aggregate root state by replay events for ar"
   ([events get-handler]
@@ -102,7 +102,7 @@ nnnnn
         {:ok? true :result command}
         {:ok? false :result (vals errors)}))))
 
-(defn prepare-and-emit-event-handler
+(defn prepare-and-emit-event
   "emit the event, but register handler for the event if unregistered"
   [event]
   (let [chs (cache/get-cache (:event event) (fn []  nil))]

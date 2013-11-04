@@ -6,16 +6,14 @@
   (:import (com.hazelcast.core Hazelcast)
            (com.hazelcast.config Config)))
 
-(defn readmodel-cache
+(defn get-read-caches
   []
   (c/get-cache :readmodel-cache (fn [] (Hazelcast/newHazelcastInstance nil))))
 
 (defn load-entries
   "get the read models from cache by model name"
-  ([caches entry-type]
-      (.getMap caches (name entry-type)))
-  ([entry-type]
-     (load-entries (readmodel-cache) entry-type)))
+  [caches entry-type]
+  (.getMap caches entry-type))
 
 (defn conj+
   "conj vararier for fold function"
@@ -24,22 +22,22 @@
   ([]
      []))
 
+
 (defrecord HazelcastReadModel [caches]
   cqrs/ReadModel
   (load-entry [type id]
-    (let [entries (load-entries type)
+    (let [entries (load-entries caches type)
           entry (.get entries id)]
       entry))
-  (update-entry [type new-entry-or-update-fn]
+  (put-entry [entry-type new-entry]
+    (.put (load-entries caches type) (:ar-id new-entry) new-entry))
+  (update-entry [entry-type id f]
     (let [entry (load-entry type id)
-          new-entry (if (fn? new-or-update-fn)
-                      (new-entry-or-update-fn entry)
-                      new-entry-or-update-fn)]
-
-      (.put (load-entries type) (:ar-id new-entry) new-entry)))
+          new-entry (f entry)]
+      (put-entry entry-type new-entry)))
   (remove-entry [type id]
     (let [entries (load-entries type id)]
       (.remove entries id)))
   (query [type f]
-   (r/fold conj+ (r/filter f
-              (r/map identity (.values (load-entries type)))))))
+    (r/fold conj+ (r/filter f
+                            (r/map identity (.values (load-entries type)))))))
