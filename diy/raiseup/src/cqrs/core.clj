@@ -8,6 +8,7 @@
             [clojure.core.reducers :as r]
             [common.config :as cfg]
             [common.cache :as cache]
+            [common.logging :as log]
             [clojure.core.async :as async :refer [<! >! go chan]]))
 
 
@@ -73,10 +74,9 @@
   [type from f]
   (if (nil? (cache/get-cache type from (fn [] nil)))
     (let [ch (cache/get-cache type from chan)]
-      (println "registed type" ch type from)
+      (log/debug "register handler" type from ch)
       (go (while true
             (let [cmd (<! ch)]
-              (println "receiving " cmd)
               (f cmd)))))))
 
 
@@ -84,7 +84,6 @@
   "emit event/command to the listening channel"
   [event type]
   (let [chs (cache/get-cache type (fn [] nil))]
-    (println "emitting" event chs)
     (if (nil? chs) (throw "no any handler for event" event)
         (doseq [[key ch] chs]
           (go (>! ch event))))))
