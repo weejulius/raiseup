@@ -6,10 +6,6 @@
   (:import (com.hazelcast.core Hazelcast)
            (com.hazelcast.config Config)))
 
-(defn get-read-caches
-  "init the hazelcase cache as the underlying of read models"
-  []
-  (c/get-cache :readmodel-cache (fn [] (Hazelcast/newHazelcastInstance nil))))
 
 (defn load-entries
   "get the read models from cache by model name"

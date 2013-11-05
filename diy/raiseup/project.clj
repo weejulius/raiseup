@@ -14,6 +14,7 @@
                  [clj-time "0.5.1"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [httl/httl "1.0.9"]
+                 [com.stuartsierra/component "0.1.0"]
                  [prismatic/dommy "0.1.1"]
                  [hiccup "1.0.4"]
                  [bouncer "0.2.3-beta1"]
