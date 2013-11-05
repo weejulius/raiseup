@@ -41,6 +41,11 @@ Improvements
 * the code is divided into three module web/api/core/query
 * abstract the read model
 * add lifecycle management
+* replay the events
+* snapshot of ar
+* command/query can be passed in by means of http automatically
+* event needs version and conflict resolver
+* command can be composied by comamnds
 
 Blocks
 ------
