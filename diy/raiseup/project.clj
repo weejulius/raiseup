@@ -22,7 +22,7 @@
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "3.1"]]
   :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"]]
-  :ring {:handler raiseup.handler/app-routes
+  :ring {:handler ontime.handler/app-routes
          :reload-paths ["src" "resources"]
          :auto-reload? true
          :auto-refresh? false

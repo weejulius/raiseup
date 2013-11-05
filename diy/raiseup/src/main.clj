@@ -1,7 +1,7 @@
 (ns main
   (:gen-class)
   (:use [org.httpkit.server :only [run-server]]
-        raiseup.handler)
+        ontime.handler)
   (:require [ring.middleware.reload :as reload]
             [compojure.handler :refer [site]]
             [common.config :as cfg]))

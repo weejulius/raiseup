@@ -22,8 +22,7 @@
        (if-not (nil? old-cache) old-cache
                (let [new-cache (new-cache-fn)]
                  (if-not (nil? new-cache)
-                   (let []
-                     (log/debug "cache new item" cache-kw keys new-cache)
-                     (swap! caches
-                            (fn [c] (assoc-in c path new-cache)))))
+                   (do (log/debug "cache new item" cache-kw keys new-cache)
+                       (swap! caches
+                              (fn [c] (assoc-in c path new-cache)))))
                  (get-in @caches path))))))
