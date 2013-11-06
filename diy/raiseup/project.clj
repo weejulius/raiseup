@@ -33,7 +33,9 @@
   :repositories [["httl" {:url "http://httl.github.io/maven"
                           :checksum :warn}]]
   :profiles  {:dev {:jvm-opts ["-Dhttl.reloadable=true"]
-                    :dependencies [[ring-mock "0.1.5"]]
+                    :dependencies [[ring-mock "0.1.5"]
+                                   [org.clojure/tools.namespace "0.2.4"]]
+                    :source-paths ["dev" "src" "resources"]
                     :plugins []
                     :repl-options {:port 4001}}
               :production {:jvm-opts ["-Dproduction=true" "-Dconfig=config.pro.clj"]}}
