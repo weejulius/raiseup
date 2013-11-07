@@ -8,41 +8,21 @@
             [clojure.core.reducers :as r]
             [common.config :as cfg]
             [common.cache :as cache]
+            [common.func :as func]
             [common.logging :as log]
             [clojure.core.async :as async :refer [<! >! go chan]]))
 
 
-(def eventids-db-path (cfg/ret :es :event-id-db-path))
-(def events-db-path (cfg/ret :es :events-db-path))
-(def event-identifier (cfg/ret :es :recoverable-event-id-key))
-(def ar-identifier (cfg/ret :es :recoverable-ar-id-key))
-(def default-leveldb-option (cfg/ret :leveldb-option))
-
-(def event-ids-db (storage/init-store eventids-db-path
-                                      default-leveldb-option))
-
-(def events-db  (storage/init-store events-db-path
-                                    default-leveldb-option))
-
-(def event-id-creator
-  (storage/init-recoverable-long-id event-identifier
-                                    event-ids-db))
-
-(def ar-id-creator (storage/init-recoverable-long-id
-                    ar-identifier
-                    event-ids-db))
-
-
 (defn- read-ar-events
   "read aggregate root events"
-  [ar-name ar-id]
+  [ar-name ar-id event-ids-db events-db]
   (es/read-events ar-name ar-id event-ids-db events-db))
 
 
 
 (defn- populate-id-if-need
   "if the id is not existing one is given to command"
-  [command]
+  [command ar-id-creator]
   (if (nil? (:ar-id command))
     (assoc command :ar-id (.inc! ar-id-creator))
     command))
@@ -68,39 +48,43 @@
      (get-ar (read-ar-events ar-name ar-id)
              fn-get-event-handler)))
 
-(defn register-handler
-  "register the channel to listen event/command and handle the comming ones
-   the handlers is binded as {$:type {$:from handler}}"
-  [type from f]
-  (if (nil? (cache/get-cache type from (fn [] nil)))
-    (let [ch (cache/get-cache type from chan)]
-      (log/debug "register handler" type from ch)
-      (go (while true
-            (let [cmd (<! ch)]
-              (f cmd)))))))
+(defn register-channel
+  "register a channel, the channel listenes to event/command
+   and responsible for handing them.
+   the channels are mapped as {$:type {$:from channel}}"
+  [channel-map type from handler]
+  (func/put-if-absence
+   channel-map [type from]
+   (fn []
+     (let [ch (chan)]
+       (log/debug "register channel" type from ch)
+       (go (while true
+             (let [cmd (<! ch)]
+               (f cmd))))
+       ch))))
 
 
 (defn emit
-  "emit event/command to the listening channel"
-  [event type]
-  (let [chs (cache/get-cache type (fn [] nil))]
-    (if (nil? chs) (throw "no any handler for event" event)
+  "emit event/command to the listening channel, type is to find channels related to the type"
+  [channel-map event type]
+  (let [chs (get-in channel-map type)]
+    (if (nil? chs) (throw "no any handler for event" event "type" type)
         (doseq [[key ch] chs]
           (go (>! ch event))))))
 
 
-(defn- asyn-handle-command
-  "register the unregistered command before emitting "
-  [handle-command-fn cmd]
-  (let []
-    (register-handler (type cmd) [:command] handle-command-fn)
-    (emit cmd (type cmd))))
+(defn- emit-command
+  "register a channel if the command does not have, and emit the command to the channel"
+  [channel-map handle-command-fn cmd]
+  (do
+    (register-channel channel-map (type cmd) [:command] handle-command-fn)
+    (emit channel-map cmd (type cmd))))
 
 (defn prepare-and-emit-event
   "emit the event, but register handler for the event if unregistered"
-  [event]
+  [channel-map event]
   (let [event-type (:event event)]
-    (register-handler event-type [(str on-event)] on-event)
+    (register-channel channel-map  event-type [(str on-event)] on-event)
     (emit event event-type)))
 
 (defn- validate-command
@@ -113,6 +97,19 @@
         {:ok? true :result command}
         {:ok? false :result (vals errors)}))))
 
+
+(defn handle-command
+  "handle the command , meanwhile store and emit the events to their channel "
+  [handle command channel-map]
+  (let [events-with-id (->> [(handle command)]
+                            (map #(assoc % :event-id (.inc! event-id-creator))))]
+    (es/store-events (:ar command)
+                     (:ar-id command)
+                     events-with-id
+                     event-ids-db
+                     events-db)
+    (dorun (map #(prepare-and-emit-event channel-map %) events-with-id))))
+
 (defn send-command
   "send command to channel, the channel will handle the command,
    and then store and emit the produced events"
@@ -120,18 +117,7 @@
   (let [command-with-id (populate-id-if-need command)
         validated-command (validate-command command-with-id)]
     (if-not (:ok? validated-command) validated-command
-            (asyn-handle-command
-             (fn [c]
-               (let [produced-events [(handle-command c)]
-                     events-with-id
-                     (map
-                      #(assoc % :event-id (.inc! event-id-creator))
-                      produced-events)]
-                 (es/store-events (:ar command-with-id)
-                                  (:ar-id command-with-id)
-                                  events-with-id
-                                  event-ids-db
-                                  events-db)
-                 (dorun (map #(prepare-and-emit-event %) events-with-id))))
+            (emit-command
+
              (:result validated-command)))
     (:ar-id command-with-id)))

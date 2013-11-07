@@ -1,12 +1,9 @@
 (ns cqrs.hazelcast.readmodel
-  (:require [common.cache :as c]
-            [cqrs.protocol :as cqrs]
-            [com.stuartsierra.component :as component]
+  (:require [cqrs.protocol :as cqrs]
             [common.logging :as log]
             [clojure.core.reducers :as r]
             [common.convert :as convert])
-  (:import (com.hazelcast.core Hazelcast)
-           (com.hazelcast.config Config)))
+  )
 
 
 (defn load-entries
@@ -21,10 +18,7 @@
   ([]
      []))
 
-
 (defrecord HazelcastReadModel [caches]
-  ;; ^{:doc "use hazelcase as the read model cache"
-  ;;    :added "1.0"}
   cqrs/ReadModel
   (load-entry [this type id]
     "load single entry by id"
@@ -52,21 +46,5 @@
     "filter each entry and combine the qualified ones"
     (r/fold conj+ (r/filter
                    f
-                   (r/map identity (.values (load-entries caches type)))))))
-
-
-(extend-type HazelcastReadModel
-  component/LifeCycle
-  (start [component]
-    (if (.isRunning (.getLifecycleService (:caches component)))
-      (do (log/info "hazelcast is running already.")
-          component)
-      (let [hazelcast-cache (Hazelcast/newHazelcastInstance nil)]
-        (log/info "starting hazelcast instance as read model")
-        (assoc component :caches hazelcast))))
-  (stop [component]
-    (if (.isRunning (.getLifecycleService (:caches component)))
-      (do (log/info "shutting down hazelcast")
-          (.shutdown (:caches component))
-          (assoc component :caches nil)))
-    component))
+                   (r/map identity
+                          (.values (load-entries caches type)))))))
