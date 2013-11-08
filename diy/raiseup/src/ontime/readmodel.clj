@@ -1,7 +1,7 @@
 (ns ontime.readmodel
   (:require [common.convert :as convert]
             [cqrs.protocol :refer [on-event]]
-            [system :refer entries])
+            [system :refer [entries]])
   (:gen-class))
 
 (defmethod on-event

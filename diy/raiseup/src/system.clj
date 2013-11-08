@@ -1,7 +1,8 @@
 (ns system
   (:require [common.logging :as log]
-            [cqrs.hazelcast.readmodel :refer :all]
-             [cqrs.storage :as storage])
+            [cqrs.hazelcast.readmodel :as rm]
+            [cqrs.storage :as storage]
+            [common.config :as cfg])
   (:import (com.hazelcast.core Hazelcast)
            (com.hazelcast.config Config)))
 
@@ -22,19 +23,18 @@
 ;;           (assoc component :caches nil)))
 ;;     component))
 (defonce system
-  {:readmodel (->HazelcastReadModel
+  {:readmodel (rm/->HazelcastReadModel
                (Hazelcast/newHazelcastInstance nil))
-   :channels {}
-   :event-id-db (storage/init-store (cfg/ret :es :event-id-db-path)
-                                    (cfg/ret :leveldb-option))
+   :channels (atom {})
+   :event-ids-db (storage/init-store (cfg/ret :es :event-id-db-path)
+                                     (cfg/ret :leveldb-option))
    :events-db (storage/init-store (cfg/ret :es :events-db-path)
                                   (cfg/ret :leveldb-option))
-   :event-id-creator (storage/init-recoverable-long-id
-                      (cfg/ret :es :recoverable-event-id-key)
-                      event-ids-db)
-   :ar-id-creator (storage/init-recoverable-long-id
-                   (cfg/ret :es :recoverable-ar-id-key)
-                   event-id-db)
-   })
+   :event-id-creator (fn [system] (storage/init-recoverable-long-id
+                                   (cfg/ret :es :recoverable-event-id-key)
+                                   (:event-ids-db system)))
+   :ar-id-creator (fn [system] (storage/init-recoverable-long-id
+                                (cfg/ret :es :recoverable-ar-id-key)
+                                (:events-id-db system)))})
 
 (def entries (:readmodel system))

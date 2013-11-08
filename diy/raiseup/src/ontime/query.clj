@@ -1,7 +1,7 @@
 (ns ^{:doc "the query for read model"
       :added "1.0"}
   ontime.query
-  (:require [ontime :refer [entries]]))
+  (:require [system :refer [entries]]))
 
 (defn find-slot-by-id
   [^Long id]

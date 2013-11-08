@@ -1,7 +1,7 @@
 (defproject raiseup "0.1.0-SNAPSHOT"
   :description "raise up to make to do tool"
   :url "http://raiseup-trueyourself.rhcloud.com"
-  :dependencies [[org.clojure/clojure "1.6.0-alpha1"]
+  :dependencies [[org.clojure/clojure "1.6.0-alpha2"]
                  [http-kit "2.1.13"]
                  [midje "1.6-beta1" :scope "test"]
                  [cheshire "5.2.0"]

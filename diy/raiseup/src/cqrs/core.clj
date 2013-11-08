@@ -6,10 +6,10 @@
             [cqrs.protocol :refer :all]
             [cqrs.storage :as storage]
             [clojure.core.reducers :as r]
-            [common.config :as cfg]
             [common.cache :as cache]
             [common.func :as func]
             [common.logging :as log]
+            [system :as s]
             [clojure.core.async :as async :refer [<! >! go chan]]))
 
 
@@ -18,6 +18,15 @@
   [ar-name ar-id event-ids-db events-db]
   (es/read-events ar-name ar-id event-ids-db events-db))
 
+(defn get-ar
+  "retrieve the aggregate root state by replay events for ar"
+  ([events get-handler]
+     (r/reduce
+      (fn [state event]
+        ((get-handler (:event event) :domain) state event)) {} events))
+  ([ar-name ar-id fn-get-event-handler]
+     (get-ar (read-ar-events ar-name ar-id)
+             fn-get-event-handler)))
 
 
 (defn- populate-id-if-need
@@ -38,24 +47,16 @@
           :ctime (java.util.Date.)}]
         (reduce #(assoc % %2 (%2 cmd)) event keys)))
 
-(defn get-ar
-  "retrieve the aggregate root state by replay events for ar"
-  ([events get-handler]
-     (r/reduce
-      (fn [state event]
-        ((get-handler (:event event) :domain) state event)) {} events))
-  ([ar-name ar-id fn-get-event-handler]
-     (get-ar (read-ar-events ar-name ar-id)
-             fn-get-event-handler)))
+
 
 (defn register-channel
   "register a channel, the channel listenes to event/command
    and responsible for handing them.
    the channels are mapped as {$:type {$:from channel}}"
   [channel-map type from handler]
-  (func/put-if-absence
+  (func/put-if-absence!
    channel-map [type from]
-   (fn []
+   (fn [f]
      (let [ch (chan)]
        (log/debug "register channel" type from ch)
        (go (while true
@@ -74,14 +75,15 @@
 
 
 (defn- emit-command
-  "register a channel if the command does not have, and emit the command to the channel"
+  "register a channel if the command does not have,
+   and emit the command to the channel"
   [channel-map handle-command-fn cmd]
   (do
-    (register-channel channel-map (type cmd) [:command] handle-command-fn)
+    (register-channel channel-map [(type cmd) :command] handle-command-fn)
     (emit channel-map cmd (type cmd))))
 
 (defn prepare-and-emit-event
-  "emit the event, but register handler for the event if unregistered"
+  "emit the event, but register channel for the event if unregistered"
   [channel-map event]
   (let [event-type (:event event)]
     (register-channel channel-map  event-type [(str on-event)] on-event)
@@ -98,10 +100,11 @@
         {:ok? false :result (vals errors)}))))
 
 
-(defn handle-command
-  "handle the command , meanwhile store and emit the events to their channel "
-  [handle command channel-map]
-  (let [events-with-id (->> [(handle command)]
+(defn- process-command
+  "handle the command , meanwhile store
+   and emit the events produced by command to their channel "
+  [command channel-map event-ids-db events-db event-id-creator]
+  (let [events-with-id (->> [(.handle-command command)]
                             (map #(assoc % :event-id (.inc! event-id-creator))))]
     (es/store-events (:ar command)
                      (:ar-id command)
@@ -113,11 +116,20 @@
 (defn send-command
   "send command to channel, the channel will handle the command,
    and then store and emit the produced events"
-  [command]
-  (let [command-with-id (populate-id-if-need command)
-        validated-command (validate-command command-with-id)]
-    (if-not (:ok? validated-command) validated-command
-            (emit-command
-
-             (:result validated-command)))
-    (:ar-id command-with-id)))
+  ([command channel-map event-ids-db events-db event-id-creator ar-id-creator]
+     (let [command-with-id (populate-id-if-need command ar-id-creator)
+           validated-command (validate-command command-with-id)]
+       (if-not (:ok? validated-command) validated-command
+               (emit-command
+                (fn [cmd]
+                  (process-command cmd channel-map
+                                   event-ids-db events-db event-id-creator))
+                (:result validated-command)))
+       (:ar-id command-with-id)))
+  ([command]
+     (send-command
+      (:channels s/system)
+      (:event-ids-db s/system)
+      (:events-db s/system)
+      ((:event-id-creator s/system) s/system)
+      ((:ar-id-creator s/system) s/system))))

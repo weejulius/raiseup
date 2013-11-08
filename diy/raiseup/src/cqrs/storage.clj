@@ -1,7 +1,8 @@
 (ns cqrs.storage
   (:require [common.convert :refer [->bytes ->long]]
             [cqrs.leveldb :as leveldb]
-            [common.config :as cfg]))
+            [common.config :as cfg]
+            [common.logging :as log))
 
 (def flush-recoverable-id-interval (cfg/ret :recoverable-id-flush-interval))
 
@@ -75,6 +76,7 @@
   [name storage]
   (let [recoverable (->RecoverableLongId name storage (atom -1)
                                          flush-recoverable-id-interval)]
+    (log/debug "init the recoverable long id" name)
     (.init! recoverable)
     recoverable))
 

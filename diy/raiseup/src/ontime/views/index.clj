@@ -1,4 +1,4 @@
-(ns views.index
+(ns ontime.views.index
   (:require [hiccup.form :refer [text-field  submit-button]]))
 
 (defn index-view
