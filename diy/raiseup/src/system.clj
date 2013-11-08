@@ -22,19 +22,21 @@
 ;;           (.shutdown (:caches component))
 ;;           (assoc component :caches nil)))
 ;;     component))
+
+(defonce events-id-db (storage/init-store (cfg/ret :es :event-id-db-path)
+                                     (cfg/ret :leveldb-option)))
 (defonce system
   {:readmodel (rm/->HazelcastReadModel
                (Hazelcast/newHazelcastInstance nil))
    :channels (atom {})
-   :event-ids-db (storage/init-store (cfg/ret :es :event-id-db-path)
-                                     (cfg/ret :leveldb-option))
+   :event-ids-db events-id-db
    :events-db (storage/init-store (cfg/ret :es :events-db-path)
                                   (cfg/ret :leveldb-option))
-   :event-id-creator (fn [system] (storage/init-recoverable-long-id
-                                   (cfg/ret :es :recoverable-event-id-key)
-                                   (:event-ids-db system)))
-   :ar-id-creator (fn [system] (storage/init-recoverable-long-id
-                                (cfg/ret :es :recoverable-ar-id-key)
-                                (:events-id-db system)))})
+   :event-id-creator (storage/init-recoverable-long-id
+                      (cfg/ret :es :recoverable-event-id-key)
+                      events-id-db)
+   :ar-id-creator (storage/init-recoverable-long-id
+                   (cfg/ret :es :recoverable-ar-id-key)
+                   events-id-db)})
 
 (def entries (:readmodel system))

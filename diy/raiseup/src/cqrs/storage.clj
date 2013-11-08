@@ -2,7 +2,7 @@
   (:require [common.convert :refer [->bytes ->long]]
             [cqrs.leveldb :as leveldb]
             [common.config :as cfg]
-            [common.logging :as log))
+            [common.logging :as log]))
 
 (def flush-recoverable-id-interval (cfg/ret :recoverable-id-flush-interval))
 

@@ -56,20 +56,23 @@
   [channel-map type from handler]
   (func/put-if-absence!
    channel-map [type from]
-   (fn [f]
+   (fn []
      (let [ch (chan)]
        (log/debug "register channel" type from ch)
        (go (while true
              (let [cmd (<! ch)]
-               (f cmd))))
+               (handler cmd))))
        ch))))
 
 
 (defn emit
   "emit event/command to the listening channel, type is to find channels related to the type"
-  [channel-map event type]
-  (let [chs (get-in channel-map type)]
-    (if (nil? chs) (throw "no any handler for event" event "type" type)
+  [channel-map event event-type]
+  (let [chs (get @channel-map  event-type)]
+    (if (nil? chs)
+      (do
+        (log/debug channel-map chs event-type)
+        (throw (Exception. (str "no any handler for event " event " type " event-type))))
         (doseq [[key ch] chs]
           (go (>! ch event))))))
 
@@ -78,16 +81,16 @@
   "register a channel if the command does not have,
    and emit the command to the channel"
   [channel-map handle-command-fn cmd]
-  (do
-    (register-channel channel-map [(type cmd) :command] handle-command-fn)
-    (emit channel-map cmd (type cmd))))
+  (let [command-type (str (type cmd))]
+    (register-channel channel-map command-type :command handle-command-fn)
+    (emit channel-map cmd command-type)))
 
 (defn prepare-and-emit-event
   "emit the event, but register channel for the event if unregistered"
   [channel-map event]
   (let [event-type (:event event)]
-    (register-channel channel-map  event-type [(str on-event)] on-event)
-    (emit event event-type)))
+    (register-channel channel-map  event-type (str on-event) on-event)
+    (emit channel-map event event-type)))
 
 (defn- validate-command
   "validate command"
@@ -104,7 +107,7 @@
   "handle the command , meanwhile store
    and emit the events produced by command to their channel "
   [command channel-map event-ids-db events-db event-id-creator]
-  (let [events-with-id (->> [(.handle-command command)]
+  (let [events-with-id (->> [(handle-command command)]
                             (map #(assoc % :event-id (.inc! event-id-creator))))]
     (es/store-events (:ar command)
                      (:ar-id command)
@@ -121,6 +124,7 @@
            validated-command (validate-command command-with-id)]
        (if-not (:ok? validated-command) validated-command
                (emit-command
+                channel-map
                 (fn [cmd]
                   (process-command cmd channel-map
                                    event-ids-db events-db event-id-creator))
@@ -128,8 +132,9 @@
        (:ar-id command-with-id)))
   ([command]
      (send-command
+      command
       (:channels s/system)
       (:event-ids-db s/system)
       (:events-db s/system)
-      ((:event-id-creator s/system) s/system)
-      ((:ar-id-creator s/system) s/system))))
+      (:event-id-creator s/system)
+      (:ar-id-creator s/system))))
