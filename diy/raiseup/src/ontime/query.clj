@@ -6,6 +6,6 @@
 
 (defrecord QuerySlot [^Long id ids ^Long user-id]
   Query
-  (load [this] (.load-entry entries :task-slot id))
+  (find-by-id [this] (.load-entry entries :task-slot id))
   (query [this]
-    (.query entries :task-slot (fn [slot] (= (slot :user-id) user-id)))))
+    (.do-query entries :task-slot (fn [slot] (= (slot :user-id) user-id)))))

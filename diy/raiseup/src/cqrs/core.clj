@@ -44,12 +44,12 @@
 (defn gen-event
   ^{:doc "generate event from cmd"
     :added "1.0"}
-  [event-type cmd & keys]
+  [event-type cmd keys]
   (let [event {:event event-type
           :ar (:ar cmd)
           :ar-id (:ar-id cmd)
-          :ctime (java.util.Date.)}]
-        (reduce #(assoc % %2 (%2 cmd)) event keys)))
+          :event-ctime (java.util.Date.)}]
+        (merge event (select-keys cmd keys))))
 
 
 
@@ -65,6 +65,7 @@
        (log/debug "register channel" type from ch)
        (go (while true
              (let [cmd (<! ch)]
+               (log/debug "receiving " cmd)
                (handler cmd))))
        ch))))
 
@@ -75,10 +76,12 @@
   (let [chs (get @channel-map  event-type)]
     (if (nil? chs)
       (do
-        (log/debug channel-map chs event-type)
-        (throw (Exception. (str "no any handler for event " event " type " event-type))))
+        (throw
+         (Exception. (str "no any handler for event " event " type " event-type))))
+      (do
+        (log/debug "emitting " event)
         (doseq [[key ch] chs]
-          (go (>! ch event))))))
+          (go (>! ch event)))))))
 
 
 (defn- emit-command
@@ -148,5 +151,5 @@
   "fetch result of query"
   [query]
   (if (:id query)
-    (.load query)
+    (.find-by-id query)
     (.query query)))

@@ -12,7 +12,7 @@
   ^{:doc "queries to talk with the read model"
     :added "1.0"}
   (query [this])
-  (load [this]))
+  (find-by-id [this]))
 
 
 (defprotocol Validatable
@@ -33,5 +33,5 @@
   (put-entry [this new-entry]
     "update then entry with new entry to update it")
   (remove-entry [this entry-type entry-id] "remote the entry")
-  (query [this entry-type f]
+  (do-query [this entry-type f]
     "query the entries, f is used to filter entries"))
