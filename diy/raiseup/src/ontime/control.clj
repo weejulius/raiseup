@@ -1,10 +1,10 @@
 (ns ontime.control
   (:require [cqrs.core :as cqrs]
+            [ontime.query :as q]
             [ontime.commands :refer :all]
             [ontime.command-handler :refer :all]
             [ontime.readmodel :refer :all]
             [bouncer [core :as b] [validators :as v]]
-            [ontime.query :as q]
             [common.convert :as convert]))
 
 
@@ -12,7 +12,7 @@
   "fetch data for index view"
   [params]
   (let [slots (sort-by :ar-id >
-                       (q/find-slots-for-user 1))
+                       (cqrs/fetch (q/map->QuerySlot {:user-id 1})))
         grouped-slots (group-by #(nil? (:start-time %)) slots)]
     {:unplanned-slots (grouped-slots true)
      :planned-slots (grouped-slots false)

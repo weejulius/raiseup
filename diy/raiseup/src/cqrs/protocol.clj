@@ -8,6 +8,11 @@
     :added "1.0"}
   (handle-command [command]))
 
+(defprotocol Query
+  ^{:doc "queries to talk with the read model"
+    :added "1.0"}
+  (query [this])
+  (load [this]))
 
 
 (defprotocol Validatable

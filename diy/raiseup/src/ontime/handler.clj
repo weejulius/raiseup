@@ -3,6 +3,7 @@
             [compojure.route :as route]
             [ontime.control :refer :all]
             [ontime.query :as q]
+            [cqrs.core :as cqrs]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
@@ -56,7 +57,7 @@
 
   (GET "/todo/slots/edit/:id" [id]
        (render "index"
-               (q/find-slot-by-id (->long id))))
+               (cqrs/fetch (q/map->QuerySlot {:id (->long id)}))))
   (GET "/ws" []
        handle-asyn-request)
 

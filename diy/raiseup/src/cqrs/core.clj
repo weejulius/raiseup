@@ -1,12 +1,16 @@
-(ns ^{:doc "utilizes applying the CQRS pattern,
-            including the event/command bus and event store"
+(ns ^{:doc "
+            # the lib is utilized to apply the CQRS pattern, here it will do the following
+            * the channels are registered for event/command, and binded to handler to process
+              the comming event/command automatically
+            * the channel for command will store and emit the produced events after handling it
+            * the event might have serveral channels to server it, like a channel to update readmodel
+            * the readmodel is used to offer content to be queried "
       :added "1.0"}
   cqrs.core
   (:require [cqrs.eventstore :as es]
             [cqrs.protocol :refer :all]
             [cqrs.storage :as storage]
             [clojure.core.reducers :as r]
-            [common.cache :as cache]
             [common.func :as func]
             [common.logging :as log]
             [system :as s]
@@ -138,3 +142,11 @@
       (:events-db s/system)
       (:event-id-creator s/system)
       (:ar-id-creator s/system))))
+
+
+(defn fetch
+  "fetch result of query"
+  [query]
+  (if (:id query)
+    (.load query)
+    (.query query)))
