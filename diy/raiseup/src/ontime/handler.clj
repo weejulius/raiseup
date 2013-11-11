@@ -5,6 +5,7 @@
             [ontime.query :as q]
             [notes.commands :refer :all]
             [notes.handler :refer :all]
+            [notes.query :refer :all]
             [cqrs.core :as cqrs]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
@@ -63,9 +64,13 @@
   (GET "/ws" []
        handle-asyn-request)
 
+  (GET "/notes" []
+       (str (cqrs/fetch (map->QueryNote {}))))
+
   (POST "/notes" [author title content]
         (str (cqrs/send-command
               (->CreateNote :note author title content (java.util.Date.)))))
+
   (route/resources "/")
   (route/not-found "PAGE NOT FOUND"))
 

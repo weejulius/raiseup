@@ -4,7 +4,7 @@
   (:require [system :refer [entries]]
             [cqrs.protocol :refer [Query]]))
 
-(defrecord QuerySlot [^Long id ids ^Long user-id]
+(defrecord QuerySlot [^Long id ids user-id]
   Query
   (find-by-id [this] (.load-entry entries :task-slot id))
   (query [this]
