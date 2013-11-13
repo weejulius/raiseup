@@ -18,3 +18,8 @@ read cache by key, the input is string but the key is long actually and print lo
 7.5
 
 circyle file dependencies
+
+
+##Problems
+
+* how to display date in different format easily

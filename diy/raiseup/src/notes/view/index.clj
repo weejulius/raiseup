@@ -2,7 +2,8 @@
   (:require [hiccup.core :refer :all]
             [hiccup.page :refer  [html5 include-css]]
             [notes.query :refer :all]
-            [cqrs.core :as cqrs]))
+            [cqrs.core :as cqrs]
+            [common.convert :as convert]))
 
 (defn layout
   "the layout of html which can be reused"
@@ -17,16 +18,26 @@
    [:body body]))
 
 
+(defn mod-nav
+  []
+  [:div.mod-nav
+   [:ul
+    [:li "Notes"]]])
+
 (defn mod-notes
   [notes]
   [:div.mod-notes
    [:ul
      (for [note notes]
        [:li
-        [:h1 (:title note)]
+        [:h1 (:title note)] [:span (convert/->str (:ctime note))]
         [:p (:content note)]])]])
 
 (defn index-view
   []
-  (layout "notes" (mod-notes
-                            (cqrs/fetch (map->QueryNote {})))))
+  (layout
+   "notes"
+   [:div.container
+    (mod-nav)
+    (mod-notes
+     (cqrs/fetch (map->QueryNote {})))]))

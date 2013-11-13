@@ -1,6 +1,6 @@
 {
  :charset "UTF-8"
- :short-data-format "yyyy-MM-dd"
+ :short-date-format "yyyy-MM-dd"
  :long-date-format "yyyy-MM-dd HH:mm:ss"
 
  ;; separator for string, like 1,2,3
