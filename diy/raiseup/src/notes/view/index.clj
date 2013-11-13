@@ -22,7 +22,8 @@
   []
   [:div.mod-nav
    [:ul
-    [:li "Notes"]]])
+    [:li "Notes"]
+    [:li "Problems"]]])
 
 (defn mod-notes
   [notes]
