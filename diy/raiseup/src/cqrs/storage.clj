@@ -1,5 +1,5 @@
 (ns cqrs.storage
-  (:require [common.convert :refer [->bytes ->long]]
+  (:require [common.convert :refer [->bytes ->long ->data]]
             [cqrs.leveldb :as leveldb]
             [common.config :as cfg]
             [common.logging :as log]))
@@ -11,12 +11,9 @@
   (ret-value [this key] "return value by key in the store")
   (write [this key-bytes value-bytes] "store the key value which is bytes")
   (write-in-batch [this items] "store items in batch")
-  (delete [this key] "delete the value by key"))
+  (delete [this key] "delete the value by key")
+  (map [this f] "apply f for each item"))
 
-(defn serialize
-  "serialize the clojure data structure to bytes"
-  [event]
-  (->bytes event))
 
 (defrecord LeveldbStore
     [db]
@@ -30,10 +27,19 @@
       (doseq [item items]
         (.put batch
               (->bytes (first item))
-              (serialize (second item))))
+              (->bytes (second item))))
       (.write db batch)))
   (delete [this key]
-    (.delete db (->bytes key))))
+    (.delete db (->bytes key)))
+  (map [this f]
+    (let [iterator (.iterator db)]
+      (.seekToFirst iterator)
+      (while (.hasNext iterator)
+        (let [kv (.peekNext iterator)
+              k (.getKey kv)
+              v (.getValue kv)]
+          (f k v)
+          (.next iterator))))))
 
 (defprotocol RecoverableId
   "an uniqure identifier,it can be recoved after restart,

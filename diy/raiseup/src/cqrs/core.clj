@@ -14,6 +14,7 @@
             [common.func :as func]
             [common.logging :as log]
             [system :as s]
+            [common.convert :as convert]
             [clojure.core.async :as async :refer [<! >! go chan]]))
 
 
@@ -24,13 +25,18 @@
 
 (defn get-ar
   "retrieve the aggregate root state by replay events for ar"
-  ([events get-handler]
-     (r/reduce
-      (fn [state event]
-        ((get-handler (:event event) :domain) state event)) {} events))
-  ([ar-name ar-id fn-get-event-handler]
-     (get-ar (read-ar-events ar-name ar-id)
-             fn-get-event-handler)))
+  ([events]
+     (reduce
+      (fn [m v]
+        (merge m v))
+      {}
+      events))
+  ([ar-name ar-id]
+     (read-ar-events
+      ar-name
+      ar-id
+      (:events-id-db s/system)
+      (:events-db s/system))))
 
 
 (defn- populate-id-if-need
@@ -146,6 +152,16 @@
       (:event-id-creator s/system)
       (:ar-id-creator s/system))))
 
+
+(defn replay-events
+  [store]
+  (let []
+    (log/info "[=>]replaying events to rebuild the state of entries")
+    (.map
+     store
+     (fn [k v]
+       (prepare-and-emit-event (:channels s/system) (convert/->data v))))
+    (log/info "[<=]replayed events")))
 
 (defn fetch
   "fetch result of query"

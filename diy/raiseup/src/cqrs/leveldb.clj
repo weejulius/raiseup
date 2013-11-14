@@ -9,20 +9,22 @@
   "before using the leveldb open it"
   [file leveldb-options]
   (try
+    (.compressionType leveldb-options org.iq80.leveldb.CompressionType/NONE)
     (.open
      (org.fusesource.leveldbjni.JniDBFactory/factory)
      file
      leveldb-options)
     (catch Exception e
-      (do (println "the db is not able be opened by " e ",let us repair and retry")
-          (.repair
-           (org.fusesource.leveldbjni.JniDBFactory/factory)
-           file
-           leveldb-options)
-          (.open
-           (org.fusesource.leveldbjni.JniDBFactory/factory)
-           file
-           leveldb-options)))))
+      (do
+        (println "the db is not able be opened by " e ",let us repair and retry")
+        (.repair
+         (org.fusesource.leveldbjni.JniDBFactory/factory)
+         file
+         leveldb-options)
+        (.open
+         (org.fusesource.leveldbjni.JniDBFactory/factory)
+         file
+         leveldb-options)))))
 
 (defn open-leveldb
   ^{:added "1.0"

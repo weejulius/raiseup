@@ -47,6 +47,8 @@ Improvements
 * event needs version and conflict resolver
 * command can be composied by comamnds
 * emit(cmd,timeout) will wait for the result until timeout otherwise exception will be thrown
+* the handlers in the same topic should process the events in order
+
 Blocks
 ------
 * the defmethod/extend-protocol stay different place with defmulti/defprotocol, throw no implentation.

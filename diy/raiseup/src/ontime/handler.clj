@@ -72,6 +72,9 @@
   (GET "/notes" []
        (v/index-view))
 
+  (GET "/notes/new" []
+       (v/new-note-view))
+
   (route/resources "/")
   (route/not-found "PAGE NOT FOUND"))
 

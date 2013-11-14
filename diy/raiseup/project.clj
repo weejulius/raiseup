@@ -18,7 +18,7 @@
                  [prismatic/dommy "0.1.1"]
                  [hiccup "1.0.4"]
                  [bouncer "0.2.3-beta1"]
-                 [com.taoensso/nippy "2.0.0"]
+                 [com.taoensso/nippy "2.5.0-RC2"]
                  [com.taoensso/timbre "2.3.4"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "3.1"]]
@@ -47,6 +47,6 @@
                                         ; (See the ClojureScript compiler documentation for details.)
                         :compiler {
                                         ; default: target/cljsbuild-main.js
-                                   :output-to "target/main.js"
+                                   :output-to     "target/main.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]})
+                                   :pretty-print  true}}]})

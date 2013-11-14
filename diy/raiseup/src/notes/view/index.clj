@@ -1,13 +1,14 @@
 (ns notes.view.index
   (:require [hiccup.core :refer :all]
             [hiccup.page :refer  [html5 include-css]]
+            [hiccup.form :refer :all]
             [notes.query :refer :all]
             [cqrs.core :as cqrs]
             [common.convert :as convert]))
 
 (defn layout
   "the layout of html which can be reused"
-  [title body]
+  [title & body]
   (html5
    [:head
     [:meta {:charset "utf-8"}]
@@ -15,7 +16,7 @@
     [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
     [:title title]
     (include-css "/css/raiseup.css")]
-   [:body body]))
+   [:body [:div.container body]]))
 
 
 (defn- mod-nav
@@ -40,10 +41,9 @@
   []
   (layout
    "notes"
-   [:div.container
-    (mod-nav)
-    (mod-notes
-     (cqrs/fetch (map->QueryNote {})))]))
+   (mod-nav)
+   (mod-notes
+     (cqrs/fetch (map->QueryNote {})))))
 
 
 (defn- mod-new-note
@@ -52,11 +52,13 @@
   (form-to
    [:POST "/notes"]
    [:input {:type "text" :name "title" :value ""}]
-   [:input {:type "text" :name "content" :value ""}]))
+   [:input {:type "text" :name "content" :value ""}]
+   (submit-button "submit")))
+
 (defn new-note-view
   "the page to new note"
   []
   (layout
    "new note"
    (mod-nav)
-   (mod-new-note)))
+   (mod-new-note nil)))

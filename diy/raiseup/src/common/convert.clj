@@ -1,6 +1,7 @@
 (ns common.convert
   (:use [clojure.string :only (join)])
   (:require [taoensso.nippy :refer [freeze thaw]]
+            [taoensso.nippy.compression :as compression]
             [cheshire.core :as json]
             [clj-time.format :as t-format]
             [clj-time.coerce :as t-convert]
