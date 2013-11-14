@@ -23,3 +23,7 @@ circyle file dependencies
 ##Problems
 
 * how to display date in different format easily
+* a group of routes that under the same path, for example "/notes/new" "/notes/1"
+* how to define restful url for new/edit entry
+>> follow http://www.iana.org/assignments/link-relations/link-relations.xml
+

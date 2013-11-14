@@ -18,14 +18,15 @@
    [:body body]))
 
 
-(defn mod-nav
+(defn- mod-nav
+  "a nav mod including menus"
   []
   [:div.mod-nav
    [:ul
     [:li "Notes"]
     [:li "Problems"]]])
 
-(defn mod-notes
+(defn- mod-notes
   [notes]
   [:div.mod-notes
    [:ul
@@ -35,6 +36,7 @@
         [:p (:content note)]])]])
 
 (defn index-view
+  "the view of index"
   []
   (layout
    "notes"
@@ -42,3 +44,19 @@
     (mod-nav)
     (mod-notes
      (cqrs/fetch (map->QueryNote {})))]))
+
+
+(defn- mod-new-note
+  "form to submit new note"
+  [fields]
+  (form-to
+   [:POST "/notes"]
+   [:input {:type "text" :name "title" :value ""}]
+   [:input {:type "text" :name "content" :value ""}]))
+(defn new-note-view
+  "the page to new note"
+  []
+  (layout
+   "new note"
+   (mod-nav)
+   (mod-new-note)))
