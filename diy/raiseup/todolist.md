@@ -41,13 +41,15 @@ Improvements
 * the code is divided into three module web/api/core/query
 * [DONE] abstract the read model
 * add lifecycle management
-* replay the events
+* [DONE] replay the events
 * snapshot of ar
 * command/query can be passed in by means of http automatically
 * event needs version and conflict resolver
 * command can be composied by comamnds
 * emit(cmd,timeout) will wait for the result until timeout otherwise exception will be thrown
 * the handlers in the same topic should process the events in order
+* instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events 
+for ar when retrieving one ar
 
 Blocks
 ------
