@@ -12,7 +12,8 @@
   (write [this key-bytes value-bytes] "store the key value which is bytes")
   (write-in-batch [this items] "store items in batch")
   (delete [this key] "delete the value by key")
-  (map [this f] "apply f for each item"))
+  (map [this f] "apply f for each item")
+  (close [this] "close the storage and call f"))
 
 
 (defrecord LeveldbStore
@@ -39,7 +40,9 @@
               k (.getKey kv)
               v (.getValue kv)]
           (f k v)
-          (.next iterator))))))
+          (.next iterator)))))
+  (close [this]
+    (.close db)))
 
 (defprotocol RecoverableId
   "an uniqure identifier,it can be recoved after restart,
@@ -90,5 +93,5 @@
 
 (defn init-store
   "factory of storage"
-  [dir options]
-  (->LeveldbStore (leveldb/open-leveldb dir options)))
+  [opened-dbs dir options]
+  (->LeveldbStore (leveldb/open-leveldb! opened-dbs dir options)))
