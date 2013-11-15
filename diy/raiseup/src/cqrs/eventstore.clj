@@ -19,11 +19,6 @@
             (->bytes store-key)
             (->bytes appended-eventids))))
 
-(defn deserialize
-  "deser the bytes to data structure"
-  [bytes]
-  (->data bytes))
-
 
 (defn write-events-to-storage
   "the events are stored in the storage and the event id is the store key"
@@ -31,18 +26,14 @@
   (.write-in-batch events-db
                    (map (fn [event] [(:event-id event) event]) events)))
 
-(defn store-events
+(defn store-snapshot-and-events
   ^{:added "1.0"
     :abbre "ar->aggregate root"
-    :doc "store the umcommitted events of aggregate root"}
-  [ar-name ar-id new-events ar-eventids-db events-db]
-  (let [ar-name-str (name ar-name)
-        ar-id-str (str ar-id)]
-    (write-events-to-storage new-events events-db)
-    (store-events-id-mapped-by-ar-id ar-name-str
-                                     ar-id-str
-                                     (map #(:event-id %) new-events)
-                                     ar-eventids-db)))
+    :doc "store the umcommitted events of aggregate root and the snapshot"}
+  [snapshot new-events snapshot-db events-db]
+  (do
+    (.write snapshot-db (->bytes (str (:ar snapshot) (:ar-id snapshot))) snapshot)
+    (write-events-to-storage new-events events-db)))
 
 
 (defn read-event-ids
@@ -58,7 +49,7 @@
   "read a single event by event id from event store"
   [event-id events-db]
   (if-let [event-byte (.ret-value events-db (str event-id))]
-    (deserialize event-byte)))
+    (->data event-byte)))
 
 
 (defn read-events

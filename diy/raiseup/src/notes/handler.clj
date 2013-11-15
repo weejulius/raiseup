@@ -8,7 +8,7 @@
 (extend-type CreateNote
   CommandHandler
   (handle-command [cmd]
-    (create-note cmd)))
+    [nil (create-note cmd)]))
 
 
 (defmethod on-event

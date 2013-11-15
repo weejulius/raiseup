@@ -116,13 +116,28 @@
         {:ok? false :result (vals errors)}))))
 
 
+(defn- inc-id
+  "increase the id for ar or event"
+  [id-creators type name]
+  (let [id-name (str type name)
+        id-creator (put-if-absence!
+                    id-creators
+                    [id-name]
+                    (fn []
+                      (storage/init-recoverable-long-id
+                       id-name
+                       events-id-db)))]
+    (.inc id-creator)))
+
 (defn- process-command
   "handle the command , meanwhile store
    and emit the events produced by command to their channel "
-  [command channel-map event-ids-db events-db event-id-creator]
-  (let [events-with-id (->> [(handle-command command)]
-                            (map #(assoc % :event-id (.inc! event-id-creator))))]
-    (es/store-events (:ar command)
+  [command channel-map event-ids-db events-db id-creators]
+  (let [handle-result (handle-command command)
+        old-snapshot (first handle-result)
+        new-snapshot (if- (nil? old-snapshot) ) (get-ar handle-result)
+        new-events (next )]
+    (es/store-snapshot-and-events (first handl)
                      (:ar-id command)
                      events-with-id
                      event-ids-db

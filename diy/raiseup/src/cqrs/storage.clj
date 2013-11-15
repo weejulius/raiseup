@@ -65,7 +65,8 @@
       (reset! long-id new-value)
       (.write storage
               (->bytes store-key)
-              (->bytes new-value))))
+              (->bytes new-value))
+      this))
   (get! [this]
     @long-id)
   (inc! [this]
@@ -77,8 +78,8 @@
          (->bytes (long inc-value))))
       inc-value))
   (clear! [this]
-    (.delete storage store-key)
-    (reset! long-id 0)))
+    (doto (.delete storage store-key)
+      (reset! long-id 0))))
 
 (defn init-recoverable-long-id
   "factory of recoverable long id"

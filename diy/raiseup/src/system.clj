@@ -36,6 +36,7 @@
    :events-db (storage/init-store opened-dbs
                                   (cfg/ret :es :events-db-path)
                                   (cfg/ret :leveldb-option))
+   :id-creators (atom {})
    :event-id-creator (storage/init-recoverable-long-id
                       (cfg/ret :es :recoverable-event-id-key)
                       events-id-db)
