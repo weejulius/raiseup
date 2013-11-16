@@ -17,45 +17,64 @@
             [common.convert :as convert]
             [clojure.core.async :as async :refer [<! >! go chan]]))
 
-
+;;deprecate
 (defn- read-ar-events
   "read aggregate root events"
   [ar-name ar-id event-ids-db events-db]
   (es/read-events ar-name ar-id event-ids-db events-db))
 
+
 (defn get-ar
-  "retrieve the aggregate root state by replay events for ar"
+  "retrieve the aggregate root state by replay events for ar
+   or get the snapshot"
   ([events]
      (reduce
       (fn [m v]
         (merge m v))
       {}
       events))
-  ([ar-name ar-id]
-     (read-ar-events
-      ar-name
-      ar-id
-      (:events-id-db s/system)
-      (:events-db s/system))))
+  ([ar-name ar-id snapshot-db]
+    (es/retreive-ar-snapshot ar-name ar-id snapshot-db)))
 
+(defn- inc-id-for
+  "increase the id for the key which is a kind of ar, or the event"
+  ([key id-creators recoverable-id-db]
+     (let [id-name (name key)
+           id-creator
+           (get-in
+            (func/put-if-absence! id-creators
+                                  [id-name]
+                                  (fn []
+                                    (storage/init-recoverable-long-id
+                                     id-name
+                                     recoverable-id-db)))
+            [id-name])]
+       (.inc! id-creator)))
+  ([key]
+     (inc-id-for key (:id-creators s/system) (:recoverable-id-db s/system))))
 
 (defn- populate-id-if-need
   "if the id is not existing one is given to command"
-  [command ar-id-creator]
+  [command id-creators recoverable-id-db]
   (if (nil? (:ar-id command))
-    (assoc command :ar-id (.inc! ar-id-creator))
+    (assoc command :ar-id
+           (inc-id-for (:ar command) id-creators recoverable-id-db))
     command))
+
 
 
 (defn gen-event
   ^{:doc "generate event from cmd"
     :added "1.0"}
   [event-type cmd keys]
-  (let [event {:event event-type
-          :ar (:ar cmd)
-          :ar-id (:ar-id cmd)
-          :event-ctime (java.util.Date.)}]
-        (merge event (select-keys cmd keys))))
+  (let [event-id (inc-id-for :event)
+        event
+        {:event event-type
+         :event-id event-id
+         :ar (:ar cmd)
+         :ar-id (:ar-id cmd)
+         :event-ctime (java.util.Date.)}]
+    (merge event (select-keys cmd keys))))
 
 
 
@@ -116,56 +135,46 @@
         {:ok? false :result (vals errors)}))))
 
 
-(defn- inc-id
-  "increase the id for ar or event"
-  [id-creators type name]
-  (let [id-name (str type name)
-        id-creator (put-if-absence!
-                    id-creators
-                    [id-name]
-                    (fn []
-                      (storage/init-recoverable-long-id
-                       id-name
-                       events-id-db)))]
-    (.inc id-creator)))
+
 
 (defn- process-command
   "handle the command , meanwhile store
    and emit the events produced by command to their channel "
-  [command channel-map event-ids-db events-db id-creators]
+  [command channel-map snapshot-db events-db]
   (let [handle-result (handle-command command)
         old-snapshot (first handle-result)
-        new-snapshot (if- (nil? old-snapshot) ) (get-ar handle-result)
-        new-events (next )]
-    (es/store-snapshot-and-events (first handl)
-                     (:ar-id command)
-                     events-with-id
-                     event-ids-db
-                     events-db)
-    (dorun (map #(prepare-and-emit-event channel-map %) events-with-id))))
+        new-events (rest handle-result)
+        new-snapshot (if (nil? old-snapshot) (second handle-result)
+                         (get-ar handle-result))]
+    (es/store-snapshot-and-events new-snapshot
+                                  new-events
+                                  snapshot-db
+                                  events-db)
+    (dorun (map #(prepare-and-emit-event channel-map %) new-events))))
 
 (defn send-command
   "send command to channel, the channel will handle the command,
    and then store and emit the produced events"
-  ([command channel-map event-ids-db events-db event-id-creator ar-id-creator]
-     (let [command-with-id (populate-id-if-need command ar-id-creator)
+  ([command channel-map snapshot-db events-db  id-creators recoverable-id-db]
+     (let [command-with-id (populate-id-if-need
+                            command id-creators recoverable-id-db)
            validated-command (validate-command command-with-id)]
        (if-not (:ok? validated-command) validated-command
                (emit-command
                 channel-map
                 (fn [cmd]
                   (process-command cmd channel-map
-                                   event-ids-db events-db event-id-creator))
+                                   snapshot-db events-db))
                 (:result validated-command)))
        (:ar-id command-with-id)))
   ([command]
      (send-command
       command
       (:channels s/system)
-      (:event-ids-db s/system)
+      (:snapshot-db s/system)
       (:events-db s/system)
-      (:event-id-creator s/system)
-      (:ar-id-creator s/system))))
+      (:id-creators s/system)
+      (:recoverable-id-db s/system))))
 
 
 (defn replay-events

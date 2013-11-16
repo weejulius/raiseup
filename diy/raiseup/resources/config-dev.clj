@@ -14,9 +14,6 @@
  :recoverable-id-flush-interval 100000
 
  ;;event store configs
- :es {:event-id-db-path "/tmp/event-ids-real"
-      :events-db-path "/tmp/events-real"
-
-      ;;the keys used to persist the id for recovery
-      :recoverable-ar-id-key "rvb-ar-id-key"
-      :recoverable-event-id-key "rvb-event-id-key"}}
+ :es {:snapshot-db-path "/tmp/snapshot-db"
+      :id-db-path "/tmp/id-db"
+      :events-db-path "/tmp/events-db"}}

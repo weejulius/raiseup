@@ -1,6 +1,7 @@
 (ns cqrs.eventstore
   (:require [common.convert :refer [->data ->bytes]]))
 
+;;deprecate
 (defn- make-store-key-of-event-ids
   "used to make the key for the event ids in the storage,
    each ar ownes a couple of events, therefore event-ids is
@@ -8,6 +9,7 @@
   [ar-name-str ar-id-str]
   (str ar-name-str ar-id-str))
 
+;;deprecate
 (defn store-events-id-mapped-by-ar-id
   "store the event id of ar'events so as to find the events for ar quickly"
   [ar-name-str ar-id-str event-ids storage]
@@ -32,10 +34,16 @@
     :doc "store the umcommitted events of aggregate root and the snapshot"}
   [snapshot new-events snapshot-db events-db]
   (do
-    (.write snapshot-db (->bytes (str (:ar snapshot) (:ar-id snapshot))) snapshot)
+    (.write snapshot-db
+            (->bytes (str (:ar snapshot) (:ar-id snapshot)))
+            (->bytes snapshot))
     (write-events-to-storage new-events events-db)))
 
-
+(defn retreive-ar-snapshot
+  [ar-name ar-id snapshot-db]
+  (let [snapshot-bytes (.ret-value snapshot-db (->bytes (str ar-name ar-id)))]
+    (->data snapshot-bytes)))
+;;deprecate
 (defn read-event-ids
   "the events ids are required when fetching an aggregate root
    then reading the events for ar according the read event ids"
@@ -51,7 +59,7 @@
   (if-let [event-byte (.ret-value events-db (str event-id))]
     (->data event-byte)))
 
-
+;;deprecate
 (defn read-events
   "used to read events for an ar, firstly read its event ids from storage,
    and then read the actual events by the read event ids"
