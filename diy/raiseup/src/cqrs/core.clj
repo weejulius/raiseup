@@ -30,11 +30,16 @@
   ([events]
      (reduce
       (fn [m v]
-        (merge m v))
+        (if (empty? v) m
+            (merge
+             (assoc m :vsn (get v :vsn (inc (get m :vsn 0))))
+             v)))
       {}
       events))
   ([ar-name ar-id snapshot-db]
-    (es/retreive-ar-snapshot ar-name ar-id snapshot-db)))
+     (es/retreive-ar-snapshot ar-name ar-id snapshot-db))
+  ([ar-name ar-id]
+     (get-ar ar-name ar-id (:snapshot-db s/system))))
 
 (defn- inc-id-for
   "increase the id for the key which is a kind of ar, or the event"
@@ -91,7 +96,10 @@
        (go (while true
              (let [cmd (<! ch)]
                (log/debug "receiving " cmd)
-               (handler cmd))))
+               (try
+                 (handler cmd)
+                 (catch Exception e
+                   (log/error e))))))
        ch))))
 
 
@@ -144,8 +152,7 @@
   (let [handle-result (handle-command command)
         old-snapshot (first handle-result)
         new-events (rest handle-result)
-        new-snapshot (if (nil? old-snapshot) (second handle-result)
-                         (get-ar handle-result))]
+        new-snapshot (get-ar handle-result)]
     (es/store-snapshot-and-events new-snapshot
                                   new-events
                                   snapshot-db

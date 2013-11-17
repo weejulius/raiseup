@@ -7,3 +7,8 @@
   [note]
   (cqrs/gen-event :note-created note
                   [:author :title :content :ctime]))
+
+(defn update-note
+  [note changes]
+  [note (cqrs/gen-event :note-updated changes
+                        [:author :title :content :utime])])

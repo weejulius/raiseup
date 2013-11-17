@@ -69,6 +69,10 @@
         (str (cqrs/send-command
               (->CreateNote :note author title content (java.util.Date.)))))
 
+  (POST "/notes/:ar-id" [ar-id author title content]
+       (str (cqrs/send-command
+             (->UpdateNote :note (->long ar-id) author title content (java.util.Date.)))))
+
   (GET "/notes" []
        (v/index-view))
 

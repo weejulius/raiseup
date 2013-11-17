@@ -23,13 +23,16 @@
     "load single entry by id"
     (let [entries (load-entries caches type)
           entry (.get entries id)]
+      (log/debug "loading entry" entry type id)
       entry))
 
   (put-entry [this new-entry]
     "create or update entry"
-    (.put (load-entries caches (:ar new-entry))
-          (:ar-id new-entry)
-          new-entry))
+    (do
+      (log/debug "put new entry" new-entry)
+      (.put (load-entries caches (:ar new-entry))
+            (:ar-id new-entry)
+            new-entry)))
 
   (update-entry [this entry-type id f]
     "apply f to the specific entry and update"

@@ -6,4 +6,4 @@
   (get-ar [{:ar :task}
            {:ar :task :name "hello"}
            {:ar :task :name "hello1" :nick "bob"}])
-  => {:ar :task :name "hello1" :nick "bob"})
+  => {:ar :task :name "hello1" :nick "bob" :vsn 3})

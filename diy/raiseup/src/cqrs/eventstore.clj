@@ -33,15 +33,21 @@
     :abbre "ar->aggregate root"
     :doc "store the umcommitted events of aggregate root and the snapshot"}
   [snapshot new-events snapshot-db events-db]
-  (do
+  (let [snapshot-key  (str (:ar snapshot) (:ar-id snapshot))
+        cur-snapshot (->data (.ret-value snapshot-db snapshot-key))]
+    (if-not (nil? cur-snapshot)
+      (if-not (= 1 (- (:vsn snapshot) (:vsn cur-snapshot)))
+        (throw (ex-info "version conflict storing snapshot"
+                        {:cur-vsn (:vsn cur-snapshot)
+                         :new-vsn (:vsn snapshot)}))))
+    (write-events-to-storage new-events events-db)
     (.write snapshot-db
-            (->bytes (str (:ar snapshot) (:ar-id snapshot)))
-            (->bytes snapshot))
-    (write-events-to-storage new-events events-db)))
+            (->bytes snapshot-key)
+            (->bytes snapshot))))
 
 (defn retreive-ar-snapshot
   [ar-name ar-id snapshot-db]
-  (let [snapshot-bytes (.ret-value snapshot-db (->bytes (str ar-name ar-id)))]
+  (let [snapshot-bytes (.ret-value snapshot-db (str ar-name ar-id))]
     (->data snapshot-bytes)))
 ;;deprecate
 (defn read-event-ids
