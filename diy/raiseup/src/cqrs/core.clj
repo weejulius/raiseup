@@ -15,7 +15,7 @@
             [common.logging :as log]
             [system :as s]
             [common.convert :as convert]
-            [clojure.core.async :as async :refer [<! >! go chan]]))
+            [clojure.core.async :as async :refer [<! >! go chan timeout alts!!]]))
 
 ;;deprecate
 (defn- read-ar-events
@@ -25,7 +25,7 @@
 
 
 (defn get-ar
-  "retrieve the aggregate root state by replay events for ar
+  "retrieve the aggregate root state by replaying its events for ar
    or get the snapshot"
   ([events]
      (reduce
@@ -58,7 +58,7 @@
   ([key]
      (inc-id-for key (:id-creators s/system) (:recoverable-id-db s/system))))
 
-(defn- populate-id-if-need
+(defn- populate-command-id-if-need
   "if the id is not existing one is given to command"
   [command id-creators recoverable-id-db]
   (if (nil? (:ar-id command))
@@ -105,32 +105,35 @@
 
 (defn emit
   "emit event/command to the listening channel, type is to find channels related to the type"
-  [channel-map event event-type]
+  [channel-map event event-type options]
   (let [chs (get @channel-map  event-type)]
     (if (nil? chs)
-      (do
-        (throw
-         (Exception. (str "no any handler for event " event " type " event-type))))
-      (do
-        (log/debug "emitting " event)
+      (do (throw
+           (Exception.
+            (str "no any handler for event " event " type " event-type))))
+      (let [timeout-ms (:timeout options)]
+        (log/debug "emitting " event "with options " options)
         (doseq [[key ch] chs]
-          (go (>! ch event)))))))
+          (go (>! ch event)))
+        (when-not (nil? timeout-ms)
+                (log/debug "wait for result within" timeout-ms chs)
+                (alts!! [(first (vals chs)) (timeout timeout-ms)]))))))
 
 
 (defn- emit-command
   "register a channel if the command does not have,
    and emit the command to the channel"
-  [channel-map handle-command-fn cmd]
+  [channel-map handle-command-fn cmd options]
   (let [command-type (str (type cmd))]
     (register-channel channel-map command-type :command handle-command-fn)
-    (emit channel-map cmd command-type)))
+    (emit channel-map cmd command-type options)))
 
 (defn prepare-and-emit-event
   "emit the event, but register channel for the event if unregistered"
-  [channel-map event]
+  [channel-map event options]
   (let [event-type (:event event)]
     (register-channel channel-map  event-type (str on-event) on-event)
-    (emit channel-map event event-type)))
+    (emit channel-map event event-type options)))
 
 (defn- validate-command
   "validate command"
@@ -157,31 +160,7 @@
                                   new-events
                                   snapshot-db
                                   events-db)
-    (dorun (map #(prepare-and-emit-event channel-map %) new-events))))
-
-(defn send-command
-  "send command to channel, the channel will handle the command,
-   and then store and emit the produced events"
-  ([command channel-map snapshot-db events-db  id-creators recoverable-id-db]
-     (let [command-with-id (populate-id-if-need
-                            command id-creators recoverable-id-db)
-           validated-command (validate-command command-with-id)]
-       (if-not (:ok? validated-command) validated-command
-               (emit-command
-                channel-map
-                (fn [cmd]
-                  (process-command cmd channel-map
-                                   snapshot-db events-db))
-                (:result validated-command)))
-       (:ar-id command-with-id)))
-  ([command]
-     (send-command
-      command
-      (:channels s/system)
-      (:snapshot-db s/system)
-      (:events-db s/system)
-      (:id-creators s/system)
-      (:recoverable-id-db s/system))))
+    (dorun (map #(prepare-and-emit-event channel-map % {}) new-events))))
 
 
 (defn replay-events
@@ -191,7 +170,7 @@
     (.map
      store
      (fn [k v]
-       (prepare-and-emit-event (:channels s/system) (convert/->data v))))
+       (prepare-and-emit-event (:channels s/system) (convert/->data v) {})))
     (log/info "[<=]replayed events")))
 
 (defn fetch
@@ -200,3 +179,36 @@
   (if (:id query)
     (.find-by-id query)
     (.query query)))
+
+
+(defrecord SimpleCommandBus [channel-map snapshot-db events-db  id-creators recoverable-id-db]
+  CommandBus
+  (sends [this command options]
+    (let [command-with-id (populate-command-id-if-need
+                           command id-creators recoverable-id-db)
+          validated-command (validate-command command-with-id)]
+      (if-not (:ok? validated-command) validated-command
+              (emit-command
+               channel-map
+               (fn [cmd]
+                 (process-command cmd channel-map
+                                  snapshot-db events-db))
+               (:result validated-command)
+               options))
+      (:ar-id command-with-id)))
+  (register [this command handler]
+    (register-channel channel-map (type command) handler)))
+
+
+(def simple-commandbus
+   (->SimpleCommandBus
+   (:channels s/system)
+   (:snapshot-db s/system)
+   (:events-db s/system)
+   (:id-creators s/system)
+   (:recoverable-id-db s/system)))
+
+(defn send-command
+  [command options]
+  (do (log/debug options)
+    (.sends simple-commandbus command options)))

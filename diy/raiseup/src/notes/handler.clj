@@ -11,7 +11,7 @@
 (extend-type CreateNote
   CommandHandler
   (handle-command [cmd]
-    [{} (create-note cmd)]))
+     [{} (create-note cmd)]))
 
 (extend-type UpdateNote
   CommandHandler

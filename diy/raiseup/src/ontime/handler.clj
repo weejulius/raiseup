@@ -67,7 +67,8 @@
 
   (POST "/notes" [author title content]
         (str (cqrs/send-command
-              (->CreateNote :note author title content (java.util.Date.)))))
+              (->CreateNote :note author title content (java.util.Date.))
+              {:timeout 5000})))
 
   (POST "/notes/:ar-id" [ar-id author title content]
        (str (cqrs/send-command
