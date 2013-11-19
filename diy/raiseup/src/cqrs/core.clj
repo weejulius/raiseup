@@ -15,7 +15,7 @@
             [common.logging :as log]
             [system :as s]
             [common.convert :as convert]
-            [clojure.core.async :as async :refer [<! >! go chan timeout alts!!]]))
+            [clojure.core.async :as async :refer [<! >! go chan timeout alts! alts!! alt!]]))
 
 ;;deprecate
 (defn- read-ar-events
@@ -95,7 +95,7 @@
        (log/debug "register channel" type from ch)
        (go (while true
              (let [cmd (<! ch)]
-               (log/debug "receiving " cmd)
+               (log/debug "receiving " cmd ch)
                (try
                  (handler cmd)
                  (catch Exception e
@@ -112,12 +112,14 @@
            (Exception.
             (str "no any handler for event " event " type " event-type))))
       (let [timeout-ms (:timeout options)]
-        (log/debug "emitting " event "with options " options)
-        (doseq [[key ch] chs]
-          (go (>! ch event)))
-        (when-not (nil? timeout-ms)
-                (log/debug "wait for result within" timeout-ms chs)
-                (alts!! [(first (vals chs)) (timeout timeout-ms)]))))))
+        (log/debug "emitting " event "with options " options chs)
+        (let [ch-seq (vals chs)]
+          (go (doseq [ch ch-seq]
+                    (>! ch event)))
+          ;;FIXME the latter command will be lost if several commands are sent
+          (when-not (nil? timeout-ms)
+            (go (alts! (conj ch-seq (timeout timeout-ms))))
+            (log/debug "done result within" timeout-ms)))))))
 
 
 (defn- emit-command
@@ -209,6 +211,6 @@
    (:recoverable-id-db s/system)))
 
 (defn send-command
-  [command options]
+  [command & {:as options}]
   (do (log/debug options)
     (.sends simple-commandbus command options)))

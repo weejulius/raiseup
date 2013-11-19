@@ -11,7 +11,9 @@
 (extend-type CreateNote
   CommandHandler
   (handle-command [cmd]
-     [{} (create-note cmd)]))
+    (let []
+      (Thread/sleep 4000)
+      [{} (create-note cmd)])))
 
 (extend-type UpdateNote
   CommandHandler
