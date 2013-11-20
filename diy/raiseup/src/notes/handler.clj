@@ -12,7 +12,7 @@
   CommandHandler
   (handle-command [cmd]
     (let []
-      (Thread/sleep 4000)
+      (Thread/sleep 2000)
       [{} (create-note cmd)])))
 
 (extend-type UpdateNote

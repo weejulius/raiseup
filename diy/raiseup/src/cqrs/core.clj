@@ -15,7 +15,7 @@
             [common.logging :as log]
             [system :as s]
             [common.convert :as convert]
-            [clojure.core.async :as async :refer [<! >! go chan timeout alts! alts!! alt!]]))
+            [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]]))
 
 ;;deprecate
 (defn- read-ar-events
@@ -91,35 +91,47 @@
   (func/put-if-absence!
    channel-map [type from]
    (fn []
-     (let [ch (chan)]
-       (log/debug "register channel" type from ch)
-       (go (while true
-             (let [cmd (<! ch)]
-               (log/debug "receiving " cmd ch)
-               (try
-                 (handler cmd)
-                 (catch Exception e
-                   (log/error e))))))
-       ch))))
+     (let [input-ch (chan)
+           output-ch (chan)]
+       (log/debug "register channel" type from input-ch output-ch)
+       (go (let []
+             (loop []
+               (when-let [cmd (<! input-ch)]
+                 (log/debug "receiving " cmd)
+                 (try
+                   (handler cmd)
+                   (catch Exception e
+                     (log/error e)
+                     e))
+                 (>! output-ch "")
+                 (recur))
+               (log/debug "shutdown channel " type from))))
+       [input-ch output-ch]))))
 
 
 (defn emit
-  "emit event/command to the listening channel, type is to find channels related to the type"
+  "emit event/command to the listening channel,
+   type is to find channels related to the type"
   [channel-map event event-type options]
-  (let [chs (get @channel-map  event-type)]
-    (if (nil? chs)
-      (do (throw
-           (Exception.
-            (str "no any handler for event " event " type " event-type))))
-      (let [timeout-ms (:timeout options)]
-        (log/debug "emitting " event "with options " options chs)
-        (let [ch-seq (vals chs)]
-          (go (doseq [ch ch-seq]
-                    (>! ch event)))
-          ;;FIXME the latter command will be lost if several commands are sent
-          (when-not (nil? timeout-ms)
-            (go (alts! (conj ch-seq (timeout timeout-ms))))
-            (log/debug "done result within" timeout-ms)))))))
+  (if-not (empty? event)
+    (let [chs (get @channel-map  event-type)]
+      (if (empty? chs)
+        (do (throw
+             (Exception.
+              (str "no any handler for event " event " type " event-type))))
+        (let [timeout-ms (:timeout options)
+              ch-seq     (vals chs)
+              output-chs (map (fn [[input-ch output-ch]]
+                                (let []
+                                  (go (>! input-ch event))
+                                  output-ch))
+                              ch-seq)]
+          (log/debug "emitting " event "with options " options output-chs ch-seq)
+          (if-not (nil? timeout-ms)
+            (<!!
+             (go (alts! (vec (conj output-chs (timeout timeout-ms))))))
+            (doseq [output-ch output-chs]
+              (go (<! output-ch)))))))))
 
 
 (defn- emit-command

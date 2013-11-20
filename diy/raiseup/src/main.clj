@@ -34,6 +34,7 @@
       (cqrs/replay-events (:events-db s/system))
       (reset! has-replayed true))))
 
+
 (defn stop
   "stop the server"
   []

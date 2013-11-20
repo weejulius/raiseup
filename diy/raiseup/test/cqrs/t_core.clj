@@ -9,26 +9,28 @@
            {:ar :task :name "hello1" :nick "bob"}])
   => {:ar :task :name "hello1" :nick "bob" :vsn 3})
 
-(defn handler [c]
+(defn handler [c d]
   (go
    (let []
      (loop []
        (when-let [v (<! c)]
          (println "2" (java.util.Date.))
-         (Thread/sleep 4000)
-         (println "3" v (java.util.Date.))
+         (Thread/sleep 2000)
+         (println "3" (java.util.Date.) v )
+         (>! d (str "!" v))
          (recur))
-       (println "existing...")))))
-
-;(def c (chan))
+       (println "exiting...")))))
 
 
 (fact "test timeout"
-  (let [c (chan)]
-     (handler c)
-    (println "1" (java.util.Date.))
-    (go (>! c "hello"))
-    (<!! (go (alts! [c (timeout 3000)])))
-    (println "4" (java.util.Date.))
-    ""
-    => nil?))
+  (let [c1 (chan)
+        c2 (chan)]
+    (handler c1 c2)
+    (dotimes [n 3]
+      (println "1" (java.util.Date.))
+      (go  (>! c1 "hello"))
+      (<!! (go
+            (alts! [c2 (timeout 1000)])))
+      (println "4" (java.util.Date.))
+      ""
+      => nil?)))
