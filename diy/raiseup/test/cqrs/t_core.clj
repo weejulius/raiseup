@@ -20,12 +20,15 @@
          (recur))
        (println "existing...")))))
 
+;(def c (chan))
+
+
 (fact "test timeout"
   (let [c (chan)]
-    (handler c)
+     (handler c)
     (println "1" (java.util.Date.))
-    (go (>! c "hello")
-        )
+    (go (>! c "hello"))
+    (<!! (go (alts! [c (timeout 3000)])))
     (println "4" (java.util.Date.))
     ""
     => nil?))
