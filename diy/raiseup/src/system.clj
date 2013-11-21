@@ -1,11 +1,7 @@
 (ns system
-  (:require [common.logging :as log]
-            [cqrs.hazelcast.readmodel :as rm]
-            [cqrs.storage :as storage]
-            [common.config :as cfg])
-  (:import (com.hazelcast.core Hazelcast)
-           (com.hazelcast.config Config)))
-
+  (:require [env :as env]
+            [cqrs.core :as cqrs]
+            [common.logging :as log]))
 
 ;; (extend-protocol Lifecycle
 ;;   HazelcastReadModel
@@ -23,22 +19,28 @@
 ;;           (assoc component :caches nil)))
 ;;     component))
 
-(defonce opened-dbs (atom {}))
-(defonce recoverable-id-db (storage/init-store opened-dbs
-                                          (cfg/ret :es :id-db-path)
-                                          (cfg/ret :leveldb-option)))
-(defonce system
-  {:readmodel (rm/->HazelcastReadModel
-               (Hazelcast/newHazelcastInstance nil))
-   :opened-dbs opened-dbs
-   :snapshot-db (storage/init-store opened-dbs
-                                  (cfg/ret :es :snapshot-db-path)
-                                  (cfg/ret :leveldb-option))
-   :channels (atom {})
-   :recoverable-id-db recoverable-id-db
-   :events-db (storage/init-store opened-dbs
-                                  (cfg/ret :es :events-db-path)
-                                  (cfg/ret :leveldb-option))
-   :id-creators (atom {})})
-(reset! (:channels system) {})
-(def entries (:readmodel system))
+
+(defonce system (env/->NoteSystem))
+
+(defn get-ar
+  [ar ar-id]
+  (cqrs/get-ar ar ar-id (:snapshot-db system)))
+
+(defn send-command
+  [command & {:as options}]
+  (do (log/debug options)
+    (.sends (:command-bus system) command options)))
+
+(defn gen-event
+  ^{:doc "generate event from cmd"
+    :added "1.0"}
+  [event-type cmd keys]
+  (let [event-id (cqrs/inc-id-for :event
+                                  (:id-creators system)
+                                  (:recoverable-id-db system))
+        event    {:event       event-type
+                  :event-id    event-id
+                  :ar          (:ar cmd)
+                  :ar-id       (:ar-id cmd)
+                  :event-ctime (java.util.Date.)}]
+    (merge event (select-keys cmd keys))))

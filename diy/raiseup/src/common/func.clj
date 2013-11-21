@@ -1,5 +1,6 @@
 (ns ^{:doc "common used functions"}
-  common.func)
+  common.func
+  (:require [common.logging :as log]))
 
 (defn cond-update
   "update entry with new if pre? is satisfied"
@@ -20,5 +21,7 @@
   "load entry from atom data structure, put one if it is not existing,
    the `path` is the path of the nested keys to get the entry"
   [entries path new-entry]
-  (swap! entries
-         (fn [m] (put-if-absence m path new-entry))))
+  (do
+    (swap! entries
+           (fn [m]
+             (put-if-absence m path new-entry)))))

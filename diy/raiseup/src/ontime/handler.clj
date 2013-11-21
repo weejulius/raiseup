@@ -8,6 +8,7 @@
             [notes.query :refer :all]
             [notes.view.index :as v]
             [cqrs.core :as cqrs]
+            [system :as s]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
@@ -66,13 +67,13 @@
        handle-asyn-request)
 
   (POST "/notes" [author title content]
-        (str (cqrs/send-command
+        (str (s/send-command
               (->CreateNote :note author title content (java.util.Date.))
-             :timeout 2000)))
+              :timeout 2000)))
 
   (POST "/notes/:ar-id" [ar-id author title content]
-       (str (cqrs/send-command
-             (->UpdateNote :note (->long ar-id) author title content (java.util.Date.)))))
+        (str (s/send-command
+              (->UpdateNote :note (->long ar-id) author title content (java.util.Date.)))))
 
   (GET "/notes" []
        (v/index-view))

@@ -13,7 +13,6 @@
             [clojure.core.reducers :as r]
             [common.func :as func]
             [common.logging :as log]
-            [system :as s]
             [common.convert :as convert]
             [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]]))
 
@@ -37,26 +36,21 @@
       {}
       events))
   ([ar-name ar-id snapshot-db]
-     (es/retreive-ar-snapshot ar-name ar-id snapshot-db))
-  ([ar-name ar-id]
-     (get-ar ar-name ar-id (:snapshot-db s/system))))
+     (es/retreive-ar-snapshot ar-name ar-id snapshot-db)))
 
-(defn- inc-id-for
+(defn inc-id-for
   "increase the id for the key which is a kind of ar, or the event"
   ([key id-creators recoverable-id-db]
      (let [id-name (name key)
            id-creator
-           (get-in
-            (func/put-if-absence! id-creators
-                                  [id-name]
-                                  (fn []
-                                    (storage/init-recoverable-long-id
-                                     id-name
-                                     recoverable-id-db)))
-            [id-name])]
-       (.inc! id-creator)))
-  ([key]
-     (inc-id-for key (:id-creators s/system) (:recoverable-id-db s/system))))
+           (get-in (func/put-if-absence! id-creators
+                                         [id-name]
+                                         (fn []
+                                           (storage/init-recoverable-long-id
+                                            id-name
+                                            recoverable-id-db)))
+                   [id-name])]
+       (.inc! id-creator))))
 
 (defn- populate-command-id-if-need
   "if the id is not existing one is given to command"
@@ -65,23 +59,6 @@
     (assoc command :ar-id
            (inc-id-for (:ar command) id-creators recoverable-id-db))
     command))
-
-
-
-(defn gen-event
-  ^{:doc "generate event from cmd"
-    :added "1.0"}
-  [event-type cmd keys]
-  (let [event-id (inc-id-for :event)
-        event
-        {:event event-type
-         :event-id event-id
-         :ar (:ar cmd)
-         :ar-id (:ar-id cmd)
-         :event-ctime (java.util.Date.)}]
-    (merge event (select-keys cmd keys))))
-
-
 
 (defn register-channel
   "register a channel, the channel listenes to event/command
@@ -176,13 +153,15 @@
 
 
 (defn replay-events
-  [store]
+  [store channel-map]
   (let []
     (log/info "[=>]replaying events to rebuild the state of entries")
     (.map
      store
      (fn [k v]
-       (prepare-and-emit-event (:channels s/system) (convert/->data v) {})))
+       (prepare-and-emit-event
+        channel-map
+        (convert/->data v) {})))
     (log/info "[<=]replayed events")))
 
 (defn fetch
@@ -210,17 +189,3 @@
       (:ar-id command-with-id)))
   (register [this command handler]
     (register-channel channel-map (type command) handler)))
-
-
-(def simple-commandbus
-   (->SimpleCommandBus
-   (:channels s/system)
-   (:snapshot-db s/system)
-   (:events-db s/system)
-   (:id-creators s/system)
-   (:recoverable-id-db s/system)))
-
-(defn send-command
-  [command & {:as options}]
-  (do (log/debug options)
-    (.sends simple-commandbus command options)))

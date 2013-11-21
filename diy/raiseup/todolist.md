@@ -50,7 +50,7 @@ Improvements
 * the handlers in the same topic should process the events in order
 * [DONE] instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events 
 for ar when retrieving one ar
-
+* page the index
 Blocks
 ------
 * the defmethod/extend-protocol stay different place with defmulti/defprotocol, throw no implentation.

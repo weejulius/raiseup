@@ -1,5 +1,6 @@
 (ns ontime.control
   (:require [cqrs.core :as cqrs]
+            [system :as s]
             [ontime.query :as q]
             [ontime.commands :refer :all]
             [ontime.command-handler :refer :all]
@@ -24,18 +25,18 @@
 (defn create-task-slot-action
   "create an task slot"
   [params]
-  (cqrs/send-command
+  (s/send-command
    (->CreateTaskSlot :task-slot nil 1 (:description params) nil 40)))
 
 (defn delete-task-slot-action
   [req]
-  (cqrs/send-command
+  (s/send-command
    (->DeleteTaskSlot :task-slot (:ar-id req) 1)))
 
 (defn start-task-slot-action
   "action to start task slot"
   [params]
-  (cqrs/send-command
+  (s/send-command
    (->StartTaskSlot
     :task-slot
     (convert/->long (:ar-id params))
