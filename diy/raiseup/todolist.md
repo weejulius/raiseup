@@ -46,7 +46,7 @@ Improvements
 * command/query can be passed in by means of http automatically
 * [DONE] event needs version and conflict resolver
 * command can be composied by comamnds
-* emit(cmd,timeout) will wait for the result until timeout otherwise exception will be thrown
+* [DONE] emit(cmd,timeout) will wait for the result until timeout otherwise exception will be thrown
 * the handlers in the same topic should process the events in order
 * [DONE] instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events 
 for ar when retrieving one ar
