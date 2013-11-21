@@ -91,22 +91,21 @@
   (func/put-if-absence!
    channel-map [type from]
    (fn []
-     (let [input-ch (chan)
-           output-ch (chan)]
-       (log/debug "register channel" type from input-ch output-ch)
+     (let [ch (chan)]
+       (log/debug "register channel" type from ch)
        (go (let []
              (loop []
-               (when-let [cmd (<! input-ch)]
+               (when-let [[cmd output-ch](<! ch)]
                  (log/debug "receiving " cmd)
                  (try
                    (handler cmd)
                    (catch Exception e
                      (log/error e)
                      e))
-                 (>! output-ch "")
+                 (if-not (nil? output-ch) (>! output-ch ""))
                  (recur))
                (log/debug "shutdown channel " type from))))
-       [input-ch output-ch]))))
+       ch))))
 
 
 (defn emit
@@ -120,18 +119,17 @@
              (Exception.
               (str "no any handler for event " event " type " event-type))))
         (let [timeout-ms (:timeout options)
-              ch-seq     (vals chs)
-              output-chs (map (fn [[input-ch output-ch]]
-                                (let []
-                                  (go (>! input-ch event))
-                                  output-ch))
-                              ch-seq)]
-          (log/debug "emitting " event "with options " options output-chs ch-seq)
+              ch-seq     (vals chs)]
+          (log/debug "emitting " event "with options " options ch-seq)
           (if-not (nil? timeout-ms)
-            (<!!
-             (go (alts! (vec (conj output-chs (timeout timeout-ms))))))
-            (doseq [output-ch output-chs]
-              (go (<! output-ch)))))))))
+            (let [output-chs  (map (fn [ch]
+                                     (let [output-ch (chan 1)]
+                                       (put! ch [event output-ch])
+                                       output-ch))
+                                   ch-seq)]
+              (<!! (go (alts! (vec (conj output-chs (timeout timeout-ms)))))))
+            (doseq [ch ch-seq]
+              (put! ch [event nil]))))))))
 
 
 (defn- emit-command
