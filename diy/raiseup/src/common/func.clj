@@ -25,3 +25,19 @@
     (swap! entries
            (fn [m]
              (put-if-absence m path new-entry)))))
+
+
+(defn filter-until
+  "apply f to  filter coll until pre-fn is satisfied"
+  [f pre-fn coll]
+  (lazy-seq
+   (loop  [coll coll
+           result nil]
+     (let [v (first coll)]
+       (if (and v (pre-fn result))
+         (do
+           (recur (rest coll)
+                  (if (f v)
+                    (conj (vec result) v)
+                    result)))
+         (seq result))))))

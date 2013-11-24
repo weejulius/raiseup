@@ -13,7 +13,10 @@
    [:head
     [:meta {:charset "utf-8"}]
     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-    [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1"}]
+    [:meta
+     {:name "viewport"
+      :content "width=device-width, initial-scale=1, maximum-scale=1"
+      }]
     [:title title]
     (include-css "/css/raiseup.css")]
    [:body [:div.container body]]))
@@ -31,19 +34,19 @@
   [notes]
   [:div.mod-notes
    [:ul
-     (for [note notes]
-       [:li
-        [:h1 (:title note)] [:span (convert/->str (:ctime note))]
-        [:p (:content note)]])]])
+    (for [note notes]
+      [:li
+       [:h1 (:ar-id note) "-"  (:title note)] [:span (convert/->str (:ctime note))]
+       [:p (:content note)]])]])
 
 (defn index-view
   "the view of index"
-  []
+  [& options]
   (layout
    "notes"
    (mod-nav)
    (mod-notes
-     (cqrs/fetch (map->QueryNote {})))))
+    (cqrs/fetch (->QueryNote nil nil (:page options) (:size options))))))
 
 
 (defn- mod-new-note

@@ -73,10 +73,15 @@
 
   (POST "/notes/:ar-id" [ar-id author title content]
         (str (s/send-command
-              (->UpdateNote :note (->long ar-id) author title content (java.util.Date.)))))
+              (->UpdateNote :note
+                            (->long ar-id)
+                            author
+                            title
+                            content
+                            (java.util.Date.)))))
 
-  (GET "/notes" []
-       (v/index-view))
+  (GET "/notes" [page size]
+       (v/index-view {:page (or page 1) :size (or size 10)}))
 
   (GET "/notes/new" []
        (v/new-note-view))

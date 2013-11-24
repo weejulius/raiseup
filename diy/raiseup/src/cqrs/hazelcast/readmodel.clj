@@ -2,6 +2,7 @@
   (:require [cqrs.protocol :as cqrs]
             [common.logging :as log]
             [clojure.core.reducers :as r]
+            [common.func :as func]
             [common.convert :as convert]))
 
 
@@ -44,9 +45,8 @@
     (let [entries (load-entries caches type)]
       (.remove entries id)))
 
-  (do-query [this type f]
+  (do-query [this type f pre-fn]
     "filter each entry and combine the qualified ones"
-    (r/fold conj+ (r/filter
-                   f
-                   (r/map identity
-                          (.values (load-entries caches type)))))))
+    (func/filter-until
+     f pre-fn
+     (.values (load-entries caches type))) ))

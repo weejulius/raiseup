@@ -38,5 +38,5 @@
   (put-entry [this new-entry]
     "update then entry with new entry to update it")
   (remove-entry [this entry-type entry-id] "remote the entry")
-  (do-query [this entry-type f]
+  (do-query [this entry-type f pre-fn]
     "query the entries, f is used to filter entries"))

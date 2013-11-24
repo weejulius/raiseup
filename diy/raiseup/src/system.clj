@@ -3,23 +3,6 @@
             [cqrs.core :as cqrs]
             [common.logging :as log]))
 
-;; (extend-protocol Lifecycle
-;;   HazelcastReadModel
-;;   (start [component]
-;;     (if (.isRunning (.getLifecycleService (:caches component)))
-;;       (do (log/info "hazelcast is running already.")
-;;           component)
-;;       (let [caches (Hazelcast/newHazelcastInstance nil)]
-;;         (log/info "starting hazelcast instance as read model")
-;;         (assoc component :caches caches))))
-;;   (stop [component]
-;;     (if (.isRunning (.getLifecycleService (:caches component)))
-;;       (do (log/info "shutting down hazelcast")
-;;           (.shutdown (:caches component))
-;;           (assoc component :caches nil)))
-;;     component))
-
-
 (defonce system (env/->NoteSystem))
 
 (defn get-ar
