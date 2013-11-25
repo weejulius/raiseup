@@ -18,5 +18,4 @@
          true))
      (fn [m]
        (let []
-         (println "size " size "count " (count m))
          (or (nil? size) (>= size (count m))))))))
