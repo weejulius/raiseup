@@ -30,14 +30,13 @@
 (defn filter-until
   "apply f to  filter coll until pre-fn is satisfied"
   [f pre-fn coll]
-  (lazy-seq
-   (loop  [coll coll
-           result nil]
-     (let [v (first coll)]
-       (if (and v (pre-fn result))
-         (do
-           (recur (rest coll)
-                  (if (f v)
-                    (conj (vec result) v)
-                    result)))
-         (seq result))))))
+  (loop  [col coll
+          result nil]
+    (let [v (first col)]
+      (if (and v (pre-fn result))
+        (do
+          (recur (rest col)
+                 (if (f v)
+                   (conj (vec result) v)
+                   result)))
+        (seq result)))))

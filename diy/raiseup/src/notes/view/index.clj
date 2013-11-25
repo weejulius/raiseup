@@ -41,12 +41,14 @@
 
 (defn index-view
   "the view of index"
-  [& options]
-  (layout
-   "notes"
-   (mod-nav)
-   (mod-notes
-    (cqrs/fetch (->QueryNote nil nil (:page options) (:size options))))))
+  [{:keys [page size]}]
+  (let []
+    (println "options" page size)
+    (layout
+     "notes"
+     (mod-nav)
+     (mod-notes
+      (cqrs/fetch (->QueryNote nil nil page size))))))
 
 
 (defn- mod-new-note

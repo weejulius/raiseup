@@ -17,4 +17,6 @@
          (= (:author note) author)
          true))
      (fn [m]
-       (or (nil? size) (>= size (count m)))))))
+       (let []
+         (println "size " size "count " (count m))
+         (or (nil? size) (>= size (count m))))))))

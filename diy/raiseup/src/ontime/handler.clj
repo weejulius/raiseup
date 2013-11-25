@@ -81,7 +81,7 @@
                             (java.util.Date.)))))
 
   (GET "/notes" [page size]
-       (v/index-view {:page (or page 1) :size (or size 10)}))
+       (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
 
   (GET "/notes/new" []
        (v/new-note-view))
