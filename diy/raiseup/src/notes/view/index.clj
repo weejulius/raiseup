@@ -43,7 +43,6 @@
   "the view of index"
   [{:keys [page size]}]
   (let []
-    (println "options" page size)
     (layout
      "notes"
      (mod-nav)
