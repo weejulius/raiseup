@@ -41,6 +41,7 @@ Improvements
 * the code is divided into three module web/api/core/query
 * [DONE] abstract the read model
 * add lifecycle management
+** the tests has problem to refresh, as well as the command handler cannot be found
 * [DONE] replay the events
 * snapshot of ar
 * command/query can be passed in by means of http automatically
@@ -50,7 +51,11 @@ Improvements
 * the handlers in the same topic should process the events in order
 * [DONE] instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events 
 for ar when retrieving one ar
-* page the index
+* page the index :est 1d
+* use elasticsearch as read model instead of hazelcast as the query performance :est 3d
+* delete the note functionality :est 1d
+* css the index :est 2d
+
 Blocks
 ------
 * the defmethod/extend-protocol stay different place with defmulti/defprotocol, throw no implentation.
