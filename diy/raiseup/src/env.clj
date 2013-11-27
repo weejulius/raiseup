@@ -1,6 +1,7 @@
 (ns env
   (:use [org.httpkit.server :only [run-server]])
   (:require [cqrs.core :as cqrs]
+            [common.component :as component]
             [common.logging :as log]
             [ring.middleware.reload :as reload]
             [compojure.handler :refer [site]]
@@ -20,13 +21,8 @@
     stop-fn))
 
 
-(defprotocol Sys
-  (init [this options])
-  (start [this options])
-  (stop [this options]))
-
 (defrecord NoteSystem []
-  Sys
+  component/Lifecycle
   (init [this options]
     (let [opened-dbs (atom {})
           recoverable-id-db (storage/init-store opened-dbs

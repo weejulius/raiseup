@@ -1,12 +1,13 @@
 (defproject raiseup "0.1.0-SNAPSHOT"
   :description "raise up to make to do tool"
   :url "http://red-raiseup.rhcloud.com/"
-  :dependencies [[org.clojure/clojure "1.6.0-alpha2"]
+  :dependencies [[org.clojure/clojure "1.6.0-alpha3"]
                  [http-kit "2.1.13"]
                  [midje "1.6-beta1" :scope "test"]
                  [cheshire "5.2.0"]
                  [com.datomic/datomic-free "0.8.3848"]
                  [compojure "1.1.5"]
+                 [clojurewerkz/elastisch "1.3.0-beta5"]
                  [org.clojure/core.async "0.1.242.0-44b1e3-alpha"]
                  [ring/ring-devel "1.2.1"]
                  [javax.servlet/servlet-api "2.5"]

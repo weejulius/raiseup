@@ -16,4 +16,16 @@
  ;;event store configs
  :es {:snapshot-db-path "/tmp/snapshot-db"
       :id-db-path "/tmp/id-db"
-      :events-db-path "/tmp/events-db"}}
+      :events-db-path "/tmp/events-db"}
+
+ :elastic {:app "raiseup"
+           :settings {:index {:number_of_replicas 1}}
+           :mappings
+           {"note" {:properties
+                    {:ar-id   {:type "string" :store "yes" :index "not_analyzed"}
+                     :ar {:type "string" :store "yes" :index "not_analyzed"}
+                     :author  {:type "string" :store "yes" :index "not_analyzed"}
+                     :title      {:type "string" :analyzer "standard" :store "yes"}
+                     :content  {:type "string" :analyzer "standard" :store "yes"}
+                     :ctime {:type "date" :store "yes" :index "not_analyzed"}}}}}
+ }

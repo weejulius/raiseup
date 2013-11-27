@@ -45,8 +45,9 @@
     (let [entries (load-entries caches type)]
       (.remove entries id)))
 
-  (do-query [this type f pre-fn]
+  (do-query [this type query]
     "filter each entry and combine the qualified ones"
     (func/filter-until
-     f pre-fn
+     (:each query)
+     (:satisified query)
      (.values (load-entries caches type))) ))
