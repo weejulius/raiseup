@@ -42,8 +42,8 @@
                                     (cfg/ret :es :events-db-path)
                                     (cfg/ret :leveldb-option)))
               (assoc :id-creators (atom {}))
-              (assoc :readmodel (rm/->HazelcastReadModel
-                                 (Hazelcast/newHazelcastInstance nil))))]
+              (assoc :readmodel (-> (rm/->ElasticReadModel (cfg/ret :elastic :app))
+                                    (.init (cfg/ret :elastic)))))]
       (assoc new-state :command-bus  (cqrs/->SimpleCommandBus
                                       (:channels new-state)
                                       (:snapshot-db new-state)
@@ -66,7 +66,5 @@
         (do
           (log/info "shutdowning db" db)
           (.close db)))
-     ;(log/debug "shutdown hazelcast" (:readmodel this))
-     ; (.restart (.getLifecycleService (:caches (:readmodel this))))
       ((:http-server this) :timeout 1)
       (assoc this :readmodel nil))))

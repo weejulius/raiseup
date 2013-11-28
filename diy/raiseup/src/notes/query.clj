@@ -12,10 +12,6 @@
   (query [this]
     (.do-query
      (:readmodel s/system) :note
-     {:each (fn [note]
-              (if-not (nil? author)
-                (= (:author note) author)
-                true))
-      :satisfied (fn [m]
-                   (let []
-                     (or (nil? size) (>= size (count m)))))})))
+     :query (-> {}
+                (if-not (nil? author) (assoc :term {:author author}))
+                (if-not (nil? ))))))
