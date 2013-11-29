@@ -3,6 +3,7 @@
   (:require [cqrs.protocol :as cqrs]
             [clojurewerkz.elastisch.rest.index    :as idx]
             [clojurewerkz.elastisch.rest :as es]
+            [common.logging :as log]
             [clojurewerkz.elastisch.rest.document :as esd])
   (:import (common.component Lifecycle)))
 
@@ -19,7 +20,7 @@
   (remove-entry [this entry-type entry-id]
     (esd/delete app (name entry-type) (str entry-id)))
   (do-query [this entry-type query]
-    (apply esd/search app (name entry-type) query))
+    (do (apply esd/search app (name entry-type) query)))
   Lifecycle
   (init [this options]
     (do

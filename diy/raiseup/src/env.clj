@@ -6,7 +6,7 @@
             [ring.middleware.reload :as reload]
             [compojure.handler :refer [site]]
             [common.logging :as log]
-            [cqrs.hazelcast.readmodel :as rm]
+            [cqrs.elastic-rm :as rm]
             [cqrs.storage :as storage]
             [common.config :as cfg])
   (:import (com.hazelcast.core Hazelcast)

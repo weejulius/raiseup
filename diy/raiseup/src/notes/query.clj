@@ -14,4 +14,4 @@
      (:readmodel s/system) :note
      :query (-> {}
                 (if-not (nil? author) (assoc :term {:author author}))
-                (if-not (nil? ))))))
+                (if-not (nil? page) nil)))))

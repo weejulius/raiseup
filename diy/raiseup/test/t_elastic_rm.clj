@@ -35,21 +35,23 @@
     (is (= (:first-name (.load-entry rm :test 101)) nil))))
 
 (deftest test-query
-  (dotimes [n 4]
-    (.put-entry rm
-                {:ar :test
-                 :ar-id n
-                 :first-name "hello"
-                 :last-name "word"
-                 :ctime (java.util.Date.)}))
-  (let [[first-name last-name page size] ["hello" "word" 2 2]
-        result (.do-query
-                rm :test
-                [:query {:term {:first-name first-name
-                                :last-name last-name}}
-                 :search_type "query_then_fetch"
-                 :from (inc (* page (dec size)))
-                 :size size])]
-    (println result)
-    (is (= 2 (count result)))))
+  (do
+    (dotimes [n 4]
+      (.put-entry rm
+                  {:ar :test
+                   :ar-id n
+                   :first-name "hello"
+                   :last-name "word"
+                   :ctime (java.util.Date.)}))
+    (idx/refresh app)
+    (let [[first-name last-name page size] ["hello" "word" 2 2]
+          result (.do-query
+                  rm :test
+                  [:query {:term {:first-name first-name}}
+                   :search_type "query_then_fetch"
+                   :from (* page (dec size))
+                   :size size])]
+      (println (:hits result))
+      (is (= 2 (count (-> result :hits :hits)))))))
+
 (run-tests)
