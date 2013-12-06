@@ -19,6 +19,7 @@
       :events-db-path "/tmp/events-db"}
 
  :elastic {:app "raiseup"
+           :url "http://127.0.0.1:9200"
            :settings {:index {:number_of_replicas 1}}
            :mappings
            {"note" {:properties

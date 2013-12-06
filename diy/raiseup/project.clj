@@ -42,12 +42,12 @@
               :production {:jvm-opts ["-Dproduction=true" "-Dconfig=config.pro.clj"]}}
   :cljsbuild {
               :builds [{
-                                        ; The path to the top-level ClojureScript source directory:
+                        ; The path to the top-level ClojureScript source directory:
                         :source-paths ["src-cljs"]
-                                        ; The standard ClojureScript compiler options:
-                                        ; (See the ClojureScript compiler documentation for details.)
+                        ; The standard ClojureScript compiler options:
+                        ; (See the ClojureScript compiler documentation for details.)
                         :compiler {
-                                        ; default: target/cljsbuild-main.js
+                                   ; default: target/cljsbuild-main.js
                                    :output-to     "target/main.js"
                                    :optimizations :whitespace
                                    :pretty-print  true}}]})

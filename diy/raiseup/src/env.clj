@@ -61,10 +61,12 @@
       s))
   (stop [this options]
     (do
-      (log/debug "dbs " (:opened-dbs this))
-      (doseq [[key db] @(:opened-dbs this)]
-        (do
-          (log/info "shutdowning db" db)
-          (.close db)))
-      ((:http-server this) :timeout 1)
+      (if-let [dbs (:opened-dbs this)]
+        (log/debug "dbs " (:opened-dbs this))
+        (doseq  [[key db] @(:opened-dbs this)]
+          (do
+            (log/info "shutdowning db" db)
+            (.close db))))
+      (if-let [stop-http (:http-server this)]
+        (stop-http :timeout 1))
       (assoc this :readmodel nil))))
