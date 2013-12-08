@@ -16,23 +16,38 @@
     (let [old-entry (.load-entry this entry-type (str entry-id))]
       (.put-entry this (f old-entry))))
   (put-entry [this new-entry]
-    (esd/put app (name (:ar new-entry)) (str (:ar-id new-entry)) new-entry))
+    (do
+      (esd/put app
+               (name (:ar new-entry))
+               (str (:ar-id new-entry))
+               new-entry)
+      (idx/refresh app)))
   (remove-entry [this entry-type entry-id]
-    (esd/delete app (name entry-type) (str entry-id)))
+    (do
+      (esd/delete app
+                  (name entry-type)
+                  (str entry-id))
+      (idx/refresh app)))
   (do-query [this entry-type query]
-    (do (apply esd/search app (name entry-type) query)))
+    (let [query-result (apply esd/search app (name entry-type) query)]
+      (if (empty? query-result) []
+          (map #(get % :_source) (-> query-result :hits :hits)))))
   Lifecycle
   (init [this options]
-    (do
-      (es/connect! (:url options))
-      (if-not (idx/exists? app)
-        (do
-          (idx/create (:app options)
-                      :settings (:settings options)
-                      :mappings (:mappings options))
-          (println "creating elastic search index " app)))
-      this))
+    (try
+      (do
+        (es/connect! (:url options))
+        (if-not (idx/exists? app)
+          (do
+            (idx/create (:app options)
+                        :settings (:settings options)
+                        :mappings (:mappings options))
+            (log/debug "creating elastic search index " app))
+          (log/debug "starting elastic search index " app)))
+      (catch Exception e
+        (log/error e)))
+    this)
   (start [this options]
-    (println ""))
+    (log/debug "starting elastic search"))
   (stop [this options]
     ()))

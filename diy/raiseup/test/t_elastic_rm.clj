@@ -48,7 +48,7 @@
           result (.do-query
                   rm :test
                   [:query {:term {:first-name first-name}}
-                   :search_type "query_then_fetch"
+            ;;       :search_type "query_then_fetch"
                    :from (* page (dec size))
                    :size size])]
       (println (:hits result))
