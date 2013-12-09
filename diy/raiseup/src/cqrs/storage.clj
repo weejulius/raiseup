@@ -1,4 +1,5 @@
 (ns cqrs.storage
+  (:refer-clojure :exclude [map])
   (:require [common.convert :refer [->bytes ->long ->data]]
             [cqrs.leveldb :as leveldb]
             [common.config :as cfg]

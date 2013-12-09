@@ -50,14 +50,15 @@
       (cqrs/fetch (->QueryNote nil nil page size))))))
 
 
-(defn- mod-new-note
-  "form to submit new note"
-  [fields]
-  (form-to
-   [:POST "/notes"]
-   [:input {:type "text" :name "title" :value ""}]
-   [:input {:type "text" :name "content" :value ""}]
-   (submit-button "submit")))
+(defn- mod-edit-note
+  "form to post/put note"
+  [note]
+  (let [action (str "/notes" (if-not (nil? note) (str "/" (:ar-id note))))]
+    (form-to
+     [:POST action]
+     [:input {:type "text" :name "title" :value (get note :title "")}]
+     [:input {:type "text" :name "content" :value (get note :content "")}]
+     (submit-button "submit"))))
 
 (defn new-note-view
   "the page to new note"
@@ -65,4 +66,12 @@
   (layout
    "new note"
    (mod-nav)
-   (mod-new-note nil)))
+   (mod-edit-note nil)))
+
+(defn note-edit-view
+  [ar-id]
+  (layout
+   "edit note"
+   (mod-nav)
+   (mod-edit-note
+    (cqrs/fetch (->QueryNote ar-id nil nil nil)))))

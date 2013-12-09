@@ -22,5 +22,5 @@
                   (if-not (nil? author)
                     (concat basic-query [:query {:term {:author author}}])
                     basic-query))]
-      (prn "query result " result "for " basic-query)
+     ;; (prn "query result " result "for " basic-query)
       result)))

@@ -83,6 +83,9 @@
   (GET "/notes" [page size]
        (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
 
+  (GET "/notes/:ar-id" [ar-id]
+       (v/note-edit-view (->long ar-id)))
+
   (GET "/notes/new" []
        (v/new-note-view))
 
