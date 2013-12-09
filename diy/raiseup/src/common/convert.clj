@@ -27,6 +27,10 @@
     (json/parse-string this true))
   (->str [this] this)
   (->data [this] this)
+  (->date [this]
+    (t-convert/to-date
+     (t-format/parse
+      this)))
 
   nil
   (->bytes [this]
@@ -38,6 +42,8 @@
   (->str [this]
     nil)
   (->data [this]
+    nil)
+  (->date [this]
     nil)
 
   Long

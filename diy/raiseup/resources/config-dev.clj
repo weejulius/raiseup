@@ -24,9 +24,9 @@
            :mappings
            {"note" {:properties
                     {:ar-id   {:type "string" :store "yes" :index "not_analyzed"}
-                     :ar {:type "string" :store "yes" :index "not_analyzed"}
+                     :ar      {:type "string" :store "yes" :index "not_analyzed"}
                      :author  {:type "string" :store "yes" :index "not_analyzed"}
-                     :title      {:type "string" :analyzer "standard" :store "yes"}
-                     :content  {:type "string" :analyzer "standard" :store "yes"}
-                     :ctime {:type "date" :store "yes" :index "not_analyzed"}}}}}
+                     :title   {:type "string" :analyzer "standard" :store "yes"}
+                     :content {:type "string" :analyzer "standard" :store "yes"}
+                     :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}}
  }

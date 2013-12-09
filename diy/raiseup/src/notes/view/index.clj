@@ -1,5 +1,6 @@
 (ns notes.view.index
   (:require [hiccup.core :refer :all]
+            [hiccup.element :refer [link-to]]
             [hiccup.page :refer  [html5 include-css]]
             [hiccup.form :refer :all]
             [notes.query :refer :all]
@@ -36,7 +37,9 @@
    [:ul
     (for [note notes]
       [:li
-       [:h1 (:ar-id note) "-"  (:title note)] [:span (convert/->str (:ctime note))]
+       [:h1
+        (link-to (str "/notes/" (:ar-id note)) (:title note))]
+       [:span (convert/->str (convert/->date (:ctime note)))]
        [:p (:content note)]])]])
 
 (defn index-view
