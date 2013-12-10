@@ -18,3 +18,7 @@ regression testing again and again.
 * tricky things I could not imagin
 
 to be continue
+
+
+* store raw article or rended html into database
+*

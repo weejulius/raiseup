@@ -4,6 +4,7 @@
             [common.component :as component]
             [common.logging :as log]
             [ring.middleware.reload :as reload]
+            [ring.middleware.gzip :as gzip]
             [compojure.handler :refer [site]]
             [common.logging :as log]
             [cqrs.elastic-rm :as rm]
@@ -15,7 +16,8 @@
 (defn- start-http-server
   [port-str ip routes]
   (let [handler (site routes)
-        wrapped-handler (reload/wrap-reload handler)
+        wrapped-handler (gzip/wrap-gzip
+                         (reload/wrap-reload handler))
         port (Integer/parseInt port-str)
         stop-fn  (run-server wrapped-handler {:port port :ip ip})]
     (log/info (str "Server started at " ip ":" port-str))
