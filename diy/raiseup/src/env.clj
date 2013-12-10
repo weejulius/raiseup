@@ -15,7 +15,7 @@
 (defn- start-http-server
   [port-str ip routes]
   (let [handler (site routes)
-        wrapped-handler (reload/wrap-reload handler) ;;
+        wrapped-handler (reload/wrap-reload handler)
         port (Integer/parseInt port-str)
         stop-fn  (run-server wrapped-handler {:port port :ip ip})]
     (log/info (str "Server started at " ip ":" port-str))

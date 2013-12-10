@@ -22,6 +22,7 @@ time, mark, audio, video {
     font-size: 100%;
     font: inherit;
     vertical-align: baseline;
+
 }
 /* HTML5 display-role reset for older browsers */
 article, aside, details, figcaption, figure,
@@ -127,19 +128,52 @@ ol, ul {
 
 .mod-notes li{
     margin: 1px 0 2px 0;
-    background:#eed;
+    background:#edd;
 }
-.mod-notes h1{
+.mod-notes li h1{
     padding:10px 0px 5px 0px;
+    width:890px;
     font-weight : 800;
     font-size : 18px;
     text-transform: capitalize;
+    float:left;
+    font-family: "Copperplate Gothic Light", Arial, sans-serif;
 }
 
 .mod-notes li span{
-    font-size:12px;
+    display:block;
+    padding-left:150px;
+    padding-top:15px;
+    font-size:13px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .mod-notes li p{
-    padding:15px 10px;
+    padding:25px 10px;
+    width:1080px;
+    clear:right;
+    font-size:14px;
+    font-family:Consolas, "Liberation Mono", Courier, monospace;
+    -ms-text-size-adjust:100%;
+    -webkit-text-size-adjust:100%;
+    background:#6cc;
+    color:#333;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+}
 
+.mod-note-form{
+    padding: 30px 0px 0px 50px;
+}
+
+.mod-note-form input,textarea{
+    display:block;
+    height:50px;
+    border:0px;
+    width:1080px;
+    border:5px solid #333;
+    padding-left :15px;
+    }
+
+.mod-note-form textarea.content{
+      height:400px;
+    }

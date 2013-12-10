@@ -14,7 +14,8 @@
     (let [p (or page 1)
           s (or size 20)
           basic-query [:from (* s (dec p))
-                       :size s]
+                       :size s
+                       :sort {:ar-id "asc"}]
           rm (:readmodel s/system)
           result (.do-query
                   rm

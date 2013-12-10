@@ -23,7 +23,7 @@
            :settings {:index {:number_of_replicas 1}}
            :mappings
            {"note" {:properties
-                    {:ar-id   {:type "string" :store "yes" :index "not_analyzed"}
+                    {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
                      :ar      {:type "string" :store "yes" :index "not_analyzed"}
                      :author  {:type "string" :store "yes" :index "not_analyzed"}
                      :title   {:type "string" :analyzer "standard" :store "yes"}

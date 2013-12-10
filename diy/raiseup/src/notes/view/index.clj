@@ -40,7 +40,7 @@
        [:h1
         (link-to (str "/notes/" (:ar-id note)) (:title note))]
        [:span (convert/->str (convert/->date (:ctime note)))]
-       [:p (:content note)]])]])
+       [:p (.replace (:content note) "\n" "</br>")]])]])
 
 (defn index-view
   "the view of index"
@@ -57,11 +57,12 @@
   "form to post/put note"
   [note]
   (let [action (str "/notes" (if-not (nil? note) (str "/" (:ar-id note))))]
-    (form-to
-     [:POST action]
-     [:input {:type "text" :name "title" :value (get note :title "")}]
-     [:input {:type "text" :name "content" :value (get note :content "")}]
-     (submit-button "submit"))))
+    [:div.mod-note-form
+     (form-to
+      [:POST action]
+      [:input.title {:type "text" :name "title" :value (get note :title "")}]
+      [:textarea.content { :name "content"} (get note :content "")]
+      (submit-button "submit"))]))
 
 (defn new-note-view
   "the page to new note"
