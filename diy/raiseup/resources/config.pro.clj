@@ -9,4 +9,16 @@
       ;;the keys used to persist the id for recovery
       :recoverable-ar-id-key "rvb-ar-id-key"
       :recoverable-event-id-key "rvb-event-id-key"}
+
+ :elastic {:app "raiseup"
+           :url "http://127.6.87.129:15555"
+           :settings {:index {:number_of_replicas 1}}
+           :mappings
+           {"note" {:properties
+                    {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
+                     :ar      {:type "string" :store "yes" :index "not_analyzed"}
+                     :author  {:type "string" :store "yes" :index "not_analyzed"}
+                     :title   {:type "string" :analyzer "standard" :store "yes"}
+                     :content {:type "string" :analyzer "standard" :store "yes"}
+                     :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}}
 }
