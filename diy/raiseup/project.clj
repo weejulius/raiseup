@@ -18,6 +18,7 @@
                  [httl/httl "1.0.9"]
                  [prismatic/dommy "0.1.2"]
                  [amalloy/ring-gzip-middleware "0.1.3"]
+                 [markdown-clj "0.9.35"]
                  [hiccup "1.0.4"]
                  [bouncer "0.2.3"]
                  [com.taoensso/nippy "2.5.2"]

@@ -5,6 +5,7 @@
             [hiccup.form :refer :all]
             [notes.query :refer :all]
             [cqrs.core :as cqrs]
+            [markdown.core :as markdown]
             [common.convert :as convert]))
 
 (defn layout
@@ -19,7 +20,8 @@
       :content "width=device-width, initial-scale=1, maximum-scale=1"
       }]
     [:title title]
-    (include-css "/css/raiseup.css")]
+    (include-css "/css/raiseup.css")
+    (include-css  "http://fonts.googleapis.com/css?family=Fjalla+One")]
    [:body [:div.container body]]))
 
 
@@ -38,9 +40,9 @@
     (for [note notes]
       [:li
        [:h1
-        (link-to (str "/notes/" (:ar-id note)) (:title note))]
+        (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
        [:span (convert/->str (convert/->date (:ctime note)))]
-       [:p (.replace (:content note) "\n" "</br>")]])]])
+       [:div.markdown (markdown/md-to-html-string (:content note))]])]])
 
 (defn index-view
   "the view of index"
@@ -53,7 +55,7 @@
       (cqrs/fetch (->QueryNote nil nil page size))))))
 
 
-(defn- mod-edit-note
+(defn- mod-form-note
   "form to post/put note"
   [note]
   (let [action (str "/notes" (if-not (nil? note) (str "/" (:ar-id note))))]
@@ -70,12 +72,29 @@
   (layout
    "new note"
    (mod-nav)
-   (mod-edit-note nil)))
+   (mod-form-note nil)))
 
 (defn note-edit-view
   [ar-id]
   (layout
    "edit note"
    (mod-nav)
-   (mod-edit-note
+   (mod-form-note
     (cqrs/fetch (->QueryNote ar-id nil nil nil)))))
+
+(defn mod-note
+  [note]
+  [:div.mod-note
+   [:h1
+        (link-to (str "/notes/" (:ar-id note)) (:title note))]
+   [:span (convert/->str (convert/->date (:ctime note)))]
+   [:div.markdown (markdown/md-to-html-string (:content note))]])
+
+(defn note-view
+  [ar-id]
+  (let []
+    (layout
+     (str "note" ar-id)
+     (mod-nav)
+     (mod-note
+      (cqrs/fetch (->QueryNote ar-id nil nil nil))))))

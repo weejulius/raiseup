@@ -5,7 +5,7 @@
 #nohup $OPENSHIFT_REPO_DIR/diy/testrubyserver.rb $OPENSHIFT_INTERNAL_IP $OPENSHIFT_REPO_DIR/diy > $OPENSHIFT_HOMEDIR/diy-0.1/logs/server.log 2>&1 &
 
 ##start elasticsearch
-##nohup $OPENSHIFT_DATA_DIR/elasticsearch/bin/elasticsearch
+nohup $OPENSHIFT_DATA_DIR/elasticsearch/bin/elasticsearch
 
 export HTTP_CLIENT="wget --no-check-certificate -O"
 export HTTP_CLIENT="curl --insecure -f -L -o"

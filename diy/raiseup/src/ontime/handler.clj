@@ -1,5 +1,6 @@
 (ns ontime.handler
   (:require [compojure.core :refer [defroutes GET POST]]
+            [ring.util.response :refer [redirect-after-post]]
             [compojure.route :as route]
             [ontime.control :refer :all]
             [ontime.query :as q]
@@ -72,18 +73,23 @@
               :timeout 2000)))
 
   (POST "/notes/:ar-id" [ar-id author title content]
-        (str (s/send-command
-              (->UpdateNote :note
-                            (->long ar-id)
-                            author
-                            title
-                            content
-                            (java.util.Date.)))))
+        (do (s/send-command
+             (->UpdateNote :note
+                           (->long ar-id)
+                           author
+                           title
+                           content
+                           (java.util.Date.))
+             :timeout 1500)
+            (redirect-after-post (str "/notes/" ar-id))))
+
+  (GET "/notes/:ar-id" [ar-id]
+       (v/note-view (->long ar-id)))
 
   (GET "/notes" [page size]
        (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
 
-  (GET "/notes/:ar-id" [ar-id]
+  (GET "/notes/:ar-id/form" [ar-id]
        (v/note-edit-view (->long ar-id)))
 
   (GET "/notes/new" []
