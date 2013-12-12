@@ -35,7 +35,8 @@
          :nrepl {:start? true :port 4001}}
   :main main
   :repositories [["httl" {:url "http://httl.github.io/maven"
-                          :checksum :warn}]]
+                          :checksum :warn}]
+                 ["sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots"}]]
   :profiles  {:dev {:jvm-opts ["-Dhttl.reloadable=true"]
                     :dependencies [[ring-mock "0.1.5"]
                                    [org.clojure/tools.namespace "0.2.4"]]

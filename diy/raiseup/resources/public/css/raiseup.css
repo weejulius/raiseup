@@ -156,12 +156,18 @@ ol, ul {
     padding:25px 10px;
     width:1080px;
     clear:right;
-    font-size:14px;
+    font-size:0.8em;
+    line-height: 120%;
     font-family:Consolas, "Liberation Mono", Courier, monospace;
     -ms-text-size-adjust:100%;
     -webkit-text-size-adjust:100%;
     background:#6cc;
     color:#333;
+}
+
+div.markdown ul li{
+    margin:0px auto;
+    background:#6cc;
 }
 
 .markdown pre{

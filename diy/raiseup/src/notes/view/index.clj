@@ -6,7 +6,8 @@
             [notes.query :refer :all]
             [cqrs.core :as cqrs]
             [markdown.core :as markdown]
-            [common.convert :as convert]))
+            [common.convert :as convert]
+            [common.strs :as strs]))
 
 (defn layout
   "the layout of html which can be reused"
@@ -42,7 +43,9 @@
        [:h1
         (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
        [:span (convert/->str (convert/->date (:ctime note)))]
-       [:div.markdown (markdown/md-to-html-string (:content note))]])]])
+       [:div.markdown
+        (markdown/md-to-html-string
+         (strs/head (:content note) 1000))]])]])
 
 (defn index-view
   "the view of index"
