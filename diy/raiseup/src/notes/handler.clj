@@ -5,7 +5,8 @@
             [cqrs.core :as cqrs]
             [common.logging :as log])
   (:import (notes.commands CreateNote
-                           UpdateNote)))
+                           UpdateNote
+                           DeleteNote)))
 
 
 (extend-type CreateNote
@@ -25,6 +26,15 @@
                          :ar-id (:ar-id cmd)}))
         (update-note ar cmd)))))
 
+(extend-type DeleteNote
+  CommandHandler
+  (handle-command [cmd]
+    (let [ar (s/get-ar (:ar cmd) (:ar-id cmd))]
+      (if (empty? ar)
+        (throw (ex-info "ar not found"
+                        {:ar (:ar cmd)
+                         :ar-id (:ar-id cmd)}))
+        (delete-note ar cmd)))))
 
 (defmethod on-event
   :note-created
@@ -51,3 +61,13 @@
      (:ar event)
      (:ar-id event)
      #(update-fn % event [:author :title :content :utime]))))
+
+
+(defmethod on-event
+  :note-deleted
+  [event]
+  (do
+    (.remove-entry
+     (:readmodel s/system)
+     (:ar event)
+     (:ar-id event))))

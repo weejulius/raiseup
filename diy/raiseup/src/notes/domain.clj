@@ -12,3 +12,7 @@
   [note changes]
   [note (s/gen-event :note-updated changes
                         [:author :title :content :utime])])
+
+(defn delete-note
+  [note changes]
+  [note (s/gen-event :note-deleted changes [])])

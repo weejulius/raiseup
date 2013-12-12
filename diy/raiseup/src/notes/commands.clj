@@ -15,4 +15,12 @@
   cqrs/Validatable
   (validate [cmd]
     (b/validate cmd
+                :ar-id v/required
+                :title v/required
+                :content v/required)))
+
+(defrecord DeleteNote [ar ar-id]
+  cqrs/Validatable
+  (validate [cmd]
+    (b/validate cmd
                 :ar-id v/required)))

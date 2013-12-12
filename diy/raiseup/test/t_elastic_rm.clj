@@ -53,5 +53,3 @@
                    :size size])]
       (println (:hits result))
       (is (= 2 (count (-> result :hits :hits)))))))
-
-(run-tests)

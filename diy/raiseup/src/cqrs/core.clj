@@ -132,7 +132,7 @@
     (let [errors (first (.validate command))]
       (if (nil? errors)
         {:ok? true :result command}
-        {:ok? false :result (vals errors)}))))
+        {:ok? false :result errors}))))
 
 
 
@@ -179,13 +179,13 @@
                            command id-creators recoverable-id-db)
           validated-command (validate-command command-with-id)]
       (if-not (:ok? validated-command) validated-command
-              (emit-command
-               channel-map
-               (fn [cmd]
-                 (process-command cmd channel-map
-                                  snapshot-db events-db))
-               (:result validated-command)
-               options))
-      (:ar-id command-with-id)))
+              (do (emit-command
+                   channel-map
+                   (fn [cmd]
+                     (process-command cmd channel-map
+                                      snapshot-db events-db))
+                   (:result validated-command)
+                   options)
+                  (:ar-id command-with-id)))))
   (register [this command handler]
     (register-channel channel-map (type command) handler)))

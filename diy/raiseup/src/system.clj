@@ -11,8 +11,7 @@
 
 (defn send-command
   [command & {:as options}]
-  (do (log/debug options)
-    (.sends (:command-bus system) command options)))
+  (do (.sends (:command-bus system) command options)))
 
 (defn gen-event
   ^{:doc "generate event from cmd"

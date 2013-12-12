@@ -64,10 +64,25 @@
   (let [action (str "/notes" (if-not (nil? note) (str "/" (:ar-id note))))]
     [:div.mod-note-form
      (form-to
+      [:DELETE action]
+      (submit-button "delete"))
+     (form-to
       [:POST action]
       [:input.title {:type "text" :name "title" :value (get note :title "")}]
       [:textarea.content { :name "content"} (get note :content "")]
-      (submit-button "submit"))]))
+      (submit-button "update"))]))
+
+(defn- mod-note
+  [note]
+  [:div.mod-note
+   [:h1
+        (link-to (str "/notes/" (:ar-id note)) (:title note))]
+   [:span (convert/->str (convert/->date (:ctime note)))]
+   [:div.markdown (markdown/md-to-html-string (:content note))]])
+
+(defn- mod-error-tips
+  [errors]
+  ())
 
 (defn new-note-view
   "the page to new note"
@@ -85,19 +100,12 @@
    (mod-form-note
     (cqrs/fetch (->QueryNote ar-id nil nil nil)))))
 
-(defn mod-note
-  [note]
-  [:div.mod-note
-   [:h1
-        (link-to (str "/notes/" (:ar-id note)) (:title note))]
-   [:span (convert/->str (convert/->date (:ctime note)))]
-   [:div.markdown (markdown/md-to-html-string (:content note))]])
+
 
 (defn note-view
   [ar-id]
-  (let []
+  (let [note (cqrs/fetch (->QueryNote ar-id nil nil nil))]
     (layout
-     (str "note" ar-id)
+     (str (:title note))
      (mod-nav)
-     (mod-note
-      (cqrs/fetch (->QueryNote ar-id nil nil nil))))))
+     (mod-note note))))
