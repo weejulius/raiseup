@@ -55,8 +55,13 @@ for ar when retrieving one ar
 * [DONE] use elasticsearch as read model instead of hazelcast as the query performance :est 3d
 * delete the note functionality :est 1d
 * css the index :est 2d
-* support markdown syntax to add note
-
+* [DONE] support markdown syntax to add note
+* learn or introduce optimus for static files
+* null exception when replay events
+* optimize the event which has long text
+* http interface to replay events for ar 
+* add index link to menu nav
+* how to fix the data if data has some problem
 
 Blocks
 ------
