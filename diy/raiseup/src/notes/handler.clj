@@ -7,6 +7,12 @@
                            UpdateNote
                            DeleteNote)))
 
+(defn- ar-is-required
+  [ar]
+  (if (empty? ar)
+      (throw (ex-info "ar not found"
+                      {:ar (:ar cmd)
+                       :ar-id (:ar-id cmd)}))))
 
 (extend-protocol CommandHandler
   CreateNote
@@ -16,19 +22,13 @@
 
   UpdateNote
   (handle-command [cmd ar]
-    (if (empty? ar)
-      (throw (ex-info "ar not found"
-                      {:ar (:ar cmd)
-                       :ar-id (:ar-id cmd)}))
-      (update-note ar cmd)))
+    (ar-is-required ar)
+    (update-note ar cmd))
 
   DeleteNote
   (handle-command [cmd ar]
-    (if (empty? ar)
-      (throw (ex-info "ar not found"
-                      {:ar (:ar cmd)
-                       :ar-id (:ar-id cmd)}))
-      (delete-note ar cmd))))
+    (ar-is-required ar)
+    (delete-note ar cmd)))
 
 (defmethod on-event
   :note-created
