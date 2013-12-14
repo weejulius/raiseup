@@ -64,6 +64,7 @@ for ar when retrieving one ar
 * how to fix the data if data has some problem
 * monitor the system, like traffic and system usage on so on
 * add error message box in the pages
+* add performance evaludation for the app
 
 Blocks
 ------
