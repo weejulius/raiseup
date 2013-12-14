@@ -8,8 +8,7 @@
             [compojure.handler :refer [site]]
             [common.logging :as log]
             [cqrs.elastic-rm :as rm]
-            [cqrs.storage :as storage]
-            [common.config :as cfg])
+            [cqrs.storage :as storage])
   (:import (com.hazelcast.core Hazelcast)
            (com.hazelcast.config Config)))
 
@@ -29,25 +28,25 @@
   (init [this options]
     (let [opened-dbs (atom {})
           recoverable-id-db (storage/init-store opened-dbs
-                                                (cfg/ret :es :id-db-path)
-                                                (cfg/ret :leveldb-option))
+                                                (:id-db-path options)
+                                                (:leveldb-option options))
           new-state
           (-> this
               (assoc :opened-dbs opened-dbs)
               (assoc :snapshot-db
                 (storage/init-store opened-dbs
-                                    (cfg/ret :es :snapshot-db-path)
-                                    (cfg/ret :leveldb-option)))
+                                    (:snapshot-db-path options)
+                                    (:leveldb-option options)))
               (assoc :channels (atom {}))
               (assoc :recoverable-id-db recoverable-id-db)
               (assoc :events-db
                 (storage/init-store opened-dbs
-                                    (cfg/ret :es :events-db-path)
-                                    (cfg/ret :leveldb-option)))
+                                    (:events-db-path options)
+                                    (:leveldb-option options)))
               (assoc :id-creators (atom {}))
               (assoc :readmodel (.init
-                                 (rm/->ElasticReadModel (cfg/ret :elastic :app))
-                                 (cfg/ret :elastic))))]
+                                 (rm/->ElasticReadModel (:app (:elastic options)))
+                                 (:elastic options))))]
       (assoc new-state :command-bus  (cqrs/->SimpleCommandBus
                                       (:channels new-state)
                                       (:readmodel new-state)
@@ -68,16 +67,17 @@
       updated))
   (stop [this options]
     (do
-      (let [dbs @(:opened-dbs this)]
-        (log/debug "dbs " dbs)
-        (if-not (empty? dbs)
-          (try
-            (doseq [[key db] dbs]
-              (do
-                (log/info "shutdowning db" db)
-                (.close db)))
-            (catch Exception e
-              (log/error e)))))
+      (if-not (nil? (:opened-dbs this))
+          (let [dbs @(:opened-dbs this)]
+            (log/debug "dbs " dbs)
+            (if-not (empty? dbs)
+              (try
+                (doseq [[key db] dbs]
+                  (do
+                    (log/info "shutdowning db" db)
+                    (.close db)))
+                (catch Exception e
+                  (log/error e))))))
       (if-let [stop-http (:http-server this)]
         (stop-http :timeout 1))
       (assoc this :readmodel nil))))

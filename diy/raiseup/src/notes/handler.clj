@@ -8,7 +8,7 @@
                            DeleteNote)))
 
 (defn- ar-is-required
-  [ar]
+  [ar cmd]
   (if (empty? ar)
       (throw (ex-info "ar not found"
                       {:ar (:ar cmd)
@@ -22,12 +22,12 @@
 
   UpdateNote
   (handle-command [cmd ar]
-    (ar-is-required ar)
+    (ar-is-required ar cmd)
     (update-note ar cmd))
 
   DeleteNote
   (handle-command [cmd ar]
-    (ar-is-required ar)
+    (ar-is-required ar cmd)
     (delete-note ar cmd)))
 
 (defmethod on-event
