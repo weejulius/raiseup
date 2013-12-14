@@ -11,7 +11,7 @@
 (defprotocol CommandHandler
   ^{:doc "handle the comming commands from channel"
     :added "1.0"}
-  (handle-command [command]))
+  (handle-command [this ar]))
 
 (defprotocol Query
   ^{:doc "queries to talk with the read model"
@@ -27,7 +27,7 @@
 
 (defmulti on-event
   "handle the comming event"
-  (fn [event] (:event event)))
+  (fn [event system] (:event event)))
 
 (defprotocol ReadModel
   "manipulate the entries in read model"

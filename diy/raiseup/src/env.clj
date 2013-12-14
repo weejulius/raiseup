@@ -45,22 +45,26 @@
                                     (cfg/ret :es :events-db-path)
                                     (cfg/ret :leveldb-option)))
               (assoc :id-creators (atom {}))
-              (assoc :readmodel (-> (rm/->ElasticReadModel (cfg/ret :elastic :app))
-                                    (.init (cfg/ret :elastic)))))]
+              (assoc :readmodel (.init
+                                 (rm/->ElasticReadModel (cfg/ret :elastic :app))
+                                 (cfg/ret :elastic))))]
       (assoc new-state :command-bus  (cqrs/->SimpleCommandBus
                                       (:channels new-state)
+                                      (:readmodel new-state)
                                       (:snapshot-db new-state)
                                       (:events-db new-state)
                                       (:id-creators new-state)
                                       (:recoverable-id-db new-state)))))
   (start [this options]
-    (let [updated (-> this
-                      (assoc :http-server
-                        (start-http-server
-                         (:port options)
-                         (:host options)
-                         (:routes options))))]
-      (cqrs/replay-events (:events-db updated) (:channels updated))
+    (let [updated (assoc this
+                    :http-server
+                    (start-http-server
+                     (:port options)
+                     (:host options)
+                     (:routes options)))]
+      (cqrs/replay-events (:events-db updated)
+                          (:channels updated)
+                          (:readmodel updated))
       updated))
   (stop [this options]
     (do

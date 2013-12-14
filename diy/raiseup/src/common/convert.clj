@@ -51,7 +51,7 @@
     (-> (java.nio.ByteBuffer/allocate 8)
         (.putLong this)
         (.array)))
-  (->str [this] (.toString this))
+  (->str [this] (str this))
   (->long [this] this)
   (->data [this] this)
   (->date [this] (t-convert/to-date (t-convert/from-long this)))
@@ -75,8 +75,7 @@
   (->data [this]
     (thaw this))
   (->long [this]
-    (->> (java.nio.ByteBuffer/wrap this)
-         (.getLong))) )
+    (.getLong (java.nio.ByteBuffer/wrap this))) )
 
 (extend-protocol Cast
   (class (java.util.Date.))
@@ -88,8 +87,7 @@
 (defn byte-to-int-array
   "convert bytes to int collection"
   [int-bytes]
-  (if (nil? int-bytes)
-    nil
+  (when-not (nil? int-bytes)
     (let [buffer (java.nio.ByteBuffer/wrap int-bytes)
           size (/ (count int-bytes) 4)]
       (repeatedly size #(.getInt buffer)))))

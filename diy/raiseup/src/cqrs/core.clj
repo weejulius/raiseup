@@ -52,6 +52,16 @@
                    [id-name])]
        (.inc! id-creator))))
 
+(defn gen-event
+  ^{:doc "generate event from cmd"
+    :added "1.0"}
+  [event-type cmd keys]
+  (let [event    {:event       event-type
+                  :ar          (:ar cmd)
+                  :ar-id       (:ar-id cmd)
+                  :event-ctime (java.util.Date.)}]
+    (merge event (select-keys cmd keys))))
+
 (defn- populate-command-id-if-need
   "if the id is not existing one is given to command"
   [command id-creators recoverable-id-db]
@@ -92,9 +102,9 @@
   (if-not (empty? event)
     (let [chs (get @channel-map  event-type)]
       (if (empty? chs)
-        (do (throw
+        (throw
              (Exception.
-              (str "no any handler for event " event " type " event-type))))
+              (str "no any handler for event " event " type " event-type)))
         (let [timeout-ms (:timeout options)
               ch-seq     (vals chs)]
           (log/debug "emitting " event "with options " options ch-seq)
@@ -119,41 +129,47 @@
 
 (defn prepare-and-emit-event
   "emit the event, but register channel for the event if unregistered"
-  [channel-map event options]
+  [channel-map readmodel event options]
   (let [event-type (:event event)]
-    (register-channel channel-map  event-type (str on-event) on-event)
+    (register-channel channel-map  event-type (str on-event)
+                      #(on-event % readmodel))
     (emit channel-map event event-type options)))
 
 (defn- validate-command
   "validate command"
   [command]
-  (if-not (extends? Validatable (type command))
-    {:ok? true :result command}
-    (let [errors (first (.validate command))]
-      (if (nil? errors)
-        {:ok? true :result command}
-        {:ok? false :result errors}))))
-
-
-
+  (if-not (:ar command) {:ok? false :result command}
+   (if-not (extends? Validatable (type command))
+     {:ok? true :result command}
+     (let [errors (first (.validate command))]
+       (if (nil? errors)
+         {:ok? true :result command}
+         {:ok? false :result errors})))))
 
 (defn- process-command
   "handle the command , meanwhile store
    and emit the events produced by command to their channel "
-  [command channel-map snapshot-db events-db]
-  (let [handle-result (handle-command command)
-        old-snapshot (first handle-result)
-        new-events (rest handle-result)
-        new-snapshot (get-ar handle-result)]
-    (es/store-snapshot-and-events new-snapshot
-                                  new-events
-                                  snapshot-db
-                                  events-db)
-    (dorun (map #(prepare-and-emit-event channel-map % {}) new-events))))
+  [command channel-map snapshot-db events-db readmodel id-creators recoverable-id-db]
+  (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)]
+    (log/debug "process command" ar command (type command))
+    (let [handle-result (handle-command command ar)
+          old-snapshot (first handle-result)
+          new-events (rest handle-result)
+          new-events-with-id
+          (map #(assoc % :event-id
+                       (inc-id-for :event id-creators recoverable-id-db))
+               new-events)
+          new-snapshot (get-ar handle-result)]
+      (es/store-snapshot-and-events new-snapshot
+                                    new-events-with-id
+                                    snapshot-db
+                                    events-db)
+      (dorun (map #(prepare-and-emit-event channel-map readmodel % {})
+                  new-events-with-id)))))
 
 
 (defn replay-events
-  [store channel-map]
+  [store channel-map readmodel]
   (let []
     (log/info "[=>]replaying events to rebuild the state of entries")
     (.map
@@ -161,6 +177,7 @@
      (fn [k v]
        (prepare-and-emit-event
         channel-map
+        readmodel
         (convert/->data v) {})))
     (log/info "[<=]replayed events")))
 
@@ -172,20 +189,21 @@
     (.query query)))
 
 
-(defrecord SimpleCommandBus [channel-map snapshot-db events-db  id-creators recoverable-id-db]
+(defrecord SimpleCommandBus [channel-map readmodel snapshot-db events-db id-creators recoverable-id-db]
   CommandBus
   (sends [this command options]
-    (let [command-with-id (populate-command-id-if-need
-                           command id-creators recoverable-id-db)
-          validated-command (validate-command command-with-id)]
+    (let [validated-command (validate-command command)]
       (if-not (:ok? validated-command) validated-command
-              (do (emit-command
-                   channel-map
-                   (fn [cmd]
-                     (process-command cmd channel-map
-                                      snapshot-db events-db))
-                   (:result validated-command)
-                   options)
-                  (:ar-id command-with-id)))))
+              (let [command-with-id (populate-command-id-if-need
+                                     command id-creators recoverable-id-db)]
+                (emit-command
+                 channel-map
+                 (fn [cmd]
+                   (process-command cmd channel-map
+                                    snapshot-db events-db readmodel
+                                    id-creators recoverable-id-db))
+                 command-with-id
+                 options)
+                (:ar-id command-with-id)))))
   (register [this command handler]
     (register-channel channel-map (type command) handler)))

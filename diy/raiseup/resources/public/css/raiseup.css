@@ -120,6 +120,14 @@ ol, ul {
     background:#88f;
 }
 
+.mod-nav a{
+    color:#fff;
+}
+.mod-nav a:link{
+    text-decoration: none;
+    
+}
+
 .mod-notes{
     padding-left:60px;
     padding-top:20px;
@@ -213,4 +221,12 @@ div.markdown ul li{
 
 .mod-note h1{
     padding : 0px;
+}
+
+.mod-error{
+    padding:20px 0 30px 50px;
+    background : #aacc33;
+    color:#ffffff;
+    font-size:1.2em;
+    font-weight:800;
 }

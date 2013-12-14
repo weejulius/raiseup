@@ -1,5 +1,5 @@
 (ns user
-  (:require [clojure.tools.namespace.repl :refer (refresh)]
+  (:require [clojure.tools.namespace.repl :refer (refresh refresh-all set-refresh-dirs)]
             [system :as s]
             [common.component :as component])
   (:use  [ontime.handler]))

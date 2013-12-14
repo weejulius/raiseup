@@ -1,7 +1,6 @@
 (ns notes.commands
   (:require [cqrs.protocol :as cqrs]
-            [bouncer [core :as b] [validators :as v]])
-  (:gen-class))
+            [bouncer [core :as b] [validators :as v]]))
 
 (defrecord CreateNote [ar author title content ctime]
   cqrs/Validatable

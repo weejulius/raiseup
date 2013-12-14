@@ -31,7 +31,7 @@
   []
   [:div.mod-nav
    [:ul
-    [:li "Notes"]
+    [:li (link-to "/notes"  "Notes")]
     [:li "Problems"]]])
 
 (defn- mod-notes
@@ -80,9 +80,10 @@
    [:span (convert/->str (convert/->date (:ctime note)))]
    [:div.markdown (markdown/md-to-html-string (:content note))]])
 
-(defn- mod-error-tips
-  [errors]
-  ())
+(defn- mod-error
+  [error]
+  [:div.mod-error
+   [:span error]])
 
 (defn new-note-view
   "the page to new note"
@@ -94,12 +95,13 @@
 
 (defn note-edit-view
   [ar-id]
-  (layout
-   "edit note"
-   (mod-nav)
-   (mod-form-note
-    (cqrs/fetch (->QueryNote ar-id nil nil nil)))))
-
+  (let [note (cqrs/fetch (->QueryNote ar-id nil nil nil))]
+    (layout
+     "edit note"
+     (mod-nav)
+     (if (or (empty? note) (= :note-deleted (:event note)))
+       (mod-error "Oops, the note is not existing")
+       (mod-form-note note)))))
 
 
 (defn note-view

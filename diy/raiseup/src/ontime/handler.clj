@@ -1,11 +1,10 @@
 (ns ontime.handler
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
-            [ring.util.response :refer [redirect-after-post]]
+            [ring.util.response :refer [redirect redirect-after-post]]
             [compojure.route :as route]
             [ontime.control :refer :all]
             [ontime.query :as q]
             [notes.commands :refer :all]
-            [notes.handler :refer :all]
             [notes.query :refer :all]
             [notes.view.index :as v]
             [cqrs.core :as cqrs]
@@ -17,7 +16,8 @@
             [ontime.views.index :as vi]
             [clostache.parser :as tpl])
   (:import httl.Engine)
-  (:use org.httpkit.server))
+  (:use org.httpkit.server
+        notes.handler))
 
 (def template-extension-with-dot (str "." (cfg/ret :template-extension)))
 
@@ -94,9 +94,11 @@
        (v/note-edit-view (->long ar-id)))
 
   (DELETE "/notes/:ar-id" [ar-id]
-          (str (s/send-command
-                (->DeleteNote :note
-                              (->long ar-id)))))
+          (let [result (s/send-command
+                        (->DeleteNote :note
+                                      (->long ar-id)))]
+            (if-not (nil? (:ok? result)) (str result)
+                    (redirect (str "/notes")))))
 
   (route/resources "/")
   (route/not-found "PAGE NOT FOUND"))

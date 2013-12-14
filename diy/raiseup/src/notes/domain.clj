@@ -1,18 +1,17 @@
 (ns
     ^{:doc "notes is a short of words to record"}
     notes.domain
-    (:require [system :as s]))
+    (:require [cqrs.core :as cqrs]))
 
 (defn create-note
   [note]
-  (s/gen-event :note-created note
-                  [:author :title :content :ctime]))
+  (cqrs/gen-event :note-created note [:author :title :content :ctime]))
 
 (defn update-note
   [note changes]
-  [note (s/gen-event :note-updated changes
+  [note (cqrs/gen-event :note-updated changes
                         [:author :title :content :utime])])
 
 (defn delete-note
   [note changes]
-  [note (s/gen-event :note-deleted changes [])])
+  [note (cqrs/gen-event :note-deleted changes [])])

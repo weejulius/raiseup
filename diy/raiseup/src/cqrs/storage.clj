@@ -72,7 +72,7 @@
     @long-id)
   (inc! [this]
     (let [inc-value (swap! long-id inc)]
-      (if (= 0 (mod inc-value incremence))
+      (if (zero? (mod inc-value incremence))
         (.write
          storage
          (->bytes store-key)
