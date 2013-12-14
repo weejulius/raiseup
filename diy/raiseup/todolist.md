@@ -40,7 +40,7 @@ Improvements
 * [DONE] the command/event bus utilize the core.asyn handle commands/events
 * the code is divided into three module web/api/core/query
 * [DONE] abstract the read model
-* add lifecycle management
+* [DONE] add lifecycle management
 ** the tests has problem to refresh, as well as the command handler cannot be found
 * [DONE] replay the events
 * snapshot of ar
@@ -53,16 +53,17 @@ Improvements
 for ar when retrieving one ar
 * [DONE] page the index :est 1d
 * [DONE] use elasticsearch as read model instead of hazelcast as the query performance :est 3d
-* delete the note functionality :est 1d
+* [DONE] delete the note functionality :est 1d
 * css the index :est 2d
 * [DONE] support markdown syntax to add note
 * learn or introduce optimus for static files
 * null exception when replay events
 * optimize the event which has long text
 * http interface to replay events for ar 
-* add index link to menu nav
+* [DONE] add index link to menu nav
 * how to fix the data if data has some problem
 * monitor the system, like traffic and system usage on so on
+* add error message box in the pages
 
 Blocks
 ------
