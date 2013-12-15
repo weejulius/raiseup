@@ -1,10 +1,10 @@
 (ns ^{:doc "the read model implemented by elastic search"}
   cqrs.elastic-rm
   (:require [cqrs.protocol :as cqrs]
-            [clojurewerkz.elastisch.rest.index    :as idx]
-            [clojurewerkz.elastisch.rest :as es]
-            [common.logging :as log]
-            [clojurewerkz.elastisch.rest.document :as esd])
+            [clojurewerkz.elastisch.native.index :as idx]
+            [clojurewerkz.elastisch.native :as es]
+            [clojurewerkz.elastisch.native.document :as esd]
+            [common.logging :as log])
   (:import (common.component Lifecycle)))
 
 
@@ -14,6 +14,8 @@
     (:_source (esd/get app (name entry-type) (str entry-id))))
   (update-entry [this entry-type entry-id f]
     (let [old-entry (.load-entry this entry-type (str entry-id))]
+      (log/debug "updating entry" old-entry
+                 (type (:ar old-entry)) (type (:ar-id old-entry)))
       (.put-entry this (f old-entry))))
   (put-entry [this new-entry]
     (do
@@ -36,7 +38,8 @@
   (init [this options]
     (try
       (do
-        (es/connect! (:url options))
+        (es/connect! [[(:host options) (:port options)]]
+                     {"cluster.name" (:cluster-name options)})
         (if-not (idx/exists? app)
           (do
             (idx/create (:app options)

@@ -19,11 +19,13 @@
       :events-db-path "/tmp/events-db"}
 
  :elastic {:app "raiseup"
-           :url "http://127.0.0.1:9200"
-           :settings {:index {:number_of_replicas 1}}
+           :host "127.0.0.1"
+           :port 9300
+           :cluster-name "elasticsearch"
+         ;  :settings {:index {"number_of_replicas" 1}}
            :mappings
            {"note" {:properties
-                    {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
+                    {:ar-id   {:type "string" :store "yes" :index "not_analyzed"}
                      :ar      {:type "string" :store "yes" :index "not_analyzed"}
                      :author  {:type "string" :store "yes" :index "not_analyzed"}
                      :title   {:type "string" :analyzer "standard" :store "yes"}

@@ -4,14 +4,14 @@
     (:require [cqrs.core :as cqrs]))
 
 (defn create-note
-  [note]
-  (cqrs/gen-event :note-created note [:author :title :content :ctime]))
+  [cmd]
+  (cqrs/gen-event :note-created cmd [:author :title :content :ctime]))
 
 (defn update-note
-  [note changes]
-  [note (cqrs/gen-event :note-updated changes
+  [note cmd]
+  [note (cqrs/gen-event :note-updated cmd
                         [:author :title :content :utime])])
 
 (defn delete-note
-  [note changes]
-  [note (cqrs/gen-event :note-deleted changes [])])
+  [note cmd]
+  [note (cqrs/gen-event :note-deleted cmd [])])

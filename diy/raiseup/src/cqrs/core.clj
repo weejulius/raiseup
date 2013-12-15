@@ -151,7 +151,6 @@
    and emit the events produced by command to their channel "
   [command channel-map snapshot-db events-db readmodel id-creators recoverable-id-db]
   (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)]
-   ; (log/debug "process command" ar command (type command))
     (let [handle-result (handle-command command ar)
           old-snapshot (first handle-result)
           new-events (rest handle-result)

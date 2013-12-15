@@ -31,4 +31,4 @@
 (defn reset []
   (stop)
   (set-refresh-dirs "src" "resources")
-  (refresh :after 'user/go))
+  (refresh-all :after 'user/go))
