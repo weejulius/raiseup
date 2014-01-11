@@ -11,8 +11,10 @@
       :recoverable-event-id-key "rvb-event-id-key"}
 
  :elastic {:app "raiseup"
-           :url "http://127.6.87.129:15555"
-           :settings {:index {:number_of_replicas 1}}
+           :host "127.6.87.129"
+           :port 15555
+           :cluster-name "elasticsearch"
+           :settings {:index {"number_of_replicas" 1}}
            :mappings
            {"note" {:properties
                     {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}

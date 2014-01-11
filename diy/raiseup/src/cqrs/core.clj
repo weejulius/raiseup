@@ -79,11 +79,11 @@
    channel-map [type from]
    (fn []
      (let [ch (chan)]
-       (log/debug "register channel" type from ch)
+      ; (log/debug "register channel" type from ch)
        (go (let []
              (loop []
                (when-let [[cmd output-ch](<! ch)]
-                 (log/debug "receiving " cmd)
+                ; (log/debug "receiving " cmd)
                  (try
                    (handler cmd)
                    (catch Exception e
@@ -107,7 +107,7 @@
               (str "no any handler for event " event " type " event-type)))
         (let [timeout-ms (:timeout options)
               ch-seq     (vals chs)]
-          (log/debug "emitting " event "with options " options ch-seq)
+         ; (log/debug "emitting " event "with options " options ch-seq)
           (if-not (nil? timeout-ms)
             (let [output-chs  (map (fn [ch]
                                      (let [output-ch (chan 1)]
@@ -151,7 +151,6 @@
    and emit the events produced by command to their channel "
   [command channel-map snapshot-db events-db readmodel id-creators recoverable-id-db]
   (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)]
-    (log/debug "process command" ar command (type command))
     (let [handle-result (handle-command command ar)
           old-snapshot (first handle-result)
           new-events (rest handle-result)

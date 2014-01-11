@@ -2,13 +2,14 @@
   (:require [cqrs.protocol :refer [CommandHandler on-event]]
             [notes.domain :refer :all]
             [cqrs.core :as cqrs]
-            [common.logging :as log])
+            [common.logging :as log]
+            [taoensso.timbre.profiling :as p])
   (:import (notes.commands CreateNote
                            UpdateNote
                            DeleteNote)))
 
 (defn- ar-is-required
-  [ar]
+  [ar cmd]
   (if (empty? ar)
       (throw (ex-info "ar not found"
                       {:ar (:ar cmd)
@@ -22,37 +23,37 @@
 
   UpdateNote
   (handle-command [cmd ar]
-    (ar-is-required ar)
+    (ar-is-required ar cmd)
     (update-note ar cmd))
 
   DeleteNote
   (handle-command [cmd ar]
-    (ar-is-required ar)
+    (ar-is-required ar cmd)
     (delete-note ar cmd)))
 
 (defmethod on-event
   :note-created
   [event readmodel]
   (.put-entry readmodel
-              (select-keys event [:ar :ar-id :author :title :content :ctime])))
+               (select-keys event [:ar :ar-id :author :title :content :ctime])))
 
 (defn- update-fn
   [cur-entry event keys]
-  (do (log/debug "updating " cur-entry event keys)
-   (reduce
+  (reduce
     (fn [m k]
       (assoc m k (or (k event) (k m))))
     cur-entry
-    keys)))
+    keys))
 
 (defmethod on-event
   :note-updated
   [event readmodel]
-  (.update-entry
+  (do
+    (.update-entry
      readmodel
      (:ar event)
      (:ar-id event)
-     #(update-fn % event [:author :title :content :utime])))
+     #(update-fn % event [:author :title :content :utime]))))
 
 
 (defmethod on-event
