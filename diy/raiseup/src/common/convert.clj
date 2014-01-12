@@ -21,7 +21,7 @@
 (extend-protocol Cast
   String
   (->bytes [this]
-    (.getBytes this (cfg/ret :charset)))
+    (.getBytes ^String this ^String (cfg/ret :charset)))
   (->long [this]
     (Long/parseLong this))
   (->map [this]

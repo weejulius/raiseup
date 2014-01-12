@@ -1,9 +1,8 @@
 (ns notes.handler
-  (:require [cqrs.protocol :refer [CommandHandler on-event]]
+  (:require [cqrs.protocol :refer [CommandHandler on-event ReadModel] :as p]
             [notes.domain :refer :all]
             [cqrs.core :as cqrs]
-            [common.logging :as log]
-            [taoensso.timbre.profiling :as p])
+            [common.logging :as log])
   (:import (notes.commands CreateNote
                            UpdateNote
                            DeleteNote)))
@@ -34,7 +33,7 @@
 (defmethod on-event
   :note-created
   [event readmodel]
-  (.put-entry readmodel
+  (p/put-entry readmodel
                (select-keys event [:ar :ar-id :author :title :content :ctime])))
 
 (defn- update-fn
@@ -49,7 +48,7 @@
   :note-updated
   [event readmodel]
   (do
-    (.update-entry
+    (p/update-entry
      readmodel
      (:ar event)
      (:ar-id event)
@@ -59,7 +58,7 @@
 (defmethod on-event
   :note-deleted
   [event readmodel]
-  (.remove-entry
+  (p/remove-entry
      readmodel
      (:ar event)
      (:ar-id event)))

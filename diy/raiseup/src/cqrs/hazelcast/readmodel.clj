@@ -1,6 +1,7 @@
 (ns cqrs.hazelcast.readmodel
   (:import (com.hazelcast.core HazelcastInstance IMap))
   (:require [cqrs.protocol :as cqrs]
+            [cqrs.storage :as store]
             [common.logging :as log]
             [clojure.core.reducers :as r]
             [common.func :as func]
@@ -30,7 +31,7 @@
 
   (put-entry [this new-entry]
     "create or update entry"
-    (let [entries (load-entries caches (:ar new-entry))]
+    (let [^IMap entries (load-entries caches (:ar new-entry))]
       (log/debug "put new entry" new-entry)
       (.put entries
             (:ar-id new-entry)
@@ -38,12 +39,12 @@
 
   (update-entry [this entry-type id f]
     "apply f to the specific entry and update"
-    (let [entry (.load-entry this entry-type id)
+    (let [^IMap entry (cqrs/load-entry this entry-type id)
           new-entry (f entry)]
-      (.put-entry this new-entry)))
+      (cqrs/put-entry this new-entry)))
 
   (remove-entry [this type id]
-    (let [entries (load-entries caches type)]
+    (let [^IMap entries (load-entries caches type)]
       (.remove entries id)))
 
   (do-query [this type query]
@@ -51,4 +52,4 @@
     (func/filter-until
      (:each query)
      (:satisified query)
-     (.values (load-entries caches type))) ))
+     (.values ^IMap (load-entries caches type))) ))

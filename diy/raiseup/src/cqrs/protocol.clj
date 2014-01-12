@@ -5,8 +5,7 @@
 (defprotocol CommandBus
   ^{:doc "the bus to dispath commands to its channel to handle it"
     :added "1.0"}
-  (sends [this command options] "send command to its channel")
-  (register [this command handler] "register the handler of command"))
+  (sends [this command opts] "send command to its channel"))
 
 (defprotocol CommandHandler
   ^{:doc "handle the comming commands from channel"

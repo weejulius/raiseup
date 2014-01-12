@@ -14,8 +14,7 @@
             [common.func :as func]
             [common.logging :as log]
             [common.convert :as convert]
-            [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]])
-  (:import (cqrs.storage RecoverableId Store)))
+            [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]]))
 
 ;;deprecate
 (defn- read-ar-events
@@ -43,7 +42,7 @@
   "increase the id for the key which is a kind of ar, or the event"
   ([key id-creators recoverable-id-db]
      (let [id-name (name key)
-           ^RecoverableId id-creator
+           id-creator
            (get-in (func/put-if-absence! id-creators
                                          [id-name]
                                          (fn []
@@ -51,7 +50,7 @@
                                             id-name
                                             recoverable-id-db)))
                    [id-name])]
-       (.inc! id-creator))))
+       (storage/inc! id-creator))))
 
 (defn gen-event
   ^{:doc "generate event from cmd"
@@ -169,10 +168,10 @@
 
 
 (defn replay-events
-  [^Store store channel-map readmodel]
+  [store channel-map readmodel]
   (let []
     (log/info "[=>]replaying events to rebuild the state of entries")
-    (.map
+    (storage/map
      store
      (fn [k v]
        (prepare-and-emit-event
@@ -184,7 +183,7 @@
 (defn fetch
   "fetch result of query"
   [query]
-  (if (:id ^Query query)
+  (if (:id query)
     (find-by-id query)
     (query query)))
 
@@ -204,6 +203,4 @@
                                     id-creators recoverable-id-db))
                  command-with-id
                  options)
-                (:ar-id command-with-id)))))
-  (register [this command handler]
-    (register-channel channel-map (type command) :command  handler)))
+                (:ar-id command-with-id))))))

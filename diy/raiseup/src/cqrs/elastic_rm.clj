@@ -14,10 +14,10 @@
   (load-entry [this entry-type entry-id]
     (:_source (esd/get app (name entry-type) (str entry-id))))
   (update-entry [this entry-type entry-id f]
-    (let [old-entry (.load-entry this entry-type (str entry-id))]
+    (let [old-entry (cqrs/load-entry this entry-type (str entry-id))]
       (log/debug "updating entry" old-entry
                  (type (:ar old-entry)) (type (:ar-id old-entry)))
-      (.put-entry this (f old-entry))))
+      (cqrs/put-entry this (f old-entry))))
   (put-entry [this new-entry]
     (do
       (esd/put app

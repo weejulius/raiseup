@@ -44,7 +44,7 @@
                                     (:events-db-path options)
                                     (:leveldb-option options)))
               (assoc :id-creators (atom {}))
-              (assoc :readmodel (.init
+              (assoc :readmodel (component/init
                                  (rm/->ElasticReadModel (:app (:elastic options)))
                                  (:elastic options))))]
       (assoc new-state :command-bus  (cqrs/->SimpleCommandBus

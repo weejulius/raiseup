@@ -1,17 +1,16 @@
 (ns ^{:doc "the queries for notes"}
   notes.query
   (:require [system :as s]
-            [cqrs.protocol :refer [Query]])
-  (:import (cqrs.protocol ReadModel)))
+            [cqrs.protocol :refer [Query] :as p]))
 
-(defn- read-model {:tag ReadModel}
+(defn- read-model
   []
   (:readmodel s/system))
 
 (defrecord QueryNote [id author page size]
   Query
   (find-by-id [this]
-    (.load-entry
+    (p/load-entry
      (read-model) :note id))
   (query [this]
     (let [p (or page 1)
@@ -20,7 +19,7 @@
                        :size s
                        :sort {:ar-id "asc"}]
           rm read-model
-          result (.do-query
+          result (p/do-query
                   rm
                   :note
                   (if-not (nil? author)

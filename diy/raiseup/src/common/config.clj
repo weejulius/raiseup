@@ -1,7 +1,6 @@
 (ns ^{:doc "config toolbox"}
   common.config
-  (:import (java.io PushbackReader)
-           (java.lang IllegalArgumentException)))
+  (:import (java.io PushbackReader)))
 
 (def dev-config-file "config-dev.clj")
 
@@ -37,8 +36,8 @@
     (read-edn-file (env :config dev-config-file))
     (if (empty? (env :config))
       (throw
-       (new IllegalArgumentException
-        (str "config file is not specified for production mode" (env :config))))
+       (IllegalArgumentException.
+        ^String (str "config file is not specified for production mode" (env :config))))
       (merge (read-edn-file dev-config-file)
              (read-edn-file (env :config))))))
 
@@ -48,8 +47,7 @@
   (let [config (f configs keys not-found-placehold)]
     (if (= config not-found-placehold)
       (throw
-       (new IllegalArgumentException
-        (apply str keys  " not found"))))
+       (IllegalArgumentException. ^String (apply str keys  " not found"))))
     config))
 
 

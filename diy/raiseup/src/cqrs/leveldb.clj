@@ -4,7 +4,8 @@
             [common.config :as cfg]
             [common.logging :as log])
   (:import (org.iq80.leveldb Options)
-           (org.fusesource.leveldbjni JniDBFactory)))
+           (org.fusesource.leveldbjni JniDBFactory)
+           (java.io File)))
 
 (defn- open-new-leveldb
   "before using the leveldb open it"
@@ -33,11 +34,11 @@
     :doc   "initialize or open the level db to be used,
             the level db object is cached once it is opened"
     :side-affect "true"}
-  ([opened-dbs db-dir options]
+  ([opened-dbs ^String db-dir options]
      (if-let [existing-db (get @opened-dbs db-dir)]
        existing-db
        (let [opened-new-db (open-new-leveldb
-                            (java.io.File. db-dir)
+                            (File. db-dir)
                             (Options.))]
          (swap! opened-dbs
                 (fn [dbs]
