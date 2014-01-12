@@ -18,7 +18,7 @@
           basic-query [:from (* s (dec p))
                        :size s
                        :sort {:ar-id "asc"}]
-          rm read-model
+          rm (read-model)
           result (p/do-query
                   rm
                   :note

@@ -8,7 +8,7 @@
       :added "1.0"}
   cqrs.core
   (:require [cqrs.eventstore :as es]
-            [cqrs.protocol :refer :all]
+            [cqrs.protocol :refer [Validatable on-event] :as p]
             [cqrs.storage :as storage]
             [clojure.core.reducers :as r]
             [common.func :as func]
@@ -141,7 +141,7 @@
   (if-not (:ar command) {:ok? false :result command}
    (if-not (extends? Validatable (type command))
      {:ok? true :result command}
-     (let [errors (first (validate ^Validatable command))]
+     (let [errors (first (p/validate ^Validatable command))]
        (if (nil? errors)
          {:ok? true :result command}
          {:ok? false :result errors})))))
@@ -151,7 +151,7 @@
    and emit the events produced by command to their channel "
   [command channel-map snapshot-db events-db readmodel id-creators recoverable-id-db]
   (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)]
-    (let [handle-result (handle-command command ar)
+    (let [handle-result (p/handle-command command ar)
           old-snapshot (first handle-result)
           new-events (rest handle-result)
           new-events-with-id
@@ -184,8 +184,8 @@
   "fetch result of query"
   [query]
   (if (:id query)
-    (find-by-id query)
-    (query query)))
+    (p/find-by-id query)
+    (p/query query)))
 
 
 (defrecord SimpleCommandBus [channel-map readmodel snapshot-db events-db id-creators recoverable-id-db]
