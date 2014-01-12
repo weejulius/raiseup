@@ -1,4 +1,4 @@
-(ns t-func
+(ns common.t-func
   (:use [midje.sweet]
         [common.func]))
 

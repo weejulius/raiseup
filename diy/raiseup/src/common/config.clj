@@ -1,5 +1,7 @@
 (ns ^{:doc "config toolbox"}
-  common.config)
+  common.config
+  (:import (java.io PushbackReader)
+           (java.lang IllegalArgumentException)))
 
 (def dev-config-file "config-dev.clj")
 
@@ -20,7 +22,7 @@
 
 (defn read-edn-file
   [file]
-  (with-open [r (java.io.PushbackReader.
+  (with-open [r (PushbackReader.
                  (-> file clojure.java.io/resource clojure.java.io/reader))]
     (read r)))
 
@@ -35,7 +37,7 @@
     (read-edn-file (env :config dev-config-file))
     (if (empty? (env :config))
       (throw
-       (java.lang.IllegalArgumentException.
+       (new IllegalArgumentException
         (str "config file is not specified for production mode" (env :config))))
       (merge (read-edn-file dev-config-file)
              (read-edn-file (env :config))))))
@@ -46,7 +48,7 @@
   (let [config (f configs keys not-found-placehold)]
     (if (= config not-found-placehold)
       (throw
-       (java.lang.IllegalArgumentException.
+       (new IllegalArgumentException
         (apply str keys  " not found"))))
     config))
 

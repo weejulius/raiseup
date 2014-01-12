@@ -1,4 +1,4 @@
-(ns t-config
+(ns common.t-config
   (:require [common.config :as cfg]
             [midje.sweet :refer :all]))
 

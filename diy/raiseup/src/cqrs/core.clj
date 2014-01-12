@@ -14,7 +14,8 @@
             [common.func :as func]
             [common.logging :as log]
             [common.convert :as convert]
-            [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]]))
+            [clojure.core.async :as async :refer [<! <!! >! put! go chan timeout alts!]])
+  (:import (cqrs.storage RecoverableId Store)))
 
 ;;deprecate
 (defn- read-ar-events
@@ -42,7 +43,7 @@
   "increase the id for the key which is a kind of ar, or the event"
   ([key id-creators recoverable-id-db]
      (let [id-name (name key)
-           id-creator
+           ^RecoverableId id-creator
            (get-in (func/put-if-absence! id-creators
                                          [id-name]
                                          (fn []
@@ -141,7 +142,7 @@
   (if-not (:ar command) {:ok? false :result command}
    (if-not (extends? Validatable (type command))
      {:ok? true :result command}
-     (let [errors (first (.validate command))]
+     (let [errors (first (validate ^Validatable command))]
        (if (nil? errors)
          {:ok? true :result command}
          {:ok? false :result errors})))))
@@ -168,7 +169,7 @@
 
 
 (defn replay-events
-  [store channel-map readmodel]
+  [^Store store channel-map readmodel]
   (let []
     (log/info "[=>]replaying events to rebuild the state of entries")
     (.map
@@ -183,9 +184,9 @@
 (defn fetch
   "fetch result of query"
   [query]
-  (if (:id query)
-    (.find-by-id query)
-    (.query query)))
+  (if (:id ^Query query)
+    (find-by-id query)
+    (query query)))
 
 
 (defrecord SimpleCommandBus [channel-map readmodel snapshot-db events-db id-creators recoverable-id-db]
@@ -205,4 +206,4 @@
                  options)
                 (:ar-id command-with-id)))))
   (register [this command handler]
-    (register-channel channel-map (type command) handler)))
+    (register-channel channel-map (type command) :command  handler)))

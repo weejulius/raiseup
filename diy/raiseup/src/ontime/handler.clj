@@ -12,6 +12,7 @@
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
+            [common.logging :as log]
             [ontime.views.common :as vc]
             [ontime.views.index :as vi]
             [clostache.parser :as tpl])
@@ -21,15 +22,15 @@
 
 (def template-extension-with-dot (str "." (cfg/ret :template-extension)))
 
-(defn- render1
-  "render the template using the params"
-  [file-path params]
-  (fn [req]
-    (println "render params " params)
-   (let [engine (Engine/getEngine)
-         template (.getTemplate engine (str file-path template-extension-with-dot))
-         template-params (reqres/->template-param params)]
-     (.evaluate template template-params))))
+;(defn- render1
+;  "render the template using the params"
+;  [file-path params]
+;  (fn [req]
+;    (log/debug "render params " params)
+;   (let [engine (Engine/getEngine)
+;         template (.getTemplate engine (str file-path template-extension-with-dot))
+;         template-params (reqres/->template-param params)]
+;     (.evaluate template template-params))))
 
 (defn- render
   "render the template with the params"

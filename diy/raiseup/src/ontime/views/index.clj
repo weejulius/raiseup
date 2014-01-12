@@ -1,5 +1,5 @@
 (ns ontime.views.index
-  (:require [hiccup.form :refer [text-field  submit-button]]))
+  (:require [hiccup.form :as form]))
 
 (defn index-view
   []
@@ -7,5 +7,5 @@
     [:div.time-slot-desc
      [:h1 "Every day is almost the same but different completely"]]
     [:div#module-new-slot
-     (text-field "description")
-     (submit-button "add task slot")]])
+     (form/text-field "description" "")
+     (form/submit-button "add task slot")]])

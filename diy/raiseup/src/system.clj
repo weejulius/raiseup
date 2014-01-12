@@ -7,4 +7,5 @@
 
 (defn send-command
   [command & {:as options}]
-  (.sends (:command-bus system) command options))
+  (let [bus (:command-bus system)]
+    (.sends bus options)))

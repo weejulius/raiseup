@@ -5,7 +5,8 @@
             [cheshire.core :as json]
             [clj-time.format :as t-format]
             [clj-time.coerce :as t-convert]
-            [common.config :as cfg]))
+            [common.config :as cfg])
+  (:import (java.nio ByteBuffer)))
 
 
 (defprotocol Cast
@@ -48,7 +49,7 @@
 
   Long
   (->bytes [this]
-    (-> (java.nio.ByteBuffer/allocate 8)
+    (-> (ByteBuffer/allocate 8)
         (.putLong this)
         (.array)))
   (->str [this] (str this))
@@ -75,7 +76,7 @@
   (->data [this]
     (thaw this))
   (->long [this]
-    (.getLong (java.nio.ByteBuffer/wrap this))) )
+    (.getLong (ByteBuffer/wrap this))) )
 
 (extend-protocol Cast
   (class (java.util.Date.))
@@ -88,7 +89,7 @@
   "convert bytes to int collection"
   [int-bytes]
   (when-not (nil? int-bytes)
-    (let [buffer (java.nio.ByteBuffer/wrap int-bytes)
+    (let [buffer (ByteBuffer/wrap int-bytes)
           size (/ (count int-bytes) 4)]
       (repeatedly size #(.getInt buffer)))))
 

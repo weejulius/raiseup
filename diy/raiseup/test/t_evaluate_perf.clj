@@ -1,5 +1,5 @@
-(ns ^{:doc "evaludate the performance of the app"}
-  t-evaludate-perf
+(ns ^{:doc "evaluate the performance of the app"}
+  t-evaluate-perf
   (:require [main :as m]
             [system :as s]
             [common.config :as cfg]
@@ -58,5 +58,3 @@
         (->CreateNote :note
                       "i am auth" "i am test" "i am content" (java.util.Date.))))
      (is-finished 800 1500 10))))
-
-(run-tests)

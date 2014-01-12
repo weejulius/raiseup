@@ -94,5 +94,3 @@
                 [:query {:term {:first-name "hello"}}
                  :from n
                  :size 1]))))
-
-(run-tests)

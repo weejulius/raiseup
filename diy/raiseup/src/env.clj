@@ -72,7 +72,7 @@
             (log/debug "dbs " dbs)
             (if-not (empty? dbs)
               (try
-                (doseq [[key db] dbs]
+                (doseq [[key ^org.iq80.leveldb.DB db] dbs]
                   (do
                     (log/info "shutdowning db" db)
                     (.close db)))

@@ -1,5 +1,6 @@
 (ns cqrs.eventstore
-  (:require [common.convert :refer [->data ->bytes]]))
+  (:require [common.convert :refer [->data ->bytes]]
+            [cqrs.storage :refer [Store]]))
 
 ;;deprecate
 (defn- make-store-key-of-event-ids
@@ -24,15 +25,15 @@
 
 (defn write-events-to-storage
   "the events are stored in the storage and the event id is the store key"
-  [events events-db]
-  (.write-in-batch events-db
+  [events  events-db]
+  (.write-in-batch  events-db
                    (map (fn [event] [(:event-id event) event]) events)))
 
 (defn store-snapshot-and-events
   ^{:added "1.0"
     :abbre "ar->aggregate root"
     :doc "store the umcommitted events of aggregate root and the snapshot"}
-  [snapshot new-events snapshot-db events-db]
+  [snapshot new-events  snapshot-db events-db]
   (let [snapshot-key  (str (:ar snapshot) (:ar-id snapshot))
         cur-snapshot (->data (.ret-value snapshot-db snapshot-key))]
     (if-not (nil? cur-snapshot)
@@ -46,7 +47,7 @@
             (->bytes snapshot))))
 
 (defn retreive-ar-snapshot
-  [ar-name ar-id snapshot-db]
+  [ar-name ar-id  snapshot-db]
   (let [snapshot-bytes (.ret-value snapshot-db (str ar-name ar-id))]
     (->data snapshot-bytes)))
 ;;deprecate

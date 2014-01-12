@@ -1,4 +1,5 @@
 (ns cqrs.hazelcast.readmodel
+  (:import (com.hazelcast.core HazelcastInstance IMap))
   (:require [cqrs.protocol :as cqrs]
             [common.logging :as log]
             [clojure.core.reducers :as r]
@@ -8,7 +9,7 @@
 
 (defn load-entries
   "get the read models from cache by model name"
-  [caches entry-type]
+  [^HazelcastInstance caches entry-type]
   (.getMap caches (name entry-type)))
 
 (defn conj+
@@ -18,20 +19,20 @@
   ([]
      []))
 
-(defrecord HazelcastReadModel [caches]
+(defrecord HazelcastReadModel [^HazelcastInstance caches]
   cqrs/ReadModel
   (load-entry [this type id]
     "load single entry by id"
-    (let [entries (load-entries caches type)
+    (let [^IMap entries (load-entries caches type)
           entry (.get entries id)]
       (log/debug "loading entry" entry type id)
       entry))
 
   (put-entry [this new-entry]
     "create or update entry"
-    (do
+    (let [entries (load-entries caches (:ar new-entry))]
       (log/debug "put new entry" new-entry)
-      (.put (load-entries caches (:ar new-entry))
+      (.put entries
             (:ar-id new-entry)
             new-entry)))
 

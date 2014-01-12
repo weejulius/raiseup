@@ -9,7 +9,7 @@
 
 (defn head
   "get the first n chars from string"
-  [s length]
+  [^String s length]
   (let [s-length (.length s)
         min-length (min s-length length)]
     (subs s 0 min-length)))

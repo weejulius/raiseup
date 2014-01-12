@@ -2,28 +2,31 @@
   cqrs.leveldb
   (:require [clojure.java.io :as io]
             [common.config :as cfg]
-            [common.logging :as log]))
+            [common.logging :as log])
+  (:import (org.iq80.leveldb Options)
+           (org.fusesource.leveldbjni JniDBFactory)))
 
 (defn- open-new-leveldb
   "before using the leveldb open it"
-  [file leveldb-options]
-  (try
-    (.compressionType leveldb-options org.iq80.leveldb.CompressionType/NONE)
-    (.open
-     (org.fusesource.leveldbjni.JniDBFactory/factory)
-     file
-     leveldb-options)
-    (catch Exception e
-      (do
-        (log/error "the db is not able be opened by " e ",let us repair and retry")
-        (.repair
-         (org.fusesource.leveldbjni.JniDBFactory/factory)
-         file
-         leveldb-options)
-        (.open
-         (org.fusesource.leveldbjni.JniDBFactory/factory)
-         file
-         leveldb-options)))))
+  [file ^Options leveldb-options]
+  (let [factory (JniDBFactory/factory)]
+    (try
+      (.compressionType leveldb-options org.iq80.leveldb.CompressionType/NONE)
+      (.open
+        factory
+        file
+        leveldb-options)
+      (catch Exception e
+        (do
+          (log/error "the db is not able be opened by " e ",let us repair and retry")
+          (.repair
+            factory
+            file
+            leveldb-options)
+          (.open
+            factory
+            file
+            leveldb-options))))))
 
 (defn open-leveldb!
   ^{:added "1.0"
@@ -35,7 +38,7 @@
        existing-db
        (let [opened-new-db (open-new-leveldb
                             (java.io.File. db-dir)
-                            (org.iq80.leveldb.Options.))]
+                            (Options.))]
          (swap! opened-dbs
                 (fn [dbs]
                   (assoc dbs db-dir opened-new-db)))

@@ -5,7 +5,8 @@
             [clojurewerkz.elastisch.native :as es]
             [clojurewerkz.elastisch.native.document :as esd]
             [common.logging :as log])
-  (:import (common.component Lifecycle)))
+  (:import (common.component Lifecycle))
+  (:gen-class))
 
 
 (defrecord ElasticReadModel [app]

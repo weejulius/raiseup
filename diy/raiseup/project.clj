@@ -1,7 +1,7 @@
 (defproject raiseup "0.1.0-SNAPSHOT"
   :description "raise up to make to do tool"
   :url "http://red-raiseup.rhcloud.com/"
-  :dependencies [[org.clojure/clojure "1.6.0-alpha3"]
+  :dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]
                  [http-kit "2.1.13"]
                  [midje "1.6.0" :scope "test"]
                  [org.clojure/data.generators "0.1.2" :scope "test"]
@@ -26,6 +26,8 @@
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "3.1.3"]]
   :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"]]
+  :global-vars {*warn-on-reflection* true
+                *assert* false}
   :ring {:handler ontime.handler/app-routes
          :reload-paths ["src" "resources"]
          :auto-reload? true
