@@ -40,12 +40,7 @@
   (map [this f]
     (let [^DBIterator iterator (.iterator db)]
       (.seekToFirst iterator)
-      (while (.hasNext iterator)
-        (let [^Map$Entry kv (.peekNext iterator)
-              k (.getKey kv)
-              v (.getValue kv)]
-          (f k v)
-          (.next iterator)))))
+      (clojure.core/map #(apply f %) (iterator-seq iterator))))
   (close [this]
     (.close db)))
 
