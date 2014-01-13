@@ -189,7 +189,7 @@
 
 
 (defrecord SimpleCommandBus [channel-map readmodel snapshot-db events-db id-creators recoverable-id-db]
-  CommandBus
+  p/CommandBus
   (sends [this command options]
     (let [validated-command (validate-command command)]
       (if-not (:ok? validated-command) validated-command

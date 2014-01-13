@@ -10,4 +10,4 @@
 (defn send-command
   [command & {:as options}]
   (let [bus (:command-bus system)]
-    (.sends bus ^IPersistentMap options)))
+    (sends bus command options)))
