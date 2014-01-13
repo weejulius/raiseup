@@ -23,7 +23,7 @@
   [event]
   (let [ar-id (convert/->long (:ar-id event))
         rm (:readmodel s/system)]
-    (p/update-entry  rm
-                   (:ar event)
-                   (:ar-id event)
-                   #(assoc % :start-time (:start-time event)))))
+    (p/update-entry rm
+                    (:ar event)
+                    (:ar-id event)
+                    #(assoc % :start-time (:start-time event)))))

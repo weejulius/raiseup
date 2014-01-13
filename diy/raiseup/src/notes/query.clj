@@ -11,7 +11,7 @@
   Query
   (find-by-id [this]
     (p/load-entry
-     (read-model) :note id))
+      (read-model) :note id))
   (query [this]
     (let [p (or page 1)
           s (or size 20)
@@ -20,10 +20,10 @@
                        :sort {:ar-id "asc"}]
           rm (read-model)
           result (p/do-query
-                  rm
-                  :note
-                  (if-not (nil? author)
-                    (concat basic-query [:query {:term {:author author}}])
-                    basic-query))]
-     ;; (prn "query result " result "for " basic-query)
+                   rm
+                   :note
+                   (if-not (nil? author)
+                     (concat basic-query [:query {:term {:author author}}])
+                     basic-query))]
+      ;; (prn "query result " result "for " basic-query)
       result)))

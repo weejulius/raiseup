@@ -22,15 +22,15 @@
    the `path` is the path of the nested keys to get the entry"
   [entries path new-entry]
   (swap! entries
-           (fn [m]
-             (put-if-absence m path new-entry))))
+         (fn [m]
+           (put-if-absence m path new-entry))))
 
 
 (defn filter-until
   "apply f to  filter coll until pre-fn is satisfied"
   [f pre-fn coll]
-  (loop  [col coll
-          result nil]
+  (loop [col coll
+         result nil]
     (let [v (first col)]
       (if (and v (pre-fn result))
         (recur (rest col)

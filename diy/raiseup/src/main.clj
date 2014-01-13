@@ -3,7 +3,7 @@
   (:require [system :as s]
             [common.component :as component]
             [common.config :as cfg])
-  (:use  [ontime.handler]))
+  (:use [ontime.handler]))
 
 
 (defn -main
@@ -16,9 +16,9 @@
                      :snapshot-db-path (cfg/ret :es :snapshot-db-path)
                      :events-db-path   (cfg/ret :es :events-db-path)
                      :elastic          (cfg/ret :elastic)})
-    (alter-var-root #'s/system component/start {:port port
-                                                :host host
-                                                :routes  #'app-routes})))
+    (alter-var-root #'s/system component/start {:port   port
+                                                :host   host
+                                                :routes #'app-routes})))
 
 (defn stop
   []

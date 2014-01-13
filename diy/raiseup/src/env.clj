@@ -16,9 +16,9 @@
   [port-str ip routes]
   (let [handler (site routes)
         wrapped-handler (gzip/wrap-gzip
-                         (reload/wrap-reload handler))
+                          (reload/wrap-reload handler))
         port (Integer/parseInt port-str)
-        stop-fn  (run-server wrapped-handler {:port port :ip ip})]
+        stop-fn (run-server wrapped-handler {:port port :ip ip})]
     (log/info (str "Server started at " ip ":" port-str))
     stop-fn))
 
@@ -45,9 +45,9 @@
                                     (:leveldb-option options)))
               (assoc :id-creators (atom {}))
               (assoc :readmodel (component/init
-                                 (rm/->ElasticReadModel (:app (:elastic options)))
-                                 (:elastic options))))]
-      (assoc new-state :command-bus  (cqrs/->SimpleCommandBus
+                                  (rm/->ElasticReadModel (:app (:elastic options)))
+                                  (:elastic options))))]
+      (assoc new-state :command-bus (cqrs/->SimpleCommandBus
                                       (:channels new-state)
                                       (:readmodel new-state)
                                       (:snapshot-db new-state)
@@ -58,9 +58,9 @@
     (let [updated (assoc this
                     :http-server
                     (start-http-server
-                     (:port options)
-                     (:host options)
-                     (:routes options)))]
+                      (:port options)
+                      (:host options)
+                      (:routes options)))]
       (cqrs/replay-events (:events-db updated)
                           (:channels updated)
                           (:readmodel updated))
@@ -68,16 +68,16 @@
   (stop [this options]
     (do
       (if-not (nil? (:opened-dbs this))
-          (let [dbs @(:opened-dbs this)]
-            (log/debug "dbs " dbs)
-            (if-not (empty? dbs)
-              (try
-                (doseq [[key ^org.iq80.leveldb.DB db] dbs]
-                  (do
-                    (log/info "shutdowning db" db)
-                    (.close db)))
-                (catch Exception e
-                  (log/error e))))))
+        (let [dbs @(:opened-dbs this)]
+          (log/debug "dbs " dbs)
+          (if-not (empty? dbs)
+            (try
+              (doseq [[key ^org.iq80.leveldb.DB db] dbs]
+                (do
+                  (log/info "shutdowning db" db)
+                  (.close db)))
+              (catch Exception e
+                (log/error e))))))
       (if-let [stop-http (:http-server this)]
         (stop-http :timeout 1))
       (assoc this :readmodel nil))))

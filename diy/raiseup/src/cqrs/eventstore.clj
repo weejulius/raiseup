@@ -19,22 +19,22 @@
         current-eventids (->data event-ids-byte)
         appended-eventids (distinct (into current-eventids event-ids))]
     (store/write storage
-            (->bytes store-key)
-            (->bytes appended-eventids))))
+                 (->bytes store-key)
+                 (->bytes appended-eventids))))
 
 
 (defn write-events-to-storage
   "the events are stored in the storage and the event id is the store key"
-  [events  events-db]
-  (store/write-in-batch  events-db
-                   (map (fn [event] [(:event-id event) event]) events)))
+  [events events-db]
+  (store/write-in-batch events-db
+                        (map (fn [event] [(:event-id event) event]) events)))
 
 (defn store-snapshot-and-events
   ^{:added "1.0"
     :abbre "ar->aggregate root"
-    :doc "store the umcommitted events of aggregate root and the snapshot"}
-  [snapshot new-events  snapshot-db events-db]
-  (let [snapshot-key  (str (:ar snapshot) (:ar-id snapshot))
+    :doc   "store the umcommitted events of aggregate root and the snapshot"}
+  [snapshot new-events snapshot-db events-db]
+  (let [snapshot-key (str (:ar snapshot) (:ar-id snapshot))
         cur-snapshot (->data (store/ret-value snapshot-db snapshot-key))]
     (if-not (nil? cur-snapshot)
       (if-not (= 1 (- (:vsn snapshot) (:vsn cur-snapshot)))
@@ -43,11 +43,11 @@
                          :new-vsn (:vsn snapshot)}))))
     (write-events-to-storage new-events events-db)
     (store/write snapshot-db
-            (->bytes snapshot-key)
-            (->bytes snapshot))))
+                 (->bytes snapshot-key)
+                 (->bytes snapshot))))
 
 (defn retreive-ar-snapshot
-  [ar-name ar-id  snapshot-db]
+  [ar-name ar-id snapshot-db]
   (let [snapshot-bytes (store/ret-value snapshot-db (str ar-name ar-id))]
     (->data snapshot-bytes)))
 ;;deprecate
@@ -57,7 +57,7 @@
   [ar-name-str ar-id-str ar-event-ids-db]
   (if-let [event-ids-byte
            (store/ret-value ar-event-ids-db
-                       (make-store-key-of-event-ids ar-name-str ar-id-str))]
+                            (make-store-key-of-event-ids ar-name-str ar-id-str))]
     (->data event-ids-byte)))
 
 (defn read-event
@@ -72,10 +72,10 @@
    and then read the actual events by the read event ids"
   [ar-name ar-id ar-event-ids-db events-db]
   (let [event-ids (read-event-ids
-                   (name ar-name)
-                   (str ar-id)
-                   ar-event-ids-db)]
+                    (name ar-name)
+                    (str ar-id)
+                    ar-event-ids-db)]
     (map
-     (fn [event-id]
-       (read-event event-id events-db))
-     event-ids)))
+      (fn [event-id]
+        (read-event event-id events-db))
+      event-ids)))

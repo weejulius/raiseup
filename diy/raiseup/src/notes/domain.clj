@@ -1,7 +1,7 @@
 (ns
-    ^{:doc "notes is a short of words to record"}
-    notes.domain
-    (:require [cqrs.core :as cqrs]))
+  ^{:doc "notes is a short of words to record"}
+  notes.domain
+  (:require [cqrs.core :as cqrs]))
 
 (defn create-note
   [cmd]

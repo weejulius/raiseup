@@ -34,7 +34,7 @@
   (do-query [this entry-type query]
     (let [query-result (apply esd/search app (name entry-type) query)]
       (if (empty? query-result) []
-          (map #(get % :_source) (-> query-result :hits :hits)))))
+                                (map #(get % :_source) (-> query-result :hits :hits)))))
   Lifecycle
   (init [this options]
     (try

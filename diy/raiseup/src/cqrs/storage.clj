@@ -22,14 +22,14 @@
 
 
 (defrecord LeveldbStore
-    [^DB db]
+           [^DB db]
   Store
   (ret-value [this key]
     (.get db (->bytes key)))
-  (write [this  key  value]
+  (write [this key value]
     (.put db key value))
   (write-in-batch [this items]
-    (let [^WriteBatch batch  (.createWriteBatch db)]
+    (let [^WriteBatch batch (.createWriteBatch db)]
       (doseq [item items]
         (.put batch
               (->bytes (first item))
@@ -54,16 +54,16 @@
   (clear! [this] "clear and reset the state of id"))
 
 (defrecord RecoverableLongId
-    [^String store-key storage ^Atom long-id ^long incremence]
+           [^String store-key storage ^Atom long-id ^long incremence]
   RecoverableId
   (init! [this]
     (let [cur-value (->long (ret-value storage store-key))
           new-value (if (nil? cur-value) (long 0)
-                        (+ cur-value incremence))]
+                                         (+ cur-value incremence))]
       (reset! long-id new-value)
       (write storage
-              (->bytes store-key)
-              (->bytes new-value))
+             (->bytes store-key)
+             (->bytes new-value))
       this))
   (get! [this]
     @long-id)
@@ -71,9 +71,9 @@
     (let [inc-value (swap! long-id inc)]
       (if (zero? (mod inc-value incremence))
         (write
-         storage
-         (->bytes store-key)
-         (->bytes (long inc-value))))
+          storage
+          (->bytes store-key)
+          (->bytes (long inc-value))))
       inc-value))
   (clear! [this]
     (doto (delete storage store-key)

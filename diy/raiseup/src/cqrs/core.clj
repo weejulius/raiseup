@@ -1,4 +1,4 @@
-(ns ^{:doc "
+(ns ^{:doc   "
             # the lib is utilized to apply the CQRS pattern, here it will do the following
             * the channels are registered for event/command, and binded to handler to process
               the comming event/command automatically
@@ -27,39 +27,39 @@
   "retrieve the aggregate root state by replaying its events for ar
    or get the snapshot"
   ([events]
-     (reduce
-      (fn [m v]
-        (if (empty? v) m
-            (merge
-             (assoc m :vsn (get v :vsn (inc (get m :vsn 0))))
-             v)))
-      {}
-      events))
+   (reduce
+     (fn [m v]
+       (if (empty? v) m
+                      (merge
+                        (assoc m :vsn (get v :vsn (inc (get m :vsn 0))))
+                        v)))
+     {}
+     events))
   ([ar-name ar-id snapshot-db]
-     (es/retreive-ar-snapshot ar-name ar-id snapshot-db)))
+   (es/retreive-ar-snapshot ar-name ar-id snapshot-db)))
 
 (defn inc-id-for
   "increase the id for the key which is a kind of ar, or the event"
   ([key id-creators recoverable-id-db]
-     (let [id-name (name key)
-           id-creator
-           (get-in (func/put-if-absence! id-creators
-                                         [id-name]
-                                         (fn []
-                                           (storage/init-recoverable-long-id
-                                            id-name
-                                            recoverable-id-db)))
-                   [id-name])]
-       (storage/inc! id-creator))))
+   (let [id-name (name key)
+         id-creator
+         (get-in (func/put-if-absence! id-creators
+                                       [id-name]
+                                       (fn []
+                                         (storage/init-recoverable-long-id
+                                           id-name
+                                           recoverable-id-db)))
+                 [id-name])]
+     (storage/inc! id-creator))))
 
 (defn gen-event
-  ^{:doc "generate event from cmd"
+  ^{:doc   "generate event from cmd"
     :added "1.0"}
   [event-type cmd keys]
-  (let [event    {:event       event-type
-                  :ar          (:ar cmd)
-                  :ar-id       (:ar-id cmd)
-                  :event-ctime (java.util.Date.)}]
+  (let [event {:event       event-type
+               :ar          (:ar cmd)
+               :ar-id       (:ar-id cmd)
+               :event-ctime (java.util.Date.)}]
     (merge event (select-keys cmd keys))))
 
 (defn- populate-command-id-if-need
@@ -67,7 +67,7 @@
   [command id-creators recoverable-id-db]
   (if (nil? (:ar-id command))
     (assoc command :ar-id
-           (inc-id-for (:ar command) id-creators recoverable-id-db))
+                   (inc-id-for (:ar command) id-creators recoverable-id-db))
     command))
 
 (defn register-channel
@@ -76,23 +76,23 @@
    the channels are mapped as {$:type {$:from channel}}"
   [channel-map type from handler]
   (func/put-if-absence!
-   channel-map [type from]
-   (fn []
-     (let [ch (chan)]
-      ; (log/debug "register channel" type from ch)
-       (go (let []
-             (loop []
-               (when-let [[cmd output-ch](<! ch)]
-                ; (log/debug "receiving " cmd)
-                 (try
-                   (handler cmd)
-                   (catch Exception e
-                     (log/error e)
-                     e))
-                 (if-not (nil? output-ch) (>! output-ch ""))
-                 (recur))
-               (log/debug "shutdown channel " type from))))
-       ch))))
+    channel-map [type from]
+    (fn []
+      (let [ch (chan)]
+        ; (log/debug "register channel" type from ch)
+        (go (let []
+              (loop []
+                (when-let [[cmd output-ch] (<! ch)]
+                  ; (log/debug "receiving " cmd)
+                  (try
+                    (handler cmd)
+                    (catch Exception e
+                      (log/error e)
+                      e))
+                  (if-not (nil? output-ch) (>! output-ch ""))
+                  (recur))
+                (log/debug "shutdown channel " type from))))
+        ch))))
 
 
 (defn emit
@@ -100,20 +100,20 @@
    type is to find channels related to the type"
   [channel-map event event-type options]
   (if-not (empty? event)
-    (let [chs (get @channel-map  event-type)]
+    (let [chs (get @channel-map event-type)]
       (if (empty? chs)
         (throw
-             (Exception.
-              (str "no any handler for event " event " type " event-type)))
+          (Exception.
+            (str "no any handler for event " event " type " event-type)))
         (let [timeout-ms (:timeout options)
-              ch-seq     (vals chs)]
-         ; (log/debug "emitting " event "with options " options ch-seq)
+              ch-seq (vals chs)]
+          ; (log/debug "emitting " event "with options " options ch-seq)
           (if-not (nil? timeout-ms)
-            (let [output-chs  (map (fn [ch]
-                                     (let [output-ch (chan 1)]
-                                       (put! ch [event output-ch])
-                                       output-ch))
-                                   ch-seq)]
+            (let [output-chs (map (fn [ch]
+                                    (let [output-ch (chan 1)]
+                                      (put! ch [event output-ch])
+                                      output-ch))
+                                  ch-seq)]
               (<!! (go (alts! (vec (conj output-chs (timeout timeout-ms)))))))
             (doseq [ch ch-seq]
               (put! ch [event nil]))))))))
@@ -131,7 +131,7 @@
   "emit the event, but register channel for the event if unregistered"
   [channel-map readmodel event options]
   (let [event-type (:event event)]
-    (register-channel channel-map  event-type (str on-event)
+    (register-channel channel-map event-type (str on-event)
                       #(on-event % readmodel))
     (emit channel-map event event-type options)))
 
@@ -139,12 +139,12 @@
   "validate command"
   [command]
   (if-not (:ar command) {:ok? false :result command}
-   (if-not (extends? Validatable (type command))
-     {:ok? true :result command}
-     (let [errors (first (p/validate ^Validatable command))]
-       (if (nil? errors)
-         {:ok? true :result command}
-         {:ok? false :result errors})))))
+                        (if-not (extends? Validatable (type command))
+                          {:ok? true :result command}
+                          (let [errors (first (p/validate ^Validatable command))]
+                            (if (nil? errors)
+                              {:ok? true :result command}
+                              {:ok? false :result errors})))))
 
 (defn- process-command
   "handle the command , meanwhile store
@@ -156,7 +156,7 @@
           new-events (rest handle-result)
           new-events-with-id
           (map #(assoc % :event-id
-                       (inc-id-for :event id-creators recoverable-id-db))
+                         (inc-id-for :event id-creators recoverable-id-db))
                new-events)
           new-snapshot (get-ar handle-result)]
       (es/store-snapshot-and-events new-snapshot
@@ -172,12 +172,12 @@
   (let []
     (log/info "[=>]replaying events to rebuild the state of entries")
     (storage/map
-     store
-     (fn [k v]
-       (prepare-and-emit-event
-        channel-map
-        readmodel
-        (convert/->data v) {})))
+      store
+      (fn [k v]
+        (prepare-and-emit-event
+          channel-map
+          readmodel
+          (convert/->data v) {})))
     (log/info "[<=]replayed events")))
 
 (defn fetch
@@ -193,14 +193,14 @@
   (sends [this command options]
     (let [validated-command (validate-command command)]
       (if-not (:ok? validated-command) validated-command
-              (let [command-with-id (populate-command-id-if-need
-                                     command id-creators recoverable-id-db)]
-                (emit-command
-                 channel-map
-                 (fn [cmd]
-                   (process-command cmd channel-map
-                                    snapshot-db events-db readmodel
-                                    id-creators recoverable-id-db))
-                 command-with-id
-                 options)
-                (:ar-id command-with-id))))))
+                                       (let [command-with-id (populate-command-id-if-need
+                                                               command id-creators recoverable-id-db)]
+                                         (emit-command
+                                           channel-map
+                                           (fn [cmd]
+                                             (process-command cmd channel-map
+                                                              snapshot-db events-db readmodel
+                                                              id-creators recoverable-id-db))
+                                           command-with-id
+                                           options)
+                                         (:ar-id command-with-id))))))

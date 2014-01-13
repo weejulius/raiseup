@@ -30,8 +30,8 @@
   (->data [this] this)
   (->date [this]
     (t-convert/to-date
-     (t-format/parse
-      this)))
+      (t-format/parse
+        this)))
 
   nil
   (->bytes [this]
@@ -76,14 +76,14 @@
   (->data [this]
     (thaw this))
   (->long [this]
-    (.getLong (ByteBuffer/wrap this))) )
+    (.getLong (ByteBuffer/wrap this))))
 
 (extend-protocol Cast
   (class (java.util.Date.))
   (->str [this]
     (t-format/unparse
-     (t-format/formatter (cfg/ret :short-date-format))
-     (t-convert/from-date this))))
+      (t-format/formatter (cfg/ret :short-date-format))
+      (t-convert/from-date this))))
 
 (defn byte-to-int-array
   "convert bytes to int collection"

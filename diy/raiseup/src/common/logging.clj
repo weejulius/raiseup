@@ -1,6 +1,6 @@
 (ns ^{:doc "a logging tool impl or wrapper"}
-    common.logging
-    (:require [taoensso.timbre :as timbre]))
+  common.logging
+  (:require [taoensso.timbre :as timbre]))
 
 
 (def ^:private ordered-levels1 [:trace :debug :info :warn :error :fatal :report])
@@ -18,7 +18,7 @@
          ~'{:arglists '([fmt & fmt-args] [throwable fmt & fmt-args])}
          [& sigs#] `(timbre/logf ~~level ~@sigs#)))))
 
-(defmacro  def-loggers1 []
+(defmacro def-loggers1 []
   `(do ~@(map (fn [level] `(def-logger1 ~level)) ordered-levels1)))
 
 

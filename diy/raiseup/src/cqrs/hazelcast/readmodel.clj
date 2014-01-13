@@ -16,9 +16,9 @@
 (defn conj+
   "extend conj fun and able to deal with the empty vec"
   ([a b]
-     (conj a b))
+   (conj a b))
   ([]
-     []))
+   []))
 
 (defrecord HazelcastReadModel [^HazelcastInstance caches]
   cqrs/ReadModel
@@ -50,6 +50,6 @@
   (do-query [this type query]
     "filter each entry and combine the qualified ones"
     (func/filter-until
-     (:each query)
-     (:satisified query)
-     (.values ^IMap (load-entries caches type))) ))
+      (:each query)
+      (:satisified query)
+      (.values ^IMap (load-entries caches type)))))

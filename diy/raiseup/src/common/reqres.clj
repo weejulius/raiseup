@@ -5,7 +5,7 @@
    which does not support keyword and name has - etc"
   [params]
   (into
-   {}
-   (for [[k v] params]
-     [(clojure.string/replace (name k) #"-" "_")
-      v])))
+    {}
+    (for [[k v] params]
+      [(clojure.string/replace (name k) #"-" "_")
+       v])))

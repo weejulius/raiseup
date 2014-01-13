@@ -10,9 +10,9 @@
 (defn- ar-is-required
   [ar cmd]
   (if (empty? ar)
-      (throw (ex-info "ar not found"
-                      {:ar (:ar cmd)
-                       :ar-id (:ar-id cmd)}))))
+    (throw (ex-info "ar not found"
+                    {:ar    (:ar cmd)
+                     :ar-id (:ar-id cmd)}))))
 
 (extend-protocol CommandHandler
   CreateNote
@@ -49,16 +49,16 @@
   [event readmodel]
   (do
     (p/update-entry
-     readmodel
-     (:ar event)
-     (:ar-id event)
-     #(update-fn % event [:author :title :content :utime]))))
+      readmodel
+      (:ar event)
+      (:ar-id event)
+      #(update-fn % event [:author :title :content :utime]))))
 
 
 (defmethod on-event
   :note-deleted
   [event readmodel]
   (p/remove-entry
-     readmodel
-     (:ar event)
-     (:ar-id event)))
+    readmodel
+    (:ar event)
+    (:ar-id event)))

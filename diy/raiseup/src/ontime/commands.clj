@@ -1,4 +1,4 @@
-(ns ^{:doc "the commands"
+(ns ^{:doc   "the commands"
       :added "1.0"}
   ontime.commands
   (:require [cqrs.protocol :as cqrs]

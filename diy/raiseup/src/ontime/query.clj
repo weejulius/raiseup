@@ -1,4 +1,4 @@
-(ns ^{:doc "the query for read model"
+(ns ^{:doc   "the query for read model"
       :added "1.0"}
   ontime.query
   (:require [system :as s]
