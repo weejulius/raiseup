@@ -3,7 +3,6 @@
   :url "http://red-raiseup.rhcloud.com/"
   :dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]
                  [http-kit "2.1.13"]
-                 [midje "1.6.0" :scope "test"]
                  [org.clojure/data.generators "0.1.2" :scope "test"]
                  [cheshire "5.2.0"]
                  [compojure "1.1.6"]
@@ -41,10 +40,10 @@
   :profiles  {:dev {:jvm-opts ["-Dhttl.reloadable=true"]
                     :dependencies [[ring-mock "0.1.5"]
                                    [org.clojure/tools.namespace "0.2.4"]]
-                    :source-paths ["dev" "src" "resources"]
+                    :source-paths ["src" "resources"]
                     :plugins []
                     :repl-options {:port 4001}}
-              :production {:jvm-opts ["-Dproduction=true" "-Dconfig=config.pro.clj"]}}
+              :production {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.cfg"]}}
   :cljsbuild {
               :builds [{
                         ; The path to the top-level ClojureScript source directory:

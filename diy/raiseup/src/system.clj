@@ -1,11 +1,12 @@
 (ns system
-  (:import (clojure.lang IPersistentMap))
-  (:require [env :as env]
+  (:require [env :refer :all]
             [cqrs.core :as cqrs]
             [cqrs.protocol :refer :all]
-            [common.logging :as log]))
+            [common.logging :as log])
+  (:import [clojure.lang IPersistentMap]
+           [env NoteSystem]))
 
-(defonce system (env/->NoteSystem))
+(defonce system (NoteSystem.))
 
 (defn send-command
   [command & {:as options}]
