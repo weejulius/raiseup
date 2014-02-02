@@ -29,19 +29,24 @@
   (store/write-in-batch events-db
                         (map (fn [event] [(:event-id event) event]) events)))
 
-(defn store-snapshot-and-events
+(defn store-snapshot
   ^{:added "1.0"
     :abbre "ar->aggregate root"
-    :doc   "store the umcommitted events of aggregate root and the snapshot"}
-  [snapshot new-events snapshot-db events-db]
+    :doc   "store the snapshot"}
+  [snapshot snapshot-db]
   (let [snapshot-key (str (:ar snapshot) (:ar-id snapshot))
         cur-snapshot (->data (store/ret-value snapshot-db snapshot-key))]
     (if-not (nil? cur-snapshot)
-      (if-not (= 1 (- (:vsn snapshot) (:vsn cur-snapshot)))
+      (cond
+        (nil? (:ar-id snapshot))
+        (throw (ex-info "ar-id is missing of snapshot"
+                        {:snapshot snapshot}))
+        (not (=  1 (- (:vsn snapshot) (:vsn cur-snapshot))))
         (throw (ex-info "version conflict storing snapshot"
                         {:cur-vsn (:vsn cur-snapshot)
-                         :new-vsn (:vsn snapshot)}))))
-    (write-events-to-storage new-events events-db)
+                         :new-vsn (:vsn snapshot)
+                         :cur     cur-snapshot
+                         :new     snapshot}))))
     (store/write snapshot-db
                  (->bytes snapshot-key)
                  (->bytes snapshot))))

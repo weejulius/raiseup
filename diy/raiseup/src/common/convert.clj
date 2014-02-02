@@ -80,6 +80,8 @@
 
 (extend-protocol Cast
   (class (java.util.Date.))
+  (->long [this]
+    (.getTime ^java.util.Date this))
   (->str [this]
     (t-format/unparse
       (t-format/formatter (cfg/ret :short-date-format))

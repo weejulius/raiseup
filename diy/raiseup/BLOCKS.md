@@ -27,3 +27,8 @@ circyle file dependencies
 * how to define restful url for new/edit entry
 >> follow http://www.iana.org/assignments/link-relations/link-relations.xml
 
+1-28
+
+be unware of problems when coding, found after executing it.
+
+the way to debug or inspect

@@ -66,20 +66,22 @@
                 handle-asyn-request)
 
            (POST "/notes" [author title content]
-                 (str (s/send-command
-                        (->CreateNote :note author title content (java.util.Date.))
-                        :timeout 2000)))
+                 (str (s/send-command :create-note
+                                      {':ar     :note
+                                       :author  author
+                                       :title   title
+                                       :content content
+                                       :ctime   (->long (java.util.Date.))}
+                                      )))
 
-           (POST "/notes/:ar-id" [ar-id author title content]
-                 (let [result (s/send-command
-                                (->UpdateNote :note
-                                              (->long ar-id)
-                                              author
-                                              title
-                                              content
-                                              (java.util.Date.)))]
-                   (if-not (nil? (:ok? result)) (str result)
-                                                (redirect-after-post (str "/notes/" ar-id)))))
+           (POST "/notes/:ar-id" [ar-id title content]
+                 (let [result (s/send-command :update-note
+                                              {:ar-id   (->long ar-id)
+                                               :ar      :note
+                                               :title   title
+                                               :content content
+                                               :utime   (->long (java.util.Date.))})]
+                   (redirect-after-post (str "/notes/" ar-id))))
 
            (GET "/notes" [page size]
                 (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
@@ -95,11 +97,11 @@
                 (v/note-edit-view (->long ar-id)))
 
            (DELETE "/notes/:ar-id" [ar-id]
-                   (let [result (s/send-command
-                                  (->DeleteNote :note
-                                                (->long ar-id)))]
-                     (if-not (nil? (:ok? result)) (str result)
-                                                  (redirect (str "/notes")))))
+                   (let [result (s/send-command :delete-note
+                                                {:ar-id ar-id}
+                                                )]
+                     (redirect (str "/notes"))
+                     ))
 
            (route/resources "/")
            (route/not-found "PAGE NOT FOUND"))

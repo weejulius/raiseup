@@ -2,6 +2,7 @@
   :description "raise up to make to do tool"
   :url "http://red-raiseup.rhcloud.com/"
   :dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]
+                 [io.vertx/clojure-api "1.0.0.Beta1"]
                  [http-kit "2.1.13"]
                  [org.clojure/data.generators "0.1.2" :scope "test"]
                  [cheshire "5.2.0"]
@@ -14,6 +15,7 @@
                  [clj-time "0.5.1"]
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [httl/httl "1.0.9"]
+                 [prismatic/schema "0.2.0"]
                  [prismatic/dommy "0.1.2"]
                  [amalloy/ring-gzip-middleware "0.1.3"]
                  [markdown-clj "0.9.35"]
@@ -24,8 +26,8 @@
                  [criterium "0.4.2" :scope "test"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
                  [com.hazelcast/hazelcast "3.1.3"]]
-  :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"]]
-  :global-vars {*warn-on-reflection* true
+  :plugins [[lein-ring "0.8.5"] [lein-cljsbuild "0.3.2"] [lein-ancient "0.5.4"]]
+  :global-vars {*warn-on-reflection* false
                 *assert* false}
   :ring {:handler ontime.handler/app-routes
          :reload-paths ["src" "resources"]

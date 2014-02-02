@@ -4,7 +4,6 @@
             [ontime.query :as q]
             [ontime.commands :refer :all]
             [ontime.command-handler :refer :all]
-            [ontime.readmodel :refer :all]
             [bouncer [core :as b] [validators :as v]]
             [common.convert :as convert]))
 

@@ -1,16 +1,15 @@
 (ns ^{:doc   "the cqrs protocol"
       :added "1.0"}
-  cqrs.protocol)
+  cqrs.protocol
+  (:refer-clojure :exclude [send]))
 
-(defprotocol CommandBus
-  ^{:doc   "the bus to dispath commands to its channel to handle it"
+(defprotocol Bus
+  ^{:doc   "the bus to dispath messages (like commands,events) to their handler"
     :added "1.0"}
-  (sends [this command opts] "send command to its channel"))
+  (sends [this command] "send command to its handler")
+  (publish [this event] "publish event to this handlers")
+  (reg [this name handle] "register handler for the event/command type of ar"))
 
-(defprotocol CommandHandler
-  ^{:doc   "handle the comming commands from channel"
-    :added "1.0"}
-  (handle-command [this ar]))
 
 (defprotocol Query
   ^{:doc   "queries to talk with the read model"
@@ -18,15 +17,6 @@
   (query [this])
   (find-by-id [this]))
 
-
-(defprotocol Validatable
-  "the validation definition"
-  (validate [this] "validate the command"))
-
-
-(defmulti on-event
-          "handle the comming event"
-          (fn [event system] (:event event)))
 
 (defprotocol ReadModel
   "manipulate the entries in read model"
@@ -39,3 +29,4 @@
   (remove-entry [this entry-type entry-id] "remote the entry")
   (do-query [this entry-type query]
             "query the entries"))
+
