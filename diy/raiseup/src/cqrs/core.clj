@@ -97,7 +97,9 @@
 (defn def-schema
   "define schema which can be got by name"
   [name schema]
-  (swap! schemas #(assoc % name schema)))
+  (do
+    (log/debug "def schema" name)
+    (swap! schemas #(assoc % name schema))))
 
 (defn gen-command
   "generate command"
@@ -106,7 +108,9 @@
         schema (get @schemas command-type)]
     (if (nil? schema)
       (throw (ex-info "schema is missing"
-                      {:command command-type}))
+                      {:command command-type
+                       :fields fields
+                       :schemas @schemas}))
       (do (schema/validate schema command)
           (if-not (:ar-id command)
             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))

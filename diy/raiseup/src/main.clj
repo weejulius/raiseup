@@ -3,7 +3,7 @@
   (:require [common.component :as component]
             [common.config :as cfg]
             [notes.handler :as notes])
-  (:use [ontime.handler]))
+  (:use [web]))
 
 
 (defn -main

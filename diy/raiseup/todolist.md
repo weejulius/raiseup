@@ -64,7 +64,7 @@ for ar when retrieving one ar
 * how to fix the data if data has some problem
 * monitor the system, like traffic and system usage on so on
 * add error message box in the pages
-* add performance evaludation for the app
+* add performance evaluation for the app
 
 Blocks
 ------
@@ -88,8 +88,10 @@ CQRS实现回顾
 ## 计划
 
 - 用hazelcast替代leveldb做kv存储
-- 引用vert.x作用消息bus
+- [DONE]引用vert.x作用消息bus
 - ar及快照存储可配置化
--
+- 使用clojure写shell启动依赖
+
 
 ## 完成NOTE
+

@@ -1,4 +1,4 @@
-(ns ontime.views.index
+(ns ontime.web.views.index
   (:require [hiccup.form :as form]))
 
 (defn index-view

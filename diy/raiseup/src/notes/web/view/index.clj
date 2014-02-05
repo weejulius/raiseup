@@ -1,4 +1,4 @@
-(ns notes.view.index
+(ns notes.web.view.index
   (:require [hiccup.core :refer :all]
             [hiccup.element :refer [link-to]]
             [hiccup.page :refer [html5 include-css]]

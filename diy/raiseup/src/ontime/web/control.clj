@@ -1,10 +1,9 @@
-(ns ontime.control
+(ns ontime.web.control
   (:require [cqrs.core :as cqrs]
             [system :as s]
             [ontime.query :as q]
             [ontime.commands :refer :all]
             [ontime.command-handler :refer :all]
-            [bouncer [core :as b] [validators :as v]]
             [common.convert :as convert]))
 
 
@@ -12,7 +11,7 @@
   "fetch data for index view"
   [params]
   (let [slots (sort-by :ar-id >
-                       (cqrs/fetch (q/map->QuerySlot {:user-id 1})))
+                       (s/fetch (q/map->QuerySlot {:user-id 1})))
         grouped-slots (group-by #(nil? (:start-time %)) slots)]
     {:unplanned-slots (grouped-slots true)
      :planned-slots   (grouped-slots false)
@@ -41,12 +40,3 @@
       (convert/->long (:ar-id params))
       (:start-time params))))
 
-(defn handle-request
-  "handle the http request"
-  [request]
-  (let [request-type (keyword (:type request))
-        request-params (:data request)]
-    ((case request-type
-       :create-task-slot create-task-slot-action
-       :delete-task-slot delete-task-slot-action
-       :start-task-slot start-task-slot-action) request-params)))
