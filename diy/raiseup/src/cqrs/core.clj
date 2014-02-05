@@ -103,13 +103,14 @@
 
 (defn gen-command
   "generate command"
-  [command-type fields recoverable-ids]
+  [ar command-type fields recoverable-ids]
   (let [command (assoc fields :command command-type)
+        command (assoc command :ar ar)
         schema (get @schemas command-type)]
     (if (nil? schema)
       (throw (ex-info "schema is missing"
                       {:command command-type
-                       :fields fields
+                       :fields  fields
                        :schemas @schemas}))
       (do (schema/validate schema command)
           (if-not (:ar-id command)

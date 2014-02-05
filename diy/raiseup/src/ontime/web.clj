@@ -15,7 +15,7 @@
        :delete-task-slot v/delete-task-slot-action
        :start-task-slot v/start-task-slot-action) request-params)))
 
-;;(defroutes ontime-routes
+;(defroutes ontime-routes
            ;(GET "/ws" []
            ;     #(handle-asyn-request % handle-request))
            ;(GET "/todo/slots/new" []

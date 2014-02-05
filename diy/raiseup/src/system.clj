@@ -21,8 +21,8 @@
   (cqrs/publish-event env/bus event))
 
 (defn send-command
-  [command-type fields & {:as options}]
-  (cqrs/send-command env/bus (cqrs/gen-command command-type fields (:recoverable-ids env/system))))
+  [ar command-type fields & {:as options}]
+  (cqrs/send-command env/bus (cqrs/gen-command ar command-type fields (:recoverable-ids env/system))))
 
 (defn register-command-handler
   [command-type f]
