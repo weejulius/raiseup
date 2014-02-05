@@ -2,7 +2,7 @@
   common.config
   (:import (java.io PushbackReader)))
 
-(def dev-config-file "dev.cfg")
+(def dev-config-file "dev.edn")
 
 (def ^{:doc "placehold when the config is not found"} not-found-placehold "_-config-_placehold")
 

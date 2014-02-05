@@ -1,10 +1,10 @@
-(ns notes.view.index
+(ns notes.web.view.index
   (:require [hiccup.core :refer :all]
             [hiccup.element :refer [link-to]]
             [hiccup.page :refer [html5 include-css]]
             [hiccup.form :refer :all]
             [notes.query :refer :all]
-            [cqrs.core :as cqrs]
+            [system :as s]
             [markdown.core :as markdown]
             [common.convert :as convert]
             [common.strs :as strs]))
@@ -55,7 +55,7 @@
       "notes"
       (mod-nav)
       (mod-notes
-        (cqrs/fetch (->QueryNote nil nil page size))))))
+        (s/fetch (->QueryNote nil nil page size))))))
 
 
 (defn- mod-form-note
@@ -95,7 +95,7 @@
 
 (defn note-edit-view
   [ar-id]
-  (let [note (cqrs/fetch (->QueryNote ar-id nil nil nil))]
+  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
     (layout
       "edit note"
       (mod-nav)
@@ -106,7 +106,7 @@
 
 (defn note-view
   [ar-id]
-  (let [note (cqrs/fetch (->QueryNote ar-id nil nil nil))]
+  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
     (layout
       (str (:title note))
       (mod-nav)

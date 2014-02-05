@@ -1,25 +1,31 @@
 (ns notes.commands
-  (:require [cqrs.protocol :as cqrs]
-            [bouncer [core :as b] [validators :as v]]))
+  (:require
+    [cqrs.core :as cqrs]
+    [schema.core :as s]
+    [bouncer [core :as b] [validators :as v]]))
 
-(defrecord CreateNote [ar author title content ctime]
-  cqrs/Validatable
-  (validate [cmd]
-    (b/validate cmd
-                :title v/required
-                :content v/required)))
+(cqrs/def-schema :create-note
+                 {:ar      s/Keyword
+                  :command s/Keyword
+                  :author  s/Str
+                  :title   (s/both s/Str
+                                   (s/pred #(> 50 (count %))))
+                  :content (s/both s/Str
+                                   (s/pred #(> 1000 (count %))))
+                  :ctime   s/Num})
 
 
-(defrecord UpdateNote [ar ar-id author title content utime]
-  cqrs/Validatable
-  (validate [cmd]
-    (b/validate cmd
-                :ar-id v/required
-                :title v/required
-                :content v/required)))
+(cqrs/def-schema :update-note
+                 {:ar                       s/Keyword
+                  :ar-id                    s/Num
+                  :command                  s/Keyword
+                  (s/optional-key :title)   (s/both s/Str
+                                                    (s/pred #(> 50 (count %))))
+                  (s/optional-key :content) (s/both s/Str
+                                                    (s/pred #(> 1000 (count %))))
+                  :utime                    s/Num})
 
-(defrecord DeleteNote [ar ar-id]
-  cqrs/Validatable
-  (validate [cmd]
-    (b/validate cmd
-                :ar-id v/required)))
+(cqrs/def-schema :delete-note
+                 {:ar      s/Keyword
+                  :command s/Keyword
+                  :ar-id   s/Num})

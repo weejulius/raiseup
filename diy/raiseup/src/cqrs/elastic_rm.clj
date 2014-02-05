@@ -15,8 +15,6 @@
     (:_source (esd/get app (name entry-type) (str entry-id))))
   (update-entry [this entry-type entry-id f]
     (let [old-entry (cqrs/load-entry this entry-type (str entry-id))]
-      (log/debug "updating entry" old-entry
-                 (type (:ar old-entry)) (type (:ar-id old-entry)))
       (cqrs/put-entry this (f old-entry))))
   (put-entry [this new-entry]
     (do

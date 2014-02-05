@@ -9,9 +9,9 @@
 
 (defn update-note
   [note cmd]
-  [note (cqrs/gen-event :note-updated cmd
-                        [:author :title :content :utime])])
+  (cqrs/gen-event :note-updated cmd
+                  [:author :title :content :utime]))
 
 (defn delete-note
   [note cmd]
-  [note (cqrs/gen-event :note-deleted cmd [])])
+  (cqrs/gen-event :note-deleted cmd []))

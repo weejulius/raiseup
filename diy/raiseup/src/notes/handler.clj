@@ -1,40 +1,34 @@
 (ns notes.handler
-  (:require [cqrs.protocol :refer [CommandHandler on-event ReadModel] :as p]
+  (:require [cqrs.protocol :as p]
+            [system :as s]
             [notes.domain :refer :all]
-            [cqrs.core :as cqrs]
-            [common.logging :as log])
-  (:import (notes.commands CreateNote
-                           UpdateNote
-                           DeleteNote)))
+            [common.logging :as log]))
 
 (defn- ar-is-required
   [ar cmd]
   (if (empty? ar)
     (throw (ex-info "ar not found"
-                    {:ar    (:ar cmd)
-                     :ar-id (:ar-id cmd)}))))
+                    {:ar      (:ar cmd)
+                     :ar-id   (:ar-id cmd)
+                     :command cmd}))))
 
-(extend-protocol CommandHandler
-  CreateNote
-  (handle-command [cmd ar]
-    (let []
-      [{} (create-note cmd)]))
+(defn note-command-handlers
+  []
+  (s/register-command-handler :create-note
+                              (fn [ar cmd]
+                                (create-note cmd)))
 
-  UpdateNote
-  (handle-command [cmd ar]
-    (ar-is-required ar cmd)
-    (update-note ar cmd))
+  (s/register-command-handler :update-note
+                              (fn [ar cmd]
+                                (ar-is-required ar cmd)
+                                (update-note ar cmd)))
 
-  DeleteNote
-  (handle-command [cmd ar]
-    (ar-is-required ar cmd)
-    (delete-note ar cmd)))
 
-(defmethod on-event
-  :note-created
-  [event readmodel]
-  (p/put-entry readmodel
-               (select-keys event [:ar :ar-id :author :title :content :ctime])))
+  (s/register-command-handler :delete-note
+                              (fn [ar cmd]
+                                (ar-is-required ar cmd)
+                                (delete-note ar cmd))))
+
 
 (defn- update-fn
   [cur-entry event keys]
@@ -44,21 +38,27 @@
     cur-entry
     keys))
 
-(defmethod on-event
-  :note-updated
-  [event readmodel]
-  (do
-    (p/update-entry
-      readmodel
-      (:ar event)
-      (:ar-id event)
-      #(update-fn % event [:author :title :content :utime]))))
+
+(defn note-event-handlers
+  []
+  (s/register-event-handler :note-updated
+                            (fn [event readmodel]
+                              (do
+                                (p/update-entry
+                                  readmodel
+                                  (:ar event)
+                                  (:ar-id event)
+                                  #(update-fn % event [:author :title :content :utime])))))
 
 
-(defmethod on-event
-  :note-deleted
-  [event readmodel]
-  (p/remove-entry
-    readmodel
-    (:ar event)
-    (:ar-id event)))
+  (s/register-event-handler :note-deleted
+                            (fn [event readmodel]
+                              (p/remove-entry
+                                readmodel
+                                (:ar event)
+                                (:ar-id event))))
+  (s/register-event-handler :note-created
+                            (fn [event readmodel]
+                              (p/put-entry readmodel
+                                           (select-keys event [:ar :ar-id :author :title :content :ctime]))))
+  )

@@ -5,11 +5,10 @@
             [common.config :as cfg]
             [common.logging :as log])
   (:import (org.iq80.leveldb DB DBIterator WriteBatch)
-           (java.util Map$Entry)
-           (clojure.lang Atom))
+           (java.util Map$Entry Map)
+           (clojure.lang Atom IPersistentMap)
+           (java.util.concurrent.atomic AtomicLong))
   (:gen-class))
-
-(def flush-recoverable-id-interval (cfg/ret :recoverable-id-flush-interval))
 
 (defprotocol Store
   "the protocol to utilize the store"
@@ -45,47 +44,52 @@
     (.close db)))
 
 (defprotocol RecoverableId
-  "an uniqure identifier,it can be recoved after restart,
+  "uniqure identifiers which can be recoved after restart,
    but it does not garantee the identifier is sequential, the identifier
-   will add the defined incremence whenever recovery from scrash"
-  (init! [this] "init the id")
-  (get! [this] "return the current value of id")
-  (inc! [this] "increase the id")
-  (clear! [this] "clear and reset the state of id"))
+   will add the defined incremence whenever recovery from down"
+  (get! [this id-name] "return the current value of id")
+  (inc! [this id-name] "increase the id")
+  (clear! [this id-name] "clear and reset the state of id"))
+
+(defn- ^AtomicLong get-or-init-recoverable-id-if-need
+  "get id and init the recoverable id if not initialized"
+  [storage id-name long-ids flush-recoverable-id-interval]
+  (let [long-id (get @long-ids id-name)]
+    (if (nil? long-id)
+      (let [cur-value (->long (ret-value storage id-name))
+            new-value (if (nil? cur-value) (long 0)
+                                           (+ cur-value flush-recoverable-id-interval))]
+        (swap! long-ids #(assoc % id-name (AtomicLong. new-value)))
+        (write storage
+               (->bytes id-name)
+               (->bytes new-value))
+        (log/debug "init the recoverable long id for " id-name)))
+    (println id-name long-ids)
+    (get @long-ids id-name)))
 
 (defrecord RecoverableLongId
-           [^String store-key storage ^Atom long-id ^long incremence]
+           [storage ^Atom long-ids ^long flush-recoverable-id-interval]
   RecoverableId
-  (init! [this]
-    (let [cur-value (->long (ret-value storage store-key))
-          new-value (if (nil? cur-value) (long 0)
-                                         (+ cur-value incremence))]
-      (reset! long-id new-value)
-      (write storage
-             (->bytes store-key)
-             (->bytes new-value))
-      this))
-  (get! [this]
-    @long-id)
-  (inc! [this]
-    (let [inc-value (swap! long-id inc)]
-      (if (zero? (mod inc-value incremence))
+  (get! [this id-name]
+    (.get (get-or-init-recoverable-id-if-need storage id-name long-ids flush-recoverable-id-interval)))
+  (inc! [this id-name]
+    (let [inc-value (.incrementAndGet
+                      (get-or-init-recoverable-id-if-need storage id-name long-ids flush-recoverable-id-interval))]
+      (if (zero? (mod inc-value flush-recoverable-id-interval))
         (write
           storage
-          (->bytes store-key)
+          (->bytes id-name)
           (->bytes (long inc-value))))
       inc-value))
-  (clear! [this]
-    (doto (delete storage store-key)
-      (reset! long-id 0))))
+  (clear! [this id-name]
+    (doto (delete storage id-name)
+      (swap! long-ids #(assoc % id-name (AtomicLong.))))))
 
 (defn init-recoverable-long-id
-  "factory of recoverable long id"
-  [name storage]
-  (let [recoverable (->RecoverableLongId name storage (atom -1)
-                                         flush-recoverable-id-interval)]
-    (log/debug "init the recoverable long id" name)
-    (init! recoverable)
+  "factory of recoverable long  id"
+  [storage]
+  (let [recoverable (->RecoverableLongId storage (atom {})
+                                         (cfg/ret :recoverable-id-flush-interval))]
     recoverable))
 
 

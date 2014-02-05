@@ -1,4 +1,5 @@
 (ns env
+  "the side effect of application stay here"
   (:use [org.httpkit.server :only [run-server]])
   (:require [cqrs.core :as cqrs]
             [common.component :as component]
@@ -8,9 +9,11 @@
             [compojure.handler :refer [site]]
             [common.logging :as log]
             [cqrs.elastic-rm :as rm]
-            [cqrs.storage :as storage])
+            [cqrs.storage :as storage]
+            [cqrs.vertx :refer :all])
   (:import (com.hazelcast.core Hazelcast)
-           (com.hazelcast.config Config)))
+           (com.hazelcast.config Config)
+           (cqrs.vertx VertxBus)))
 
 (defn- start-http-server
   [port-str ip routes]
@@ -22,49 +25,37 @@
     (log/info (str "Server started at " ip ":" port-str))
     stop-fn))
 
-
+;; the side effect for note
 (defrecord NoteSystem []
   component/Lifecycle
   (init [this options]
     (let [opened-dbs (atom {})
-          recoverable-id-db (storage/init-store opened-dbs
-                                                (:id-db-path options)
-                                                (:leveldb-option options))
           new-state
-          (-> this
-              (assoc :opened-dbs opened-dbs)
-              (assoc :snapshot-db
-                (storage/init-store opened-dbs
-                                    (:snapshot-db-path options)
-                                    (:leveldb-option options)))
-              (assoc :channels (atom {}))
-              (assoc :recoverable-id-db recoverable-id-db)
-              (assoc :events-db
-                (storage/init-store opened-dbs
-                                    (:events-db-path options)
-                                    (:leveldb-option options)))
-              (assoc :id-creators (atom {}))
-              (assoc :readmodel (component/init
-                                  (rm/->ElasticReadModel (:app (:elastic options)))
-                                  (:elastic options))))]
-      (assoc new-state :command-bus (cqrs/->SimpleCommandBus
-                                      (:channels new-state)
-                                      (:readmodel new-state)
-                                      (:snapshot-db new-state)
-                                      (:events-db new-state)
-                                      (:id-creators new-state)
-                                      (:recoverable-id-db new-state)))))
+          (merge this
+                 {:opened-dbs      opened-dbs
+                  :snapshot-db     (storage/init-store opened-dbs
+                                                       (:snapshot-db-path options)
+                                                       (:leveldb-option options))
+                  :recoverable-ids (storage/init-recoverable-long-id
+                                     (storage/init-store opened-dbs
+                                                         (:id-db-path options)
+                                                         (:leveldb-option options)))
+                  :events-db       (storage/init-store opened-dbs
+                                                       (:events-db-path options)
+                                                       (:leveldb-option options))
+                  :readmodel       (component/init
+                                     (rm/->ElasticReadModel (:app (:elastic options)))
+                                     (:elastic options))})]
+      new-state))
   (start [this options]
-    (let [updated (assoc this
-                    :http-server
-                    (start-http-server
-                      (:port options)
-                      (:host options)
-                      (:routes options)))]
-      (cqrs/replay-events (:events-db updated)
-                          (:channels updated)
-                          (:readmodel updated))
-      updated))
+    (doall
+      (map (fn [handlers] (handlers)) (:handlers options)))
+    (assoc this
+      :http-server
+      (start-http-server
+        (:port options)
+        (:host options)
+        (:routes options))))
   (stop [this options]
     (do
       (if-not (nil? (:opened-dbs this))
@@ -81,3 +72,8 @@
       (if-let [stop-http (:http-server this)]
         (stop-http :timeout 1))
       (assoc this :readmodel nil))))
+
+
+(defonce system (NoteSystem.))
+
+(defonce bus (component/init (VertxBus.) nil))

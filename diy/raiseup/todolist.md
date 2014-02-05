@@ -64,7 +64,7 @@ for ar when retrieving one ar
 * how to fix the data if data has some problem
 * monitor the system, like traffic and system usage on so on
 * add error message box in the pages
-* add performance evaludation for the app
+* add performance evaluation for the app
 
 Blocks
 ------
@@ -74,4 +74,24 @@ Blocks
 
 
 
+CQRS实现回顾
+-----
+
+2014-01-29
+
+## 目前实现
+
+- 用core.async实现event bus和command bus，无法处理1000+消息同时
+- 将event和最近快照写入文件系统
+- 将readmodel写入elasticsearch,读写速度慢相比hazelcast，但后者不能全文搜索
+
+## 计划
+
+- 用hazelcast替代leveldb做kv存储
+- [DONE]引用vert.x作用消息bus
+- ar及快照存储可配置化
+- 使用clojure写shell启动依赖
+
+
+## 完成NOTE
 
