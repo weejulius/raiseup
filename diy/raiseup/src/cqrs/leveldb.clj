@@ -31,18 +31,12 @@
 
 (defn open-leveldb!
   ^{:added       "1.0"
-    :doc         "initialize or open the level db to be used,
+    :doc         "open the level db to be used,
                   the level db object is cached once it is opened"
     :side-affect "true"}
-  ([opened-dbs ^String db-dir options]
-   (if-let [existing-db (get @opened-dbs db-dir)]
-     existing-db
-     (let [opened-new-db (open-new-leveldb
-                           (File. db-dir)
-                           (Options.))]
-       (swap! opened-dbs
-              (fn [dbs]
-                (assoc dbs db-dir opened-new-db)))
-       opened-new-db)))
-  ([opened-dbs db-dir]
-   (open-leveldb! opened-dbs db-dir (cfg/ret :leveldb-option))))
+  [^String db-dir options]
+  (open-new-leveldb
+    (File. db-dir)
+    (Options.)))
+
+

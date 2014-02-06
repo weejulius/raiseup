@@ -1,12 +1,11 @@
 (ns ^{:doc "the read model implemented by elastic search"}
   cqrs.elastic-rm
   (:require [cqrs.protocol :as cqrs]
+            [common.component :as component]
             [clojurewerkz.elastisch.native.index :as idx]
             [clojurewerkz.elastisch.native :as es]
             [clojurewerkz.elastisch.native.document :as esd]
-            [common.logging :as log])
-  (:import (common.component Lifecycle))
-  (:gen-class))
+            [common.logging :as log]))
 
 
 (defrecord ElasticReadModel [app]
@@ -34,10 +33,10 @@
       (if (empty? query-result)
         []
         (map #(get % :_source) (-> query-result :hits :hits)))))
-  Lifecycle
+  component/Lifecycle
   (init [this options]
     (try
-      (do
+      (let [app (:app options)]
         (es/connect! [[(:host options) (:port options)]]
                      {"cluster.name" (:cluster-name options)})
         (if-not (idx/exists? app)
@@ -49,8 +48,9 @@
           (log/debug "starting elastic search index " app)))
       (catch Exception e
         (log/error e)))
-    this)
+    (assoc this :app app))
   (start [this options]
-    (log/debug "starting elastic search"))
+    (log/debug "starting elastic search")
+    this)
   (stop [this options]
-    ()))
+    this))

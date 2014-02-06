@@ -17,39 +17,15 @@
 
 (defn- start-http-server
   [port-str ip routes]
-  (let [handler (site routes)
-        wrapped-handler (gzip/wrap-gzip
-                          (reload/wrap-reload handler))
-        port (Integer/parseInt port-str)
-        stop-fn (run-server wrapped-handler {:port port :ip ip})]
-    (log/info (str "Server started at " ip ":" port-str))
-    stop-fn))
+  )
 
 ;; the side effect for note
 (defrecord NoteSystem []
   component/Lifecycle
   (init [this options]
-    (let [opened-dbs (atom {})
-          new-state
-          (merge this
-                 {:opened-dbs      opened-dbs
-                  :snapshot-db     (storage/init-store opened-dbs
-                                                       (:snapshot-db-path options)
-                                                       (:leveldb-option options))
-                  :recoverable-ids (storage/init-recoverable-long-id
-                                     (storage/init-store opened-dbs
-                                                         (:id-db-path options)
-                                                         (:leveldb-option options)))
-                  :events-db       (storage/init-store opened-dbs
-                                                       (:events-db-path options)
-                                                       (:leveldb-option options))
-                  :readmodel       (component/init
-                                     (rm/->ElasticReadModel (:app (:elastic options)))
-                                     (:elastic options))})]
-      new-state))
+    )
   (start [this options]
-    (doall
-      (map (fn [handlers] (handlers)) (:handlers options)))
+
     (assoc this
       :http-server
       (start-http-server
