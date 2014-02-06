@@ -55,7 +55,7 @@
       "notes"
       (mod-nav)
       (mod-notes
-        (s/fetch (->QueryNote nil nil page size))))))
+        (s/fetch (->QueryNote :note nil nil page size))))))
 
 
 (defn- mod-form-note
@@ -95,7 +95,7 @@
 
 (defn note-edit-view
   [ar-id]
-  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
+  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (layout
       "edit note"
       (mod-nav)
@@ -106,7 +106,7 @@
 
 (defn note-view
   [ar-id]
-  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
+  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (layout
       (str (:title note))
       (mod-nav)

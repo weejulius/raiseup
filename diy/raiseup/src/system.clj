@@ -30,9 +30,7 @@
                                  env/bus
                                  (:snapshot-db env/system)))
 
-(defn fetch
+(schema.macros/defn fetch
   "fetch result of query"
-  [query]
-  (if (:id query)
-    ((p/find-by-id query) (:readmodel env/system))
-    ((p/query query) (:readmodel env/system))))
+  [query :- p/Query]
+  (cqrs/fetch (:readmodel env/system) query))

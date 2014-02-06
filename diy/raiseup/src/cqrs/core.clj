@@ -116,3 +116,28 @@
           (if-not (:ar-id command)
             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
             command)))))
+
+
+;;elastic search fetch
+(defn fetch
+  "fetch result of query"
+  [readmodel query]
+  (if-not (:ar query)
+    (throw (ex-info "ar is missing for the query"
+                    {:query query})))
+  (if (:id query)
+    (p/load-entry
+      readmodel (:ar query) (:id query))
+    (let [p (or (:page query) 1)
+          s (or (:size query) 20)
+          basic-query [:from (* s (dec p))
+                       :size s]
+          more (p/query query)
+          combined (concat basic-query (flatten (seq more)))
+          combined (if-not (:sort more)
+                     (concat combined [:sort {:ar-id "asc"}])
+                     combined)]
+      (p/do-query
+        readmodel
+        (:ar query)
+        combined))))
