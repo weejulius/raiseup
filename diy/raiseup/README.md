@@ -25,6 +25,13 @@ The read model now uses the hazelcast as a in memory read model, the problem her
 * the name of read model cache is single, like :user-slot rather than :user-slots
 
 
+## Why function programming
+
+* HOF (high order function)
+* Composition f.g
+* Partial
+* Pattern match
+
 ## License
 
 Copyright © 2013 FIXME

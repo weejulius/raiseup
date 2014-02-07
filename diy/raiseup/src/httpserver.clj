@@ -2,6 +2,7 @@
   (:require [common.component :as component]
             [ring.middleware.reload :as reload]
             [ring.middleware.gzip :as gzip]
+            [ring.middleware.pretty-exception :as pretty-exception]
             [compojure.handler :refer [site]]
             [common.logging :as log])
   (:use [org.httpkit.server :only [run-server]]))
@@ -15,8 +16,10 @@
           routes (do (require (symbol (namespace routes)))
                      (resolve (symbol routes)))
           handler (site routes)
-          wrapped-handler (gzip/wrap-gzip
-                            (reload/wrap-reload handler))
+          wrapped-handler (-> handler
+                              reload/wrap-reload
+                              pretty-exception/wrap-pretty-exception
+                              gzip/wrap-gzip)
           port (:port options)
           ip (:host options)
           stop-fn (run-server wrapped-handler {:port port :ip ip})]
