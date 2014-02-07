@@ -1,7 +1,6 @@
 (ns system
   "functions need side effect"
-  (:require [env :as env]
-            [cqrs.vertx :refer :all]
+  (:require [cqrs.vertx :refer :all]
             [cqrs.core :as cqrs]
             [cqrs.protocol :as p]
             [common.config :as cfg]
@@ -13,24 +12,26 @@
 (defn register-event-handler
   [event-type f]
   (cqrs/register-event-handler event-type f
-                               env/bus
-                               (:readmodel env/system)))
+                               (:bus component/state)
+                               (:readmodel component/state)))
 
 (defn publish-event
   [event]
-  (cqrs/publish-event env/bus event))
+  (cqrs/publish-event (:bus component/state) event))
 
 (defn send-command
   [ar command-type fields & {:as options}]
-  (cqrs/send-command env/bus (cqrs/gen-command ar command-type fields (:recoverable-ids env/system))))
+  (cqrs/send-command (:bus component/state)
+                     (cqrs/gen-command ar command-type fields
+                                       (:recoverable-ids component/state))))
 
 (defn register-command-handler
   [command-type f]
   (cqrs/register-command-handler command-type f
-                                 env/bus
-                                 (:snapshot-db env/system)))
+                                 (fn [] (:bus component/state))
+                                 (fn [] (:snapshot-db component/state))))
 
 (schema.macros/defn fetch
   "fetch result of query"
   [query :- p/Query]
-  (cqrs/fetch (:readmodel env/system) query))
+  (cqrs/fetch (:readmodel component/state) query))

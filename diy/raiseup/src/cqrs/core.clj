@@ -64,15 +64,17 @@
 
 (defn register-command-handler
   "register command handler, the command will find the handler from the registry"
-  [command-type f bus snapshot-db]
-  (p/reg bus command-type
+  [command-type f get-bus get-snapshot-db]
+  (p/reg (get-bus) command-type
          (fn [command]
-           (println "handle command" command)
-           (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)
+           (log/debug "handle command" command)
+           (let [snapshot-db (get-snapshot-db)
+                 bus (get-bus)
+                 ar (get-ar (:ar command) (:ar-id command) snapshot-db)
                  event (f ar command)
                  snapshot (get-ar [ar event])]
              (es/store-snapshot snapshot snapshot-db)
-             (println "publishing event" event ar command snapshot)
+             (log/debug "publishing event" event ar command snapshot)
              (publish-event bus event)))))
 
 

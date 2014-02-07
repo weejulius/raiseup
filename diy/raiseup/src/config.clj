@@ -1,14 +1,10 @@
 {
-  :http-server       {:component httpserver/->HttpKitServer
-                      :host      "localhost"
-                      :port      8080
-                      :routes    #'web/app-notes
-                      }
   :snapshot-db       {
                        :component      cqrs.storage/->LeveldbStore
                        :path           "/tmp/snapshot-db"
                        :leveldb-option {}
                        }
+
   :recoverable-id-db {
                        :component      cqrs.storage/->LeveldbStore
                        :path           "/tmp/ids-db"
@@ -20,6 +16,7 @@
                        :path           "/tmp/events-db"
                        :leveldb-option {}
                        }
+
   :recoverable-ids   {
                        :component                     cqrs.storage/->RecoverableLongId
                        :storage                       :recoverable-id-db
@@ -30,6 +27,7 @@
                        :component cqrs.vertx/->VertxBus
                        :handlers  [notes.handler/note-event-handlers notes.handler/note-command-handlers]
                        }
+
   :readmodel         {
                        :component    cqrs.elastic-rm/->ElasticReadModel
                        :app          "raiseup"
@@ -44,6 +42,14 @@
                                                 :author  {:type "string" :store "yes" :index "not_analyzed"}
                                                 :title   {:type "string" :analyzer "standard" :store "yes"}
                                                 :content {:type "string" :analyzer "standard" :store "yes"}
-                                                :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}}
+                                                :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}
+                       }
+
+  :http-server       {:component httpserver/->HttpKitServer
+                      :host      "localhost"
+                      :port      8080
+                      :routes    web/app-routes
+                      }
+
   }
 

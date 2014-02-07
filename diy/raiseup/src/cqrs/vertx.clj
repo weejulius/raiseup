@@ -18,14 +18,19 @@
                     (fn [message]
                       (handle message))
                     (fn [error]
-                      (println "reg command handler" name))))
+                      (log/info "reg handler" name))))
   compt/Lifecycle
   (init [this options]
     (vertx/set-vertx! (vertx/vertx))
     this)
   (start [this options]
     (doall
-      (map (fn [handlers] (handlers)) (:handlers options)))
+      (map (fn [handlers]
+             (log/info "```init handlers for bus```" handlers)
+             (require (symbol (namespace handlers)))
+             ((resolve (symbol handlers)))) (:handlers options)))
+    this)
+  (stop [this options]
     this))
 
 

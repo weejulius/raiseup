@@ -44,13 +44,13 @@
             (idx/create (:app options)
                         :settings (:settings options)
                         :mappings (:mappings options))
-            (log/debug "creating elastic search index " app))
-          (log/debug "starting elastic search index " app)))
+            (log/debug "==== ==== creating elastic search index " app))
+          (log/debug "==== ==== starting existing elastic search index " app)))
       (catch Exception e
         (log/error e)))
-    (assoc this :app app))
+    (assoc this :app (:app options)))
   (start [this options]
-    (log/debug "starting elastic search")
+    (log/debug "==== ==== starting elastic search")
     this)
   (stop [this options]
     this))

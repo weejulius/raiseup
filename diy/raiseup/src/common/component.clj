@@ -10,25 +10,27 @@
 
 (defonce state {})
 
-(defn- process-component
-  [name component config f log-prefix]
+(defn- trigger-component-lifecycle
+  [lifecycle-fn lifecycle-name name component config]
   (try
     (do
-      (log/info "==== " log-prefix "component" name config)
-      (let [processed (f component config)]
+      (log/info "====" lifecycle-name "component" name config)
+      (let [triggered (lifecycle-fn component config)]
         (log/info "==== done,component" name)
-        (if-not (= (type component) (type processed))
-          (throw (ex-info "invalid return for lifecycle fn of component"
-                          {:component name
-                           :f         f})))
-        processed))
+        (if-not (= (type component) (type triggered))
+          (log/error "invalid return for lifecycle fn of component"
+                     {:component name
+                      :f         lifecycle-name
+                      :before    component
+                      :after     triggered}))
+        triggered))
     (catch Exception e
-      (log/error e))))
+      (log/error e)
+      component)))
 
-(defn- resolve-dependencies
+(defn- resolve-component-dependencies
   [components config]
   (let [dependency-syms (filter #(keyword? (val %)) config)]
-    (println "resolve dependency" components config dependency-syms)
     (if-not (empty? dependency-syms)
       (reduce
         (fn [m [k v]]
@@ -42,66 +44,76 @@
         config dependency-syms)
       config)))
 
-(defn- process-components
-  [f get-component cfg]
+(defn- trigger-all-component-lifecycle
+  [trigger-component-lifecycle get-component cfg]
   (loop [config cfg
-         components {}]
+         state {}]
     (if (empty? config)
-      components
+      state
       (let [[name component-config] (first config)
             component (get-component cfg name)]
         (if (nil? component)
           (do
             (log/error "the component is not defined"
-                      {:name   name
-                       :config component-config})
-            components)
+                       {:name   name
+                        :config component-config})
+            state)
           (recur (next config)
-                 (assoc components
+                 (assoc state
                    name
-                   (f
+                   (trigger-component-lifecycle
                      name
                      component
-                     (resolve-dependencies components component-config)))))))))
+                     (resolve-component-dependencies state component-config)))))))))
 
-;;TODO prevent from initing once again without closing
+(defn- swap-state
+  [state lifecycle-fn lifecycle-name component-get-fn]
+  (let [next-status-map {:init  :start
+                         :start :stop
+                         :stop  :init}
+        current-status (:status state)
+        lifecycle-name-as-keyword (keyword lifecycle-name)
+        _ (if-not (or (nil? current-status) (= lifecycle-name-as-keyword (current-status next-status-map)))
+            (throw (ex-info "cannot trigger component to target status"
+                            {:from current-status
+                             :to   lifecycle-name-as-keyword})))
+        new-state (trigger-all-component-lifecycle
+                    (partial trigger-component-lifecycle lifecycle-fn lifecycle-name)
+                    component-get-fn
+                    (config/read-edn-file "config.clj"))]
+    (assoc new-state :status lifecycle-name-as-keyword)))
+
 (defn init-components
   []
-  (alter-var-root #'state
-                  (fn [x]
-                    (process-components
-                      #(process-component %1 %2 %3 init "init")
-                      (fn [config name]
-                        (let [sym (-> config name :component)
-                              _ (require (symbol (namespace sym)))
-                              instance ((resolve sym) nil)]
-                          instance))
-                      (config/read-edn-file "config.clj")))))
+  (alter-var-root #'state swap-state init "init"
+                  (fn [config name]
+                    (let [sym (-> config name :component)
+                          _ (require (symbol (namespace sym)))
+                          instance ((resolve sym) nil)]
+                      instance))))
 
 
 (defn start-components
   []
-  (alter-var-root #'state
-                  (fn [x]
-                    (process-components
-                      #(process-component %1 %2 %3 start "start")
-                      (fn [config name]
-                        (println name #'state)
-                        (let [component (get state name)]
-                          component))
-                      (config/read-edn-file "config.clj")))))
+  (alter-var-root #'state swap-state start "start"
+                  (fn [config name]
+                    (let [component (get state name)]
+                      component))))
 
 
 (defn stop-components
   []
-  (alter-var-root #'state
-                  (fn [x]
-                    (process-components
-                      #(process-component %1 %2 %3 stop "stop")
-                      (fn [config name]
-                        (let [component (get state name)]
-                          (println name component state)
-                          component)
+  (alter-var-root #'state swap-state stop "stop"
+                  (fn [config name]
+                    (let [component (get state name)]
+                      component))))
 
-                        )
-                      (config/read-edn-file "config.clj")))))
+(defn go
+  "Initializes and starts the system running."
+  []
+  (try
+    (init-components)
+    (start-components)
+    (catch Throwable e
+      (log/info "failed to init and start components" e))))
+

@@ -11,13 +11,17 @@
   (init [this options]
     this)
   (start [this options]
-    (let [handler (site (:routes options))
+    (let [routes (:routes options)
+          routes (do (require (symbol (namespace routes)))
+                     (resolve (symbol routes)))
+          handler (site routes)
           wrapped-handler (gzip/wrap-gzip
                             (reload/wrap-reload handler))
           port (:port options)
           ip (:host options)
           stop-fn (run-server wrapped-handler {:port port :ip ip})]
-      (log/info (str "Server started at " ip ":" port))
+      (log/info "==== ==== Server started at " ip ":" port)
       (assoc this :stop-fn stop-fn)))
   (stop [this options]
-    ((:stop-fn this) :timeout 1)))
+    ((:stop-fn this) :timeout 1)
+    this))

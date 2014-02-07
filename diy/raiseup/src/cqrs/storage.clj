@@ -52,7 +52,8 @@
                (:path options) (:leveldb-option options))]
       (assoc this :db db)))
   (stop [this options]
-    (.close ^DB (:db this))))
+    (.close ^DB (:db this))
+    this))
 
 (defprotocol RecoverableId
   "uniqure identifiers which can be recoved after restart,
@@ -75,7 +76,6 @@
                (->bytes id-name)
                (->bytes new-value))
         (log/debug "init the recoverable long id for " id-name)))
-    (println id-name long-ids)
     (get @long-ids id-name)))
 
 (defrecord RecoverableLongId
@@ -106,7 +106,7 @@
   (start [this options]
     (-> this
         (assoc :storage (:storage options))
-        (assoc :long-ids {})
+        (assoc :long-ids (atom {}))
         (assoc :flush-recoverable-id-interval (:recoverable-id-flush-interval options))))
   (stop [this options]
     this))
