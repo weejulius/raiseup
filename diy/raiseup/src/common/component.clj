@@ -8,6 +8,14 @@
   (start [this options])
   (stop [this options]))
 
+;* Component lifecycle management v1 is done …
+;  - TODO
+;    - merge configs
+;    - auto resolve symbol
+;    - component can have its default config
+;    - improve component dependency handle
+;    - each triggered component is visible, current is visible when the whole is done
+;    - solve problem that the defrecord with component must have a field
 (defonce state {})
 
 (defn- trigger-component-lifecycle

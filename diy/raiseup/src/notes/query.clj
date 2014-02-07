@@ -6,10 +6,10 @@
 
 (sm/defrecord QueryNote
               [ar :- s/Keyword
-               id :- s/Num
-               author :- s/Str
-               page :- s/Num
-               size :- s/Num]
+               id :- (s/maybe s/Num)
+               author :- (s/maybe s/Str)
+               page :- (s/maybe s/Num)
+               size :- (s/maybe s/Num)]
   Query
   (query [this]
          (if-not (nil? author)

@@ -103,6 +103,16 @@
     (log/debug "def schema" name)
     (swap! schemas #(assoc % name schema))))
 
+(defn- validate-schema
+  [schema any]
+  (try
+    (schema/validate schema any)
+    (catch Exception e
+      (throw (ex-info "failed to validate schema"
+                      {:schema schema
+                       :source any}))))
+  )
+
 (defn gen-command
   "generate command"
   [ar command-type fields recoverable-ids]
@@ -114,7 +124,7 @@
                       {:command command-type
                        :fields  fields
                        :schemas @schemas}))
-      (do (schema/validate schema command)
+      (do (validate-schema schema command)
           (if-not (:ar-id command)
             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
             command)))))
@@ -127,6 +137,7 @@
   (if-not (:ar query)
     (throw (ex-info "ar is missing for the query"
                     {:query query})))
+  (validate-schema (type query) query)
   (if (:id query)
     (p/load-entry
       readmodel (:ar query) (:id query))
