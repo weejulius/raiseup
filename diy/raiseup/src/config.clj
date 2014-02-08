@@ -29,20 +29,22 @@
                        }
 
   :readmodel         {
-                       :component    cqrs.elastic-rm/->ElasticReadModel
-                       :app          "raiseup"
-                       :host         "127.0.0.1"
-                       :port         9300
-                       :cluster-name "elasticsearch"
+                       :component      cqrs.elastic-rm/->ElasticReadModel
+                       :app            "raiseup"
+                       :start-shell    ["nohup" "elastic"]
+                       :shutdown-shell ["sdelastic"]
+                       :host           "127.0.0.1"
+                       :port           9300
+                       :cluster-name   "elasticsearch"
                        ;  :settings {:index {"number_of_replicas" 1}}
                        :mappings
-                                     {"note" {:properties
-                                               {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
-                                                :ar      {:type "string" :store "yes" :index "not_analyzed"}
-                                                :author  {:type "string" :store "yes" :index "not_analyzed"}
-                                                :title   {:type "string" :analyzer "standard" :store "yes"}
-                                                :content {:type "string" :analyzer "standard" :store "yes"}
-                                                :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}
+                                       {"note" {:properties
+                                                 {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
+                                                  :ar      {:type "string" :store "yes" :index "not_analyzed"}
+                                                  :author  {:type "string" :store "yes" :index "not_analyzed"}
+                                                  :title   {:type "string" :analyzer "standard" :store "yes"}
+                                                  :content {:type "string" :analyzer "standard" :store "yes"}
+                                                  :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}
                        }
 
   :http-server       {:component httpserver/->HttpKitServer

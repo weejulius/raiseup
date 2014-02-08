@@ -31,6 +31,8 @@
              ((resolve (symbol handlers)))) (:handlers options)))
     this)
   (stop [this options]
+    this)
+  (halt [this options]
     this))
 
 

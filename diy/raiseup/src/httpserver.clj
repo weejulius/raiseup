@@ -27,4 +27,6 @@
       (assoc this :stop-fn stop-fn)))
   (stop [this options]
     ((:stop-fn this) :timeout 1)
+    this)
+  (halt [this options]
     this))

@@ -7,20 +7,18 @@
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
             [common.logging :as log]
-            [clostache.parser :as tpl])
-  (:import httl.Engine)
-  (:use org.httpkit.server))
+            ))
 
 (def template-extension-with-dot (str "." (cfg/ret :template-extension)))
 
-(defn- render
+#_(defn- render
   "render the template with the params"
   [file-path params]
   (tpl/render-resource
     (str "templates/" file-path template-extension-with-dot)
     params))
 
-(defn handle-asyn-request
+#_(defn handle-asyn-request
   [ring-request f]
   (with-channel ring-request channel
                 (if (websocket? channel)

@@ -4,9 +4,10 @@
 
 (defprotocol Lifecycle
   "manage the lifecycle of component"
-  (init [this options])
-  (start [this options])
-  (stop [this options]))
+  (init [this options] "init the components")
+  (start [this options] "start the components or restart the stopped components")
+  (stop [this options] "stop the started components")
+  (halt [this options] "shutdown the components when the system is to be down"))
 
 ;* Component lifecycle management v1 is done …
 ;  - TODO
@@ -33,7 +34,7 @@
                       :after     triggered}))
         triggered))
     (catch Exception e
-      (log/error e)
+      (log/error e (str "fail to trigger lifecycle " lifecycle-name " for  component " name))
       component)))
 
 (defn- resolve-component-dependencies
@@ -76,12 +77,13 @@
 
 (defn- swap-state
   [state lifecycle-fn lifecycle-name component-get-fn]
-  (let [next-status-map {:init  :start
-                         :start :stop
-                         :stop  :init}
+  (let [next-status-map {:init  [:start :halt]
+                         :start [:stop :halt]
+                         :stop  [:start :halt]
+                         :halt  [:init]}
         current-status (:status state)
         lifecycle-name-as-keyword (keyword lifecycle-name)
-        _ (if-not (or (nil? current-status) (= lifecycle-name-as-keyword (current-status next-status-map)))
+        _ (if-not (or (nil? current-status) (some #{lifecycle-name-as-keyword} (current-status next-status-map)))
             (throw (ex-info "cannot trigger component to target status"
                             {:from current-status
                              :to   lifecycle-name-as-keyword})))
@@ -91,37 +93,83 @@
                     (config/read-edn-file "config.clj"))]
     (assoc new-state :status lifecycle-name-as-keyword)))
 
+(defn- alter-state-root
+  [lifecycle-fn lifecycle-name component-get-fn]
+  (alter-var-root
+    #'state swap-state lifecycle-fn lifecycle-name component-get-fn)
+  state)
+
 (defn init-components
   []
-  (alter-var-root #'state swap-state init "init"
-                  (fn [config name]
-                    (let [sym (-> config name :component)
-                          _ (require (symbol (namespace sym)))
-                          instance ((resolve sym) nil)]
-                      instance))))
+  (alter-state-root init "init"
+                    (fn [config name]
+                      (let [sym (-> config name :component)
+                            _ (require (symbol (namespace sym)))
+                            instance ((resolve sym) nil)]
+                        instance))))
 
 
 (defn start-components
   []
-  (alter-var-root #'state swap-state start "start"
-                  (fn [config name]
-                    (let [component (get state name)]
-                      component))))
+  (alter-state-root start "start"
+                    (fn [config name]
+                      (let [component (get state name)]
+                        component))))
 
 
 (defn stop-components
   []
-  (alter-var-root #'state swap-state stop "stop"
-                  (fn [config name]
-                    (let [component (get state name)]
-                      component))))
+  (alter-state-root stop "stop"
+                    (fn [config name]
+                      (let [component (get state name)]
+                        component))))
 
-(defn go
-  "Initializes and starts the system running."
+(defn halt-components
   []
+  (alter-state-root halt "halt"
+                    (fn [config name]
+                      (let [component (get state name)]
+                        component))))
+
+
+
+(defn go-
+  "Initializes and starts the system running."
+  [before after]
   (try
     (init-components)
     (start-components)
+    state
     (catch Throwable e
-      (log/info "failed to init and start components" e))))
+      (log/info e "failed to init and start components"))))
 
+(defn stop-
+  "stop the components"
+  [before after]
+  (try
+    (stop-components)
+    state
+    (catch Throwable e
+      (log/info e "failed to stop components"))))
+
+
+(defn refresh-
+  "refresh the components"
+  [before after]
+  (try
+    (stop-components)
+    (start-components)
+    state
+    (catch Throwable e
+      (log/info e "failed to stop components"))))
+
+(defn shutdown-
+  "shutdown the components"
+  [before after]
+  (try
+    (if (= :start (:status state))
+      (stop-components))
+    (halt-components)
+    state
+    (catch Throwable e
+      (log/info e "failed to shutdown components"))))

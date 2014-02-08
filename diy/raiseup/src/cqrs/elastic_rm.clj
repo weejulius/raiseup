@@ -5,7 +5,8 @@
             [clojurewerkz.elastisch.native.index :as idx]
             [clojurewerkz.elastisch.native :as es]
             [clojurewerkz.elastisch.native.document :as esd]
-            [common.logging :as log]))
+            [common.logging :as log]
+            [clojure.java.shell :as shell]))
 
 
 (defrecord ElasticReadModel [app]
@@ -35,22 +36,23 @@
         (map #(get % :_source) (-> query-result :hits :hits)))))
   component/Lifecycle
   (init [this options]
-    (try
-      (let [app (:app options)]
-        (es/connect! [[(:host options) (:port options)]]
-                     {"cluster.name" (:cluster-name options)})
-        (if-not (idx/exists? app)
-          (do
-            (idx/create (:app options)
-                        :settings (:settings options)
-                        :mappings (:mappings options))
-            (log/debug "==== ==== creating elastic search index " app))
-          (log/debug "==== ==== starting existing elastic search index " app)))
-      (catch Exception e
-        (log/error e)))
+    (apply shell/sh (:start-shell options))
+    (let [app (:app options)]
+      (es/connect! [[(:host options) (:port options)]]
+                   {"cluster.name" (:cluster-name options)})
+      (if-not (idx/exists? app)
+        (do
+          (idx/create (:app options)
+                      :settings (:settings options)
+                      :mappings (:mappings options))
+          (log/debug "==== ==== creating elastic search index " app))
+        (log/debug "==== ==== starting existing elastic search index " app)))
     (assoc this :app (:app options)))
   (start [this options]
     (log/debug "==== ==== starting elastic search")
     this)
   (stop [this options]
+    this)
+  (halt [this options]
+    (apply shell/sh (:shutdown-shell options))
     this))

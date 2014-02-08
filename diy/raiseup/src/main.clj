@@ -5,8 +5,16 @@
 
 (defn -main
   [& args]
-  (component/go))
+  (component/go- nil nil))
 
 (defn stop
   []
-  (component/stop-components))
+  (component/stop- nil nil))
+
+(defn refresh
+  []
+  (component/refresh- nil nil))
+
+(defn shutdown
+  []
+  (component/shutdown- nil nil))

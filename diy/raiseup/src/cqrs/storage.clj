@@ -53,6 +53,8 @@
       (assoc this :db db)))
   (stop [this options]
     (.close ^DB (:db this))
+    this)
+  (halt [this options]
     this))
 
 (defprotocol RecoverableId
@@ -109,6 +111,8 @@
         (assoc :long-ids (atom {}))
         (assoc :flush-recoverable-id-interval (:recoverable-id-flush-interval options))))
   (stop [this options]
+    this)
+  (halt [this options]
     this))
 
 

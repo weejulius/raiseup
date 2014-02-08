@@ -1,6 +1,42 @@
 (ns ring.middleware.pretty-exception)
 
+(defn extract-file-name-and-number
+  [^String error-stack]
+  (if-not (empty? error-stack)
+    (let [ns-index (.indexOf error-stack "$")
+          namespace (if (>= ns-index 0)
+                      (.substring error-stack 0 ns-index))
+          ln-index (.lastIndexOf error-stack ":")
+          ln (if (>= ln-index 0)
+               (.substring error-stack (inc ln-index) (dec (.length error-stack))))]
+      (if-not (or (empty? namespace) (= "ring.middleware.pretty_exception" namespace))
+        [(str (.replace namespace "." "/") ".clj") (Long/parseLong ln)]))))
 
+(defn print-source-code
+  [source-file-name error-line-num]
+  (if-not (empty? source-file-name)
+    (let [path (str (System/getProperty "user.dir") "/src/" source-file-name)
+          from-line (- error-line-num 15)
+          to-line (+ error-line-num 15)
+          error-line-num (dec error-line-num)]
+      (if (.exists (java.io.File. ^String path))
+        (with-open [rdr (clojure.java.io/reader path)]
+          (loop [lines (line-seq rdr)
+                 index 0
+                 source-code ""]
+            (if (and (not (empty? lines)) (<= index to-line))
+              (recur (rest lines) (inc index)
+                     (if (< index from-line)
+                       source-code
+                       (str source-code
+                            "<li"
+                            (if (= index error-line-num) " class=\"error-line\"")
+                            ">"
+                            "<span class=\"ln\">" (inc index) "</span>"
+                            (-> (first lines)
+                                (.replace " " "&nbsp")
+                                (str "</br></li>")))))
+              (str "<pre><h3>" source-file-name "</h3><ul>" source-code "</ul></pre>"))))))))
 
 (defn pretty-print-exception
   "pretty exception"
@@ -18,18 +54,40 @@
           font-weight : 800;
           font-size : 120%;
           margin-bottom:20px;
+          margin-top:30px;
+        }
+        pre {
+         margin:20px;
+        }
+        .error-line{
+         background:#a60000;
+         font-weight:800;
+         margin: 10px 0;
+         font-size :120%;
+         padding:10px 0;
+        }
+        ul{
+          list-style-type:none;
+        }
+        .ln{
+          margin-right:10px;
         }
       </style>
       <body>"
-    "<span class=\"msg\">" e "</span></br>"
-    "<div><p>"
+    "<h1 class=\"msg\">" e "</h1></br>"
+    "<div>"
+    "<div class=\"stack\">"
     (let [stacks (.getStackTrace ^Exception e)
           lengths (map #(.length (str %)) stacks)
           max-length (apply max lengths)]
-      (apply str (map #(apply str (apply str (repeat (- max-length (.length (str %))) "&nbsp;")) %  "</br>") stacks)))
-    "</p></div>"
+      (apply str
+             (map
+               #(str (apply str (repeat (- max-length (.length (str %))) "&nbsp;")) % "</br>"
+                     (if-let [file-and-ln (extract-file-name-and-number (str %))]
+                       (apply print-source-code file-and-ln)))
+               stacks)))
+    "</div></div>"
     " </body>
-
     </html>"))
 
 (defn wrap-pretty-exception
