@@ -1,13 +1,18 @@
 (ns ^{:doc "the read model implemented by elastic search"}
   cqrs.elastic-rm
   (:require [cqrs.protocol :as cqrs]
+            [common.component :as component]
             [clojurewerkz.elastisch.native.index :as idx]
             [clojurewerkz.elastisch.native :as es]
             [clojurewerkz.elastisch.native.document :as esd]
-            [common.logging :as log])
-  (:import (common.component Lifecycle))
-  (:gen-class))
+            [common.logging :as log]
+            [clojure.java.shell :as shell]))
 
+
+(defn- run-local-command
+  [cmd]
+  (if-not (empty? cmd)
+    (apply shell/sh cmd)))
 
 (defrecord ElasticReadModel [app]
   cqrs/ReadModel
@@ -31,25 +36,28 @@
       (idx/refresh app)))
   (do-query [this entry-type query]
     (let [query-result (apply esd/search app (name entry-type) query)]
-      (if (empty? query-result) []
-                                (map #(get % :_source) (-> query-result :hits :hits)))))
-  Lifecycle
+      (if (empty? query-result)
+        []
+        (map #(get % :_source) (-> query-result :hits :hits)))))
+  component/Lifecycle
   (init [this options]
-    (try
-      (do
-        (es/connect! [[(:host options) (:port options)]]
-                     {"cluster.name" (:cluster-name options)})
-        (if-not (idx/exists? app)
-          (do
-            (idx/create (:app options)
-                        :settings (:settings options)
-                        :mappings (:mappings options))
-            (log/debug "creating elastic search index " app))
-          (log/debug "starting elastic search index " app)))
-      (catch Exception e
-        (log/error e)))
-    this)
+    (run-local-command (:start-shell options))
+    (let [app (:app options)]
+      (es/connect! [[(:host options) (:port options)]]
+                   {"cluster.name" (:cluster-name options)})
+      (if-not (idx/exists? app)
+        (do
+          (idx/create (:app options)
+                      :settings (:settings options)
+                      :mappings (:mappings options))
+          (log/debug "==== ==== creating elastic search index " app))
+        (log/debug "==== ==== starting existing elastic search index " app)))
+    (assoc this :app (:app options)))
   (start [this options]
-    (log/debug "starting elastic search"))
+    (log/debug "==== ==== starting elastic search")
+    this)
   (stop [this options]
-    ()))
+    this)
+  (halt [this options]
+   (run-local-command (:shutdown-shell options))
+    this))

@@ -64,15 +64,17 @@
 
 (defn register-command-handler
   "register command handler, the command will find the handler from the registry"
-  [command-type f bus snapshot-db]
-  (p/reg bus command-type
+  [command-type f get-bus get-snapshot-db]
+  (p/reg (get-bus) command-type
          (fn [command]
-           (println "handle command" command)
-           (let [ar (get-ar (:ar command) (:ar-id command) snapshot-db)
+           (log/debug "handle command" command)
+           (let [snapshot-db (get-snapshot-db)
+                 bus (get-bus)
+                 ar (get-ar (:ar command) (:ar-id command) snapshot-db)
                  event (f ar command)
                  snapshot (get-ar [ar event])]
              (es/store-snapshot snapshot snapshot-db)
-             (println "publishing event" event ar command snapshot)
+             (log/debug "publishing event" event ar command snapshot)
              (publish-event bus event)))))
 
 
@@ -101,17 +103,54 @@
     (log/debug "def schema" name)
     (swap! schemas #(assoc % name schema))))
 
+(defn- validate-schema
+  [schema any]
+  (try
+    (schema/validate schema any)
+    (catch Exception e
+      (throw (ex-info "failed to validate schema"
+                      {:schema schema
+                       :source any}))))
+  )
+
 (defn gen-command
   "generate command"
-  [command-type fields recoverable-ids]
+  [ar command-type fields recoverable-ids]
   (let [command (assoc fields :command command-type)
+        command (assoc command :ar ar)
         schema (get @schemas command-type)]
     (if (nil? schema)
       (throw (ex-info "schema is missing"
                       {:command command-type
-                       :fields fields
+                       :fields  fields
                        :schemas @schemas}))
-      (do (schema/validate schema command)
+      (do (validate-schema schema command)
           (if-not (:ar-id command)
             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
             command)))))
+
+
+;;elastic search fetch
+(defn fetch
+  "fetch result of query"
+  [readmodel query]
+  (if-not (:ar query)
+    (throw (ex-info "ar is missing for the query"
+                    {:query query})))
+  (validate-schema (type query) query)
+  (if (:id query)
+    (p/load-entry
+      readmodel (:ar query) (:id query))
+    (let [p (or (:page query) 1)
+          s (or (:size query) 20)
+          basic-query [:from (* s (dec p))
+                       :size s]
+          more (p/query query)
+          combined (concat basic-query (flatten (seq more)))
+          combined (if-not (:sort more)
+                     (concat combined [:sort {:ar-id "asc"}])
+                     combined)]
+      (p/do-query
+        readmodel
+        (:ar query)
+        combined))))

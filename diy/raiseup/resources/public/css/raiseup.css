@@ -57,45 +57,7 @@ ol, ul {
     margin:0 auto;
 }
 
-.fade {
-    opacity: 0;
-    -webkit-transition: opacity 0.15s linear;
-    -moz-transition: opacity 0.15s linear;
-    -o-transition: opacity 0.15s linear;
-    transition: opacity 0.15s linear;
-}
-.fade.in {
-    opacity: 1;
-}
-
-.error-msg{
-    display:block;
-    margin-top:10px;
-}
-
-.icon-ok{
-    color:green;
-}
-
-#module-new-slot{
-    clear:right;
-}
-
-#module-planned-slot-list{
-    float:right;
-}
-
-#module-unplanned-slot-list{
-
-}
-
-#module-unplanned-slot-list li{
-}
-
-#module-unplanned-slot-list li.current{
-
-}
-
+/** shared mod **/
 
 .container{
     margin: 0 auto;
@@ -103,49 +65,70 @@ ol, ul {
     background:#fef;
 }
 
-.mod-nav{
-    width:20px;
-    margin:0;
-    background:#7aa;
+.nav{
+    width:8%;
+    height:800px;
+    background:#000;
     float:left;
-    height: 1000px;
+    padding-top:30px;
 }
 
-.mod-nav li{
-    margin:30px 0px 60px 0;
-    -webkit-transform: rotate(90deg); 
-    -moz-transform: rotate(90deg);	
-    width:20px;
+.nav .logo{
+  color:#eef;
+  margin-bottom:3px;
+  border-bottom:2px solid #fff;
+  font-weight:800;
+}
+
+.nav li{
     color:#ffe;
     background:#88f;
+    margin-bottom:3px;
+    width:103%;
+    padding:5px 0 5px 5px;
 }
 
-.mod-nav a{
+.nav a{
     color:#fff;
 }
-.mod-nav a:link{
+.nav a:link{
     text-decoration: none;
-    
+
 }
 
+.right-slide{
+   width : 15%;
+   float: right;
+}
+
+.main{
+  width:76%;
+  margin-left:9%;
+  margin-right:15%;
+
+}
+/** note index **/
+
 .mod-notes{
-    padding-left:60px;
-    padding-top:20px;
-    width:100%;
+  margin-left:15px;
+  padding-top:30px;
 }
 
 .mod-notes li{
-    margin: 1px 0 2px 0;
-    background:#edd;
+    background:#fff;
 }
+
+.mod-notes li .title,.mod-note .title{
+    background:#eee;
+}
+
 .mod-notes li h1, .mod-note h1{
-    padding:10px 0px 5px 0px;
-    width:890px;
-    font-weight : 800;
-    font-size : 18px;
+    height:30px;
     text-transform: capitalize;
-    float:left;
-    font-family: 'Fjalla One', sans-serif;
+    font-family:monospace;
+    font-weight:800;
+    font-size:120%;
+    padding:5px 0 0 5px;
 }
 
 .mod-notes li h1 a:link, .mod-note h1 a:link{
@@ -154,22 +137,20 @@ ol, ul {
 
 .mod-notes li span{
     display:block;
-    padding-left:150px;
-    padding-top:15px;
-    font-size:13px;
+    font-family:monospace;
+    padding-left:5px;
     text-shadow: 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .mod-notes li div.markdown, .mod-note div.markdown{
     padding:25px 10px;
-    width:1080px;
     clear:right;
-    font-size:0.8em;
+    font-size:0.95em;
     line-height: 120%;
     font-family:Consolas, "Liberation Mono", Courier, monospace;
     -ms-text-size-adjust:100%;
     -webkit-text-size-adjust:100%;
-    background:#6cc;
+    background:#ddd;
     color:#333;
 }
 
@@ -195,8 +176,10 @@ div.markdown ul li{
     font-weight:800;
     margin-top :20px;
     font-size : 1.3em;
-    font-family: 'Fjalla One', sans-serif;
+    font-family:sans-serif;
 }
+
+/** note form   **/
 
 .mod-note-form{
     padding: 30px 0px 0px 50px;

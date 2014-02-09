@@ -90,7 +90,7 @@ CQRS实现回顾
 - 用hazelcast替代leveldb做kv存储
 - [DONE]引用vert.x作用消息bus
 - ar及快照存储可配置化
-- 使用clojure写shell启动依赖
+- [DONE]使用clojure写shell启动依赖,生命周期直接启动shell
 
 
 ## 完成NOTE

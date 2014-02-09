@@ -7,7 +7,7 @@
             [vertx.embed :as vertx]
             [common.logging :as log]))
 
-(defrecord VertxBus []
+(defrecord VertxBus [useless]
   p/Bus
   (sends [this command]
     (bus/send (str (:command command)) command))
@@ -18,17 +18,26 @@
                     (fn [message]
                       (handle message))
                     (fn [error]
-                      (println "reg command handler" name))))
+                      (log/info "reg handler" name))))
   compt/Lifecycle
   (init [this options]
-    (print "starting vert.x")
     (vertx/set-vertx! (vertx/vertx))
-    (println "... over")
+    this)
+  (start [this options]
+    (doall
+      (map (fn [handlers]
+             (log/info "```init handlers for bus```" handlers)
+             (require (symbol (namespace handlers)))
+             ((resolve (symbol handlers)))) (:handlers options)))
+    this)
+  (stop [this options]
+    this)
+  (halt [this options]
     this))
 
 
 (deftest test-sends
-  (let [bus (compt/init (VertxBus.) nil)
+  (let [bus (compt/init (VertxBus. nil) nil)
         command {:ar :car :command :start}]
     (p/reg bus "car/start" (fn [message] (println message)))
     (p/sends bus command)))

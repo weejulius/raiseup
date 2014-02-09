@@ -22,17 +22,35 @@
        }]
      [:title title]
      (include-css "/css/raiseup.css")
-     (include-css "http://fonts.googleapis.com/css?family=Fjalla+One")]
+     ; (include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
+     ]
     [:body [:div.container body]]))
 
 
-(defn- mod-nav
+
+(defn- nav
   "a nav mod including menus"
   []
-  [:div.mod-nav
+  [:div.nav
+   [:h1.logo
+    "温故"]
    [:ul
     [:li (link-to "/notes" "Notes")]
     [:li "Problems"]]])
+
+(defn- right-slide
+  "right slides"
+  []
+  [:div.right-slide
+   ])
+
+(defn basic-layout
+  [title modes]
+  (layout title
+          (nav)
+          [:div.main modes]
+          (right-slide)))
+
 
 (defn- mod-notes
   [notes]
@@ -40,9 +58,10 @@
    [:ul
     (for [note notes]
       [:li
-       [:h1
-        (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
-       [:span (convert/->str (convert/->date (:ctime note)))]
+       [:div.title
+         [:h1
+          (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
+         [:span (convert/->str (convert/->date (:ctime note)))]]
        [:div.markdown
         (markdown/md-to-html-string
           (strs/head (:content note) 1000))]])]])
@@ -51,11 +70,10 @@
   "the view of index"
   [{:keys [page size]}]
   (let []
-    (layout
+    (basic-layout
       "notes"
-      (mod-nav)
       (mod-notes
-        (s/fetch (->QueryNote nil nil page size))))))
+        (s/fetch (->QueryNote :note nil nil page size))))))
 
 
 (defn- mod-form-note
@@ -75,9 +93,10 @@
 (defn- mod-note
   [note]
   [:div.mod-note
-   [:h1
-    (link-to (str "/notes/" (:ar-id note)) (:title note))]
-   [:span (convert/->str (convert/->date (:ctime note)))]
+   [:div.title
+    [:h1
+     (link-to (str "/notes/" (:ar-id note)) (:title note))]
+    [:span (convert/->str (convert/->date (:ctime note)))]]
    [:div.markdown (markdown/md-to-html-string (:content note))]])
 
 (defn- mod-error
@@ -88,17 +107,15 @@
 (defn new-note-view
   "the page to new note"
   []
-  (layout
+  (basic-layout
     "new note"
-    (mod-nav)
     (mod-form-note nil)))
 
 (defn note-edit-view
   [ar-id]
-  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
-    (layout
+  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
+    (basic-layout
       "edit note"
-      (mod-nav)
       (if (or (empty? note) (= :note-deleted (:event note)))
         (mod-error "Oops, the note is not existing")
         (mod-form-note note)))))
@@ -106,8 +123,7 @@
 
 (defn note-view
   [ar-id]
-  (let [note (s/fetch (->QueryNote ar-id nil nil nil))]
-    (layout
+  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
+    (basic-layout
       (str (:title note))
-      (mod-nav)
       (mod-note note))))

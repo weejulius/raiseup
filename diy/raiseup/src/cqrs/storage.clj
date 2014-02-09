@@ -2,6 +2,7 @@
   (:refer-clojure :exclude [map])
   (:require [common.convert :refer [->bytes ->long ->data]]
             [cqrs.leveldb :as leveldb]
+            [common.component :as component]
             [common.config :as cfg]
             [common.logging :as log])
   (:import (org.iq80.leveldb DB DBIterator WriteBatch)
@@ -41,7 +42,20 @@
       (.seekToFirst iterator)
       (clojure.core/map #(apply f %) (iterator-seq iterator))))
   (close [this]
-    (.close db)))
+    (.close db))
+
+  component/Lifecycle
+  (init [this options]
+    this)
+  (start [this options]
+    (let [db (leveldb/open-leveldb!
+               (:path options) (:leveldb-option options))]
+      (assoc this :db db)))
+  (stop [this options]
+    (.close ^DB (:db this))
+    this)
+  (halt [this options]
+    this))
 
 (defprotocol RecoverableId
   "uniqure identifiers which can be recoved after restart,
@@ -64,18 +78,21 @@
                (->bytes id-name)
                (->bytes new-value))
         (log/debug "init the recoverable long id for " id-name)))
-    (println id-name long-ids)
     (get @long-ids id-name)))
 
 (defrecord RecoverableLongId
-           [storage ^Atom long-ids ^long flush-recoverable-id-interval]
+           [storage]
   RecoverableId
   (get! [this id-name]
-    (.get (get-or-init-recoverable-id-if-need storage id-name long-ids flush-recoverable-id-interval)))
+    (.get (get-or-init-recoverable-id-if-need
+            storage id-name
+            (:long-ids this) (:flush-recoverable-id-interval this))))
   (inc! [this id-name]
     (let [inc-value (.incrementAndGet
-                      (get-or-init-recoverable-id-if-need storage id-name long-ids flush-recoverable-id-interval))]
-      (if (zero? (mod inc-value flush-recoverable-id-interval))
+                      (get-or-init-recoverable-id-if-need
+                        storage id-name
+                        (:long-ids this) (:flush-recoverable-id-interval this)))]
+      (if (zero? (mod inc-value (:flush-recoverable-id-interval this)))
         (write
           storage
           (->bytes id-name)
@@ -83,18 +100,20 @@
       inc-value))
   (clear! [this id-name]
     (doto (delete storage id-name)
-      (swap! long-ids #(assoc % id-name (AtomicLong.))))))
+      (swap! (:long-ids this) #(assoc % id-name (AtomicLong.)))))
 
-(defn init-recoverable-long-id
-  "factory of recoverable long  id"
-  [storage]
-  (let [recoverable (->RecoverableLongId storage (atom {})
-                                         (cfg/ret :recoverable-id-flush-interval))]
-    recoverable))
+  component/Lifecycle
+  (init [this options]
+    this)
+  (start [this options]
+    (-> this
+        (assoc :storage (:storage options))
+        (assoc :long-ids (atom {}))
+        (assoc :flush-recoverable-id-interval (:recoverable-id-flush-interval options))))
+  (stop [this options]
+    this)
+  (halt [this options]
+    this))
 
 
 
-(defn init-store
-  "factory of storage"
-  [opened-dbs dir options]
-  (->LeveldbStore (leveldb/open-leveldb! opened-dbs dir options)))

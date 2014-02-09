@@ -23,7 +23,7 @@
 (defn create-task-slot-action
   "create an task slot"
   [params]
-  (s/send-command
+  (s/send-command :task
     (->CreateTaskSlot :task-slot nil 1 (:description params) nil 40)))
 
 (defn delete-task-slot-action

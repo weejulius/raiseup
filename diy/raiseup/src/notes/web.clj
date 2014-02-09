@@ -10,25 +10,23 @@
 
 (defroutes notes-routes
            (POST "/" [author title content]
-                 (str (s/send-command :create-note
-                                      {:ar      :note
-                                       :author  author
+                 (str (s/send-command :note :create-note
+                                      {:author  author
                                        :title   title
                                        :content content
-                                       :ctime   (date/now-as-millis)}
-                                      )))
+                                       :ctime   (date/now-as-millis)})))
 
            (POST "/:ar-id" [ar-id title content]
-                 (let [result (s/send-command :update-note
+                 (let [result (s/send-command :note :update-note
                                               {:ar-id   (->long ar-id)
-                                               :ar      :note
                                                :title   title
                                                :content content
                                                :utime   (date/now-as-millis)})]
                    (redirect-after-post (str "/notes/" ar-id))))
 
            (GET "/" [page size]
-                (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
+                #_(throw (ex-info "test" {:a 1}))
+                (v/index-view {:page (->long page) :size (->long size)}))
 
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" []
@@ -41,7 +39,6 @@
                 (v/note-edit-view (->long ar-id)))
 
            (DELETE "/:ar-id" [ar-id]
-                   (let [result (s/send-command :delete-note
-                                                {:ar-id ar-id}
-                                                )]
+                   (let [result (s/send-command :note :delete-note
+                                                {:ar-id ar-id})]
                      (redirect (str "/notes")))))

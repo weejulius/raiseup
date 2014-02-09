@@ -14,8 +14,7 @@
 (defprotocol Query
   ^{:doc   "queries to talk with the read model"
     :added "1.0"}
-  (query [this])
-  (find-by-id [this]))
+  (query [this] "query the entries by options"))
 
 
 (defprotocol ReadModel
