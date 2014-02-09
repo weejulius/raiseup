@@ -43,50 +43,55 @@
   [e]
   (str
     "<html>
-      <style type=\"text/css\">
-        html {
-         background:black;
-         color:white;
-         font-size:85%;
-         font-family: Consolas, \"Liberation Mono\", Courier, monospace
-        }
-        span.msg {
-          font-weight : 800;
-          font-size : 120%;
-          margin-bottom:20px;
-          margin-top:30px;
-        }
-        pre {
-         margin:20px;
-        }
-        .error-line{
-         background:#a60000;
-         font-weight:800;
-         margin: 10px 0;
-         font-size :120%;
-         padding:10px 0;
-        }
-        ul{
-          list-style-type:none;
-        }
-        .ln{
-          margin-right:10px;
-        }
-      </style>
-      <body>"
+      <head>
+        <title> Oops, goes wrong </title>
+        <style type=\"text/css\">
+          html {
+           background:black;
+           color:white;
+           font-size:85%;
+           font-family: Consolas, \"Liberation Mono\", Courier, monospace
+          }
+          span.msg {
+            font-weight : 800;
+            font-size : 120%;
+            margin-bottom:20px;
+            margin-top:30px;
+          }
+          pre {
+            margin:20px;
+          }
+          .error-line{
+           background:#a60000;
+           font-weight:800;
+           margin: 10px 0;
+           font-size :120%;
+           padding:10px 0;
+          }
+          ul{
+            list-style-type:none;
+          }
+          .ln{
+            margin-right:10px;
+          }
+          .stack{
+           text-align : right;
+           padding-right:30px;
+          }
+        </style>
+      </header>
+   <body>"
     "<h1 class=\"msg\">" e "</h1></br>"
     "<div>"
-    "<div class=\"stack\">"
-    (let [stacks (.getStackTrace ^Exception e)
-          lengths (map #(.length (str %)) stacks)
-          max-length (apply max lengths)]
+    "<ul class=\"stacks\">"
+    (let [stacks (.getStackTrace ^Exception e)]
       (apply str
              (map
-               #(str (apply str (repeat (- max-length (.length (str %))) "&nbsp;")) % "</br>"
+               #(str "<li class=\"stack\">" % "</li>"
                      (if-let [file-and-ln (extract-file-name-and-number (str %))]
                        (apply print-source-code file-and-ln)))
                stacks)))
-    "</div></div>"
+    "</ul></div>"
     " </body>
     </html>"))
 
