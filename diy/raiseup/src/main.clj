@@ -5,16 +5,17 @@
 
 (defn -main
   [& args]
-  (component/go- nil nil))
+  (component/go- {:http-server {:host (nth args 0 "localhost")
+                                :port (Integer/parseInt (nth args 1 "8080"))}}))
 
 (defn stop
   []
-  (component/stop- nil nil))
+  (component/stop- nil))
 
 (defn refresh
   []
-  (component/refresh- nil nil))
+  (component/refresh- nil))
 
 (defn shutdown
   []
-  (component/shutdown- nil nil))
+  (component/shutdown- nil))

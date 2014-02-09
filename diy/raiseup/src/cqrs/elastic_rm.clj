@@ -9,6 +9,11 @@
             [clojure.java.shell :as shell]))
 
 
+(defn- run-local-command
+  [cmd]
+  (if-not (empty? cmd)
+    (apply shell/sh cmd)))
+
 (defrecord ElasticReadModel [app]
   cqrs/ReadModel
   (load-entry [this entry-type entry-id]
@@ -36,7 +41,7 @@
         (map #(get % :_source) (-> query-result :hits :hits)))))
   component/Lifecycle
   (init [this options]
-    (apply shell/sh (:start-shell options))
+    (run-local-command (:start-shell options))
     (let [app (:app options)]
       (es/connect! [[(:host options) (:port options)]]
                    {"cluster.name" (:cluster-name options)})
@@ -54,5 +59,5 @@
   (stop [this options]
     this)
   (halt [this options]
-    (apply shell/sh (:shutdown-shell options))
+   (run-local-command (:shutdown-shell options))
     this))

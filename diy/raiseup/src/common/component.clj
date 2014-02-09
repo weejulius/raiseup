@@ -76,7 +76,7 @@
                      (resolve-component-dependencies state component-config)))))))))
 
 (defn- swap-state
-  [state lifecycle-fn lifecycle-name component-get-fn]
+  [state lifecycle-fn lifecycle-name component-get-fn configs]
   (let [next-status-map {:init  [:start :halt]
                          :start [:stop :halt]
                          :stop  [:start :halt]
@@ -90,64 +90,73 @@
         new-state (trigger-all-component-lifecycle
                     (partial trigger-component-lifecycle lifecycle-fn lifecycle-name)
                     component-get-fn
-                    (config/read-edn-file "config.clj"))]
+                    configs)]
     (assoc new-state :status lifecycle-name-as-keyword)))
 
 (defn- alter-state-root
-  [lifecycle-fn lifecycle-name component-get-fn]
+  [lifecycle-fn lifecycle-name component-get-fn & {:as more-config}]
   (alter-var-root
-    #'state swap-state lifecycle-fn lifecycle-name component-get-fn)
+    #'state
+    swap-state
+    lifecycle-fn
+    lifecycle-name
+    component-get-fn
+    (merge-with merge (config/ret :components) (or more-config {})))
   state)
 
 (defn init-components
-  []
+  [configs]
   (alter-state-root init "init"
                     (fn [config name]
                       (let [sym (-> config name :component)
                             _ (require (symbol (namespace sym)))
                             instance ((resolve sym) nil)]
-                        instance))))
+                        instance))
+                    configs))
 
 
 (defn start-components
-  []
+  [configs]
   (alter-state-root start "start"
                     (fn [config name]
                       (let [component (get state name)]
-                        component))))
+                        component))
+                    configs))
 
 
 (defn stop-components
-  []
+  [configs]
   (alter-state-root stop "stop"
                     (fn [config name]
                       (let [component (get state name)]
-                        component))))
+                        component))
+                    configs))
 
 (defn halt-components
-  []
+  [configs]
   (alter-state-root halt "halt"
                     (fn [config name]
                       (let [component (get state name)]
-                        component))))
+                        component))
+                    configs))
 
 
 
 (defn go-
   "Initializes and starts the system running."
-  [before after]
+  [& {:as configs}]
   (try
-    (init-components)
-    (start-components)
+    (init-components configs)
+    (start-components configs)
     state
     (catch Throwable e
       (log/info e "failed to init and start components"))))
 
 (defn stop-
   "stop the components"
-  [before after]
+  [& {:as configs}]
   (try
-    (stop-components)
+    (stop-components configs)
     state
     (catch Throwable e
       (log/info e "failed to stop components"))))
@@ -155,21 +164,21 @@
 
 (defn refresh-
   "refresh the components"
-  [before after]
+  [& {:as configs}]
   (try
-    (stop-components)
-    (start-components)
+    (stop-components configs)
+    (start-components configs)
     state
     (catch Throwable e
       (log/info e "failed to stop components"))))
 
 (defn shutdown-
   "shutdown the components"
-  [before after]
+  [& {:as configs}]
   (try
     (if (= :start (:status state))
-      (stop-components))
-    (halt-components)
+      (stop-components configs))
+    (halt-components configs)
     state
     (catch Throwable e
       (log/info e "failed to shutdown components"))))

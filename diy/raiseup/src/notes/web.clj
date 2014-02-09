@@ -26,7 +26,7 @@
 
            (GET "/" [page size]
                 #_(throw (ex-info "test" {:a 1}))
-                (v/index-view {:page (or (->long page) 1) :size (or (->long size) 10)}))
+                (v/index-view {:page (->long page) :size (->long size)}))
 
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" []

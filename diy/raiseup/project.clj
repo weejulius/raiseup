@@ -41,7 +41,7 @@
                     :source-paths ["src" "resources"]
                     :plugins []
                     :repl-options {:port 4001}}
-              :production {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.cfg"]}}
+              :production {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}}
   :cljsbuild {
               :builds [{
                         ; The path to the top-level ClojureScript source directory:
