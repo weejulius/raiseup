@@ -94,7 +94,7 @@
     (assoc new-state :status lifecycle-name-as-keyword)))
 
 (defn- alter-state-root
-  [lifecycle-fn lifecycle-name component-get-fn & {:as more-config}]
+  [lifecycle-fn lifecycle-name component-get-fn more-config]
   (alter-var-root
     #'state
     swap-state
