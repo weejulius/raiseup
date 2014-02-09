@@ -1,5 +1,6 @@
 (ns ^{:doc "config toolbox"}
   common.config
+  (:require [common.seq :as seq])
   (:import (java.io PushbackReader)))
 
 (def dev-config-file "dev.edn")
@@ -38,7 +39,7 @@
       (throw
         (IllegalArgumentException.
           ^String (str "config file is not specified for production mode" (env :config))))
-      (merge-with merge (read-edn-file dev-config-file)
+      (seq/deep-merge (read-edn-file dev-config-file)
              (read-edn-file (env :config))))))
 
 (defn- exception-when-config-not-found

@@ -1,6 +1,7 @@
 (ns common.component
   (:require [common.logging :as log]
-            [common.config :as config]))
+            [common.config :as config]
+            [common.seq :as seq]))
 
 (defprotocol Lifecycle
   "manage the lifecycle of component"
@@ -101,7 +102,7 @@
     lifecycle-fn
     lifecycle-name
     component-get-fn
-    (merge-with merge (config/ret :components) (or more-config {})))
+    (seq/deep-merge (config/ret :components) (or more-config {})))
   state)
 
 (defn init-components
