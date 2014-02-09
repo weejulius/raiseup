@@ -110,8 +110,8 @@
     (catch Exception e
       (throw (ex-info "failed to validate schema"
                       {:schema schema
-                       :source any}))))
-  )
+                       :source any}
+                      e)))))
 
 (defn gen-command
   "generate command"

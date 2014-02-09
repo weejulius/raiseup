@@ -52,11 +52,14 @@
            font-size:85%;
            font-family: Consolas, \"Liberation Mono\", Courier, monospace
           }
-          span.msg {
-            font-weight : 800;
-            font-size : 120%;
+          h1.msg {
+            font-weight : 600;
+            font-size : 100%;
             margin-bottom:20px;
-            margin-top:30px;
+            background:green;
+            height:30px;
+            line-height:30px;
+            padding-left:20px;
           }
           pre {
             margin:20px;
@@ -102,5 +105,8 @@
     (try
       (handler request)
       (catch Exception e
-        (assoc request :body
-                       (pretty-print-exception e))))))
+        (merge request
+               {:body
+                 (pretty-print-exception e)
+                :status 500
+                :headers {"Content-Type" "text/html"}})))))
