@@ -2,14 +2,15 @@
   (:use [clojure.test])
   (:require [cqrs.elastic-rm :as read]
             [common.component :as component]
-            [clojurewerkz.elastisch.native.index    :as idx]
+            [cqrs.protocol :as cqrs]
+            [clojurewerkz.elastisch.native.index :as idx]
             [taoensso.timbre.profiling :as p]))
 
 (def app "unittest")
 (def rm (read/->ElasticReadModel app))
 
 (defn elastic-fixture [f]
-  (.init rm {:host "127.0.0.1"
+  (component/init rm {:host "127.0.0.1"
              :port 9300
              :cluster-name "elasticsearch"
              :app  app
@@ -28,27 +29,27 @@
 
 (deftest  test-put-and-load
   (let []
-    (.put-entry rm
+    (cqrs/put-entry rm
                 {:ar :test
                  :ar-id 100
                  :first-name "hello"
                  :last-name "word"
                  :ctime (java.util.Date.)})
-    (is (= (:first-name (.load-entry rm :test 100)) "hello"))
-    (is (= (:last-name (.load-entry rm :test 100)) "word"))
-    (is (= (:first-name (.load-entry rm :test 101)) nil))
-    (.put-entry rm
+    (is (= (:first-name (cqrs/load-entry rm :test 100)) "hello"))
+    (is (= (:last-name (cqrs/load-entry rm :test 100)) "word"))
+    (is (= (:first-name (cqrs/load-entry rm :test 101)) nil))
+    (cqrs/put-entry rm
                 {:ar :test
                  :ar-id 100
                  :first-name "hello1"
                  :last-name "word"
                  :ctime (java.util.Date.)})
-    (is (= (:first-name (.load-entry rm :test 100)) "hello1"))))
+    (is (= (:first-name (cqrs/load-entry rm :test 100)) "hello1"))))
 
 (deftest test-query
   (do
     (dotimes [n 4]
-      (.put-entry rm
+      (cqrs/put-entry rm
                   {:ar :test
                    :ar-id n
                    :first-name "hello"
@@ -56,7 +57,7 @@
                    :ctime (java.util.Date.)}))
     (idx/refresh app)
     (let [[first-name last-name page size] ["hello" "word" 2 2]
-          result (.do-query
+          result (cqrs/do-query
                   rm :test
                   [:query {:term {:first-name first-name}}
             ;;       :search_type "query_then_fetch"
@@ -69,7 +70,7 @@
 (deftest test-put-performance
   (p/profile :info :put-perf
              (dotimes [n 100]
-               (.put-entry rm
+               (cqrs/put-entry rm
                            {:ar :test
                             :ar-id n
                             :first-name "hello"
@@ -81,7 +82,7 @@
 ;;native elapsed time 6 s/3000
 (deftest test-query-performance
   (dotimes [n 3000]
-    (.put-entry rm
+    (cqrs/put-entry rm
                 {:ar :test
                  :ar-id n
                  :first-name "hello"
@@ -89,7 +90,7 @@
                  :ctime (java.util.Date.)}))
   (p/profile :info :query-perf
              (dotimes [n 3000]
-               (.do-query
+               (cqrs/do-query
                 rm :test
                 [:query {:term {:first-name "hello"}}
                  :from n
