@@ -67,7 +67,11 @@ ol, ul {
 
 .nav{
     width:8%;
-    height:800px;
+    position:fixed;
+    top:0px;
+    bottom:0px;
+
+
     background:#000;
     float:left;
     padding-top:30px;
@@ -107,9 +111,15 @@ ol, ul {
   margin-right:15%;
 
 }
+
+.footer{
+ clear:left;
+ height:30px;
+ background:#5ee;
+}
 /** note index **/
 
-.mod-notes{
+.mod-notes,.mod-note{
   margin-left:15px;
   padding-top:30px;
 }
@@ -128,7 +138,7 @@ ol, ul {
     font-family:monospace;
     font-weight:800;
     font-size:120%;
-    padding:5px 0 0 5px;
+    padding:10px 0 0 5px;
 }
 
 .mod-notes li h1 a:link, .mod-note h1 a:link{
@@ -160,8 +170,8 @@ div.markdown ul li{
 }
 
 .markdown pre{
-    background:#6aa;
-    color:#444;
+    background:#111;
+    color:#fff;
     text-shadow: 0px 0.5px 0.5px #333;
     margin:5px 0;
     padding:20px;
@@ -187,24 +197,36 @@ div.markdown ul li{
 
 .mod-note-form input,textarea{
     display:block;
-    height:50px;
-    border:0px;
-    width:1080px;
-    border:5px solid #333;
-    padding-left :15px;
+    border:1px solid #cef;
+    height:40px;
+    width:480px;
+    margin:5px 0;
+    border-radius:3px;
+    padding:5px;
 }
 
 .mod-note-form textarea.content{
-    height:400px;
+    width:100%;
+    resize:vertical;
+    textarea.noResize { resize:none; }
+    max-height:1500px;
+    min-height:600px;
+    padding-bottom:30px;
+}
+
+.mod-note-form input.title{
+   font-size:1.6em;
+   font-weight:800;
+   padding:0 5px;
+   height:60px;
+   line-height:60px;
 }
 
 .mod-note{
-    padding:30px 0 0 50px;
+    width:76%;
 }
 
-.mod-note h1{
-    padding : 0px;
-}
+
 
 .mod-error{
     padding:20px 0 30px 50px;
@@ -212,4 +234,32 @@ div.markdown ul li{
     color:#ffffff;
     font-size:1.2em;
     font-weight:800;
+}
+
+.mod-note-form .btn{
+  background:#55f;
+  width:100px;
+  border:0;
+  font-size:100%;
+  font-family:Consolas, "Liberation Mono", Courier, monospace;
+  margin:5px;
+  color:#fff;
+
+  position:fixed;
+  top:250px;
+  left:50px;
+}
+
+.mod-note-form .lv2{
+  top: 300px;
+}
+
+.more{
+  display:block;
+  margin:10px 0;
+}
+
+a.more:link, a.more:active, a.more:visited {
+  text-decoration:none;
+  color:#55f;
 }

@@ -27,7 +27,10 @@
     [:body [:div.container body]]))
 
 
-
+(defn- footer
+  []
+  [:div.footer
+   ])
 (defn- nav
   "a nav mod including menus"
   []
@@ -49,7 +52,8 @@
   (layout title
           (nav)
           [:div.main modes]
-          (right-slide)))
+          (right-slide)
+          (footer)))
 
 
 (defn- mod-notes
@@ -59,12 +63,13 @@
     (for [note notes]
       [:li
        [:div.title
-         [:h1
-          (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
-         [:span (convert/->str (convert/->date (:ctime note)))]]
+        [:h1
+         (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
+        [:span (convert/->str (convert/->date (:ctime note)))]]
        [:div.markdown
         (markdown/md-to-html-string
-          (strs/head (:content note) 1000))]])]])
+          (strs/head (:content note) 200 (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))
+        ]])]])
 
 (defn index-view
   "the view of index"
@@ -79,16 +84,17 @@
 (defn- mod-form-note
   "form to post/put note"
   [note]
-  (let [action (str "/notes" (if-not (nil? note) (str "/" (:ar-id note))))]
+  (let [new? (nil? note)
+        action (str "/notes" (when-not new? (str "/" (:ar-id note))))]
     [:div.mod-note-form
      (form-to
        [:DELETE action]
-       (submit-button "delete"))
+       [:input.btn {:type :submit :value :DELETE}])
      (form-to
        [:POST action]
        [:input.title {:type "text" :name "title" :value (get note :title "")}]
        [:textarea.content {:name "content"} (get note :content "")]
-       (submit-button "update"))]))
+       [:input {:class "btn lv2" :type :submit :value (if new? :CREATE :UPDATE)}])]))
 
 (defn- mod-note
   [note]
