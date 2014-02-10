@@ -71,7 +71,7 @@
   [{:keys [page size]}]
   (let []
     (basic-layout
-      "notes"
+      "温故知心"
       (mod-notes
         (s/fetch (->QueryNote :note nil nil page size))))))
 
