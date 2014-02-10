@@ -22,7 +22,7 @@ cd $OPENSHIFT_REPO_DIR/diy/$APPDIR
 sh $OPENSHIFT_REPO_DIR/bin/lein clean
 sh $OPENSHIFT_REPO_DIR/bin/lein compile
 
-java -server -Dproduction=true -Dconfig=pro.edn  -Dhazelcast.local.localAddress=${OPENSHIFT_DIY_IP} -Dhazelcast.socket.bind.any=false -cp `$OPENSHIFT_REPO_DIR/bin/lein classpath` clojure.main -m  main $HOST $PORT > $OPENSHIFT_DIY_LOG_DIR/server.log 2>&1 &
+nohup java -server -Dproduction=true -Dconfig=pro.edn  -Dhazelcast.local.localAddress=${OPENSHIFT_DIY_IP} -Dhazelcast.socket.bind.any=false -cp `$OPENSHIFT_REPO_DIR/bin/lein classpath` clojure.main -m  main $HOST $PORT > $OPENSHIFT_DIY_LOG_DIR/server.log 2>&1 &
 
 echo $OPENSHIFT_REPO_DIR/diy/$APPDIR "host" $HOST ":" $PORT
 disown
