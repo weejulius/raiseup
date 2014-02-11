@@ -1,7 +1,7 @@
 (ns notes.web.view.index
   (:require [hiccup.core :refer :all]
             [hiccup.element :refer [link-to]]
-            [hiccup.page :refer [html5 include-css]]
+            [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.form :refer :all]
             [notes.query :refer :all]
             [system :as s]
@@ -22,7 +22,8 @@
        }]
      [:title title]
      (include-css "/css/raiseup.css")
-     ; (include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
+     (include-js "/js/client.js")
+     ;(include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
      ]
     [:body [:div.container body]]))
 
@@ -68,8 +69,8 @@
         [:span (convert/->str (convert/->date (:ctime note)))]]
        [:div.markdown
         (markdown/md-to-html-string
-          (strs/head (:content note) 200 (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))
-        ]])]])
+          (strs/head (:content note) 200
+                     (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))]])]])
 
 (defn index-view
   "the view of index"
@@ -88,13 +89,16 @@
         action (str "/notes" (when-not new? (str "/" (:ar-id note))))]
     [:div.mod-note-form
      (form-to
-       [:DELETE action]
-       [:input.btn {:type :submit :value :DELETE}])
-     (form-to
        [:POST action]
        [:input.title {:type "text" :name "title" :value (get note :title "")}]
-       [:textarea.content {:name "content"} (get note :content "")]
-       [:input {:class "btn lv2" :type :submit :value (if new? :CREATE :UPDATE)}])]))
+       [:textarea#content {:name "content"} (get note :content "")]
+       [:input {:class "btn" :type :submit :value (if new? :CREATE :UPDATE)}])
+     (form-to
+       [:DELETE action]
+       [:input {:class "btn lv2" :type :submit :value :DELETE}])
+     [:input#note-id {:type :hidden :value (:ar-id note)}]
+     [:div {:id "auto-save-msg" :class "msg"}]
+     [:script {:type "text/javascript"} "notes.web.client.run()"]]))
 
 (defn- mod-note
   [note]

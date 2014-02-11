@@ -2,13 +2,18 @@
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
             [notes.web.view.index :as v]
             [system :as s]
-            [common.convert :refer [->long ->map ->str]]
+            [common.convert :refer [->long ->map ->data ->str]]
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
             [notes.commands :as commands]))
 
 
 (defroutes notes-routes
+           (POST "/commands" []
+                 (fn [req]
+                  ; (println (type (-> req :params :command)) (-> req :params))
+                   (str (s/send-command (read-string (-> req :params :command))))))
+
            (POST "/" [author title content]
                  (str (s/send-command :note :create-note
                                       {:author  author
@@ -41,4 +46,5 @@
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note
                                                 {:ar-id (->long ar-id)})]
-                     (redirect (str "/notes")))))
+                     (redirect (str "/notes"))))
+           )

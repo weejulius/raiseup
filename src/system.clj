@@ -20,10 +20,14 @@
   (cqrs/publish-event (:bus component/state) event))
 
 (defn send-command
-  [ar command-type fields & {:as options}]
-  (cqrs/send-command (:bus component/state)
-                     (cqrs/gen-command ar command-type fields
-                                       (:recoverable-ids component/state))))
+  ([ar command-type fields & {:as options}]
+   (cqrs/send-command (:bus component/state)
+                      (cqrs/gen-command ar command-type fields
+                                        (:recoverable-ids component/state))))
+  ([cmd]
+   (cqrs/send-command (:bus component/state)
+                      (cqrs/gen-command cmd
+                                        (:recoverable-ids component/state)))))
 
 (defn register-command-handler
   [command-type f]

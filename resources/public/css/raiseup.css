@@ -206,7 +206,7 @@ div.markdown ul li{
     padding:5px;
 }
 
-.mod-note-form textarea.content{
+.mod-note-form textarea#content{
     width:100%;
     resize:vertical;
     textarea.noResize { resize:none; }
@@ -263,4 +263,11 @@ div.markdown ul li{
 a.more:link, a.more:active, a.more:visited {
   text-decoration:none;
   color:#55f;
+}
+
+.msg {
+ background:#1f3;
+ padding:5px;
+ margin:10px 0;
+ border-radius:3px;
 }
