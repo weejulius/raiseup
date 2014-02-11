@@ -40,5 +40,5 @@
 
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note
-                                                {:ar-id ar-id})]
+                                                {:ar-id (->long ar-id)})]
                      (redirect (str "/notes")))))

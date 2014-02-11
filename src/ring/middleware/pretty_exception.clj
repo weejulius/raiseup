@@ -52,14 +52,18 @@
            font-size:85%;
            font-family: Consolas, \"Liberation Mono\", Courier, monospace
           }
-          h1.msg {
-            font-weight : 600;
-            font-size : 100%;
-            margin-bottom:20px;
+          .msg h1,.msg h3{
+            font-weight : 800;
+            font-size : 1em;
+            line-height:40px;
+            padding:10px 0 10px 20px;
             background:green;
-            height:30px;
+          }
+          .msg h3{
+            font-weight :600;
+            font-size:0.8em;
             line-height:30px;
-            padding-left:20px;
+            margin-top:10px;
           }
           pre {
             margin:20px;
@@ -84,16 +88,21 @@
         </style>
       </header>
    <body>"
-    "<h1 class=\"msg\">" e "</h1></br>"
+    (apply str
+           (map #(if-not (nil? %)
+                  (str "<div class=\"msg\"><h1>"
+                       (if (instance? clojure.lang.ExceptionInfo %)
+                         (str (.getMessage %) "<h3>" (.getData %) "</h3>")
+                         e)
+                       "</h1></div>")) [e (.getCause e)]))
     "<div>"
     "<ul class=\"stacks\">"
-    (let [stacks (.getStackTrace ^Exception e)]
-      (apply str
-             (map
-               #(str "<li class=\"stack\">" % "</li>"
-                     (if-let [file-and-ln (extract-file-name-and-number (str %))]
-                       (apply print-source-code file-and-ln)))
-               stacks)))
+    (apply str
+           (map
+             #(str "<li class=\"stack\">" % "</li>"
+                   (if-let [file-and-ln (extract-file-name-and-number (str %))]
+                     (apply print-source-code file-and-ln)))
+             (.getStackTrace ^Exception e)))
     "</ul></div>"
     " </body>
     </html>"))
@@ -107,6 +116,6 @@
       (catch Exception e
         (merge request
                {:body
-                 (pretty-print-exception e)
-                :status 500
+                         (pretty-print-exception e)
+                :status  500
                 :headers {"Content-Type" "text/html"}})))))

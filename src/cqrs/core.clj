@@ -105,13 +105,7 @@
 
 (defn- validate-schema
   [schema any]
-  (try
-    (schema/validate schema any)
-    (catch Exception e
-      (throw (ex-info "failed to validate schema"
-                      {:schema schema
-                       :source any}
-                      e)))))
+  (schema/validate schema any))
 
 (defn gen-command
   "generate command"
