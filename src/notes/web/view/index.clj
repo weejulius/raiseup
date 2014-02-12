@@ -52,7 +52,10 @@
   [title modes]
   (layout title
           (nav)
-          [:div.main modes]
+          [:div.main
+           [:div#mod-tips
+            [:div#auto-save-tip {:class "msg"}]]
+           modes]
           (right-slide)
           (footer)))
 
@@ -97,7 +100,7 @@
        [:DELETE action]
        [:input {:class "btn lv2" :type :submit :value :DELETE}])
      [:input#note-id {:type :hidden :value (:ar-id note)}]
-     [:div {:id "auto-save-msg" :class "msg"}]
+
      [:script {:type "text/javascript"} "notes.web.client.run()"]]))
 
 (defn- mod-note

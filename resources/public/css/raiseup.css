@@ -62,7 +62,7 @@ ol, ul {
 .container{
     margin: 0 auto;
     width:100%;
-    background:#fef;
+    background:#F7F7F3;
 }
 
 .nav{
@@ -88,7 +88,7 @@ ol, ul {
     color:#ffe;
     background:#88f;
     margin-bottom:3px;
-    width:103%;
+    width:98%;
     padding:5px 0 5px 5px;
 }
 
@@ -116,21 +116,37 @@ ol, ul {
  clear:left;
  width:100%;
  height:30px;
- background:#5ee;
+ background:#effeff;
+ border:1px solid #eef;
+ margin-top:3px;
 }
 /** note index **/
 
-.mod-notes,.mod-note{
+.mod-notes,.mod-note,.mod-note-form,#mod-tips{
   margin-left:15px;
-  padding-top:30px;
+}
+
+.mod-notes{
+  padding-top:20px;
 }
 
 .mod-notes li{
-    background:#fff;
+  background:#fff;
+}
+
+.mod-notes li {
+    border:1px solid #eef;
+    border-radius:3px;
+    margin-bottom:5px;
 }
 
 .mod-notes li .title,.mod-note .title{
-    background:#eee;
+    border-bottom:1px solid #ecf;
+    border-radius:2px;
+    padding-bottom:3px;
+    margin-bottom:3px;
+    text-shadow: 0 1px 0 rgba(111,111,111,0.2);
+
 }
 
 .mod-notes li h1, .mod-note h1{
@@ -140,6 +156,7 @@ ol, ul {
     font-weight:800;
     font-size:120%;
     padding:10px 0 0 5px;
+
 }
 
 .mod-notes li h1 a:link, .mod-note h1 a:link{
@@ -149,9 +166,9 @@ ol, ul {
 .mod-notes li span{
     display:block;
     font-family:monospace;
-    padding-left:5px;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
-}
+    padding-left:5px;}
+
+
 
 .mod-notes li div.markdown, .mod-note div.markdown{
     padding:25px 10px;
@@ -161,7 +178,6 @@ ol, ul {
     font-family:Consolas, "Liberation Mono", Courier, monospace;
     -ms-text-size-adjust:100%;
     -webkit-text-size-adjust:100%;
-    background:#ddd;
     color:#333;
 }
 
@@ -180,25 +196,36 @@ div.markdown ul li{
 
 .markdown p{
     margin:10px 0px;
-    text-shadow: 0 1px 0 rgba(255,255,255,0.25);
 }
 
 .markdown h2{
-    font-weight:800;
-    margin-top :20px;
+    font-weight:600;
+    margin :10px 0;
     font-size : 1.3em;
+    color:#e03;
     font-family:sans-serif;
+}
+
+/** mod note* */
+
+.mod-note{
+    width:76%;
+}
+
+.mod-note .title,.mod-note .markdown{
+  background:#fff;
 }
 
 /** note form   **/
 
 .mod-note-form{
-    padding: 30px 0px 0px 50px;
+
+
 }
 
 .mod-note-form input,textarea{
     display:block;
-    border:1px solid #cef;
+    border:1px solid #eef;
     height:40px;
     width:480px;
     margin:5px 0;
@@ -218,23 +245,10 @@ div.markdown ul li{
 .mod-note-form input.title{
    font-size:1.6em;
    font-weight:800;
-   padding:0 5px;
-   height:60px;
-   line-height:60px;
-}
-
-.mod-note{
-    width:76%;
-}
-
-
-
-.mod-error{
-    padding:20px 0 30px 50px;
-    background : #aacc33;
-    color:#ffffff;
-    font-size:1.2em;
-    font-weight:800;
+   font-family:Consolas, "Liberation Mono", Courier, monospace;
+   padding:2px 5px;
+   height:40px;
+   line-height:40px;
 }
 
 .mod-note-form .btn{
@@ -248,26 +262,37 @@ div.markdown ul li{
 
   position:fixed;
   top:250px;
-  left:50px;
+  left:10px;
 }
 
 .mod-note-form .lv2{
-  top: 300px;
+  top: 350px;
 }
+
+
+
+.mod-error{
+    padding:20px 0 30px 50px;
+    background : #aacc33;
+    color:#ffffff;
+    font-size:1.2em;
+    font-weight:800;
+}
+
 
 .more{
   display:block;
   margin:10px 0;
 }
 
-a.more:link, a.more:active, a.more:visited {
+a:link, a:active,a:visited {
   text-decoration:none;
   color:#55f;
 }
 
 .msg {
- background:#1f3;
- padding:5px;
- margin:10px 0;
+ background:#fee;
+ color:#f00;
+ padding:10px 5px;
  border-radius:3px;
 }
