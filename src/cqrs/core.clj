@@ -101,7 +101,12 @@
   [name schema]
   (do
     (log/debug "def schema" name)
-    (swap! schemas #(assoc % name schema))))
+    (swap! schemas
+           #(assoc % name
+                     (merge
+                       {:ar      schema/Keyword
+                        :command schema/Keyword}
+                       schema)))))
 
 (defn- validate-schema
   [schema any]
@@ -109,19 +114,24 @@
 
 (defn gen-command
   "generate command"
-  [ar command-type fields recoverable-ids]
-  (let [command (assoc fields :command command-type)
-        command (assoc command :ar ar)
-        schema (get @schemas command-type)]
-    (if (nil? schema)
-      (throw (ex-info "schema is missing"
-                      {:command command-type
-                       :fields  fields
-                       :schemas @schemas}))
-      (do (validate-schema schema command)
-          (if-not (:ar-id command)
-            (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
-            command)))))
+  ([ar command-type fields recoverable-ids]
+   (gen-command (-> fields
+                    (assoc :ar ar)
+                    (assoc :command command-type))
+                recoverable-ids))
+
+  ([command recoverable-ids]
+   (let [command-type (:command command)
+         schema (get @schemas command-type)]
+     (if (nil? schema)
+       (throw (ex-info "schema is missing"
+                       {:type    command-type
+                        :command command
+                        :schemas @schemas}))
+       (do (validate-schema schema command)
+           (if-not (:ar-id command)
+             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
+             command))))))
 
 
 ;;elastic search fetch

@@ -1,7 +1,7 @@
 (ns notes.web.view.index
   (:require [hiccup.core :refer :all]
             [hiccup.element :refer [link-to]]
-            [hiccup.page :refer [html5 include-css]]
+            [hiccup.page :refer [html5 include-css include-js]]
             [hiccup.form :refer :all]
             [notes.query :refer :all]
             [system :as s]
@@ -22,7 +22,8 @@
        }]
      [:title title]
      (include-css "/css/raiseup.css")
-     ; (include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
+     (include-js "/js/client.js")
+     ;(include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
      ]
     [:body [:div.container body]]))
 
@@ -51,7 +52,10 @@
   [title modes]
   (layout title
           (nav)
-          [:div.main modes]
+          [:div.main
+           [:div#mod-tips
+            [:div#auto-save-tip {:class "msg"}]]
+           modes]
           (right-slide)
           (footer)))
 
@@ -68,8 +72,8 @@
         [:span (convert/->str (convert/->date (:ctime note)))]]
        [:div.markdown
         (markdown/md-to-html-string
-          (strs/head (:content note) 200 (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))
-        ]])]])
+          (strs/head (:content note) 200
+                     (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))]])]])
 
 (defn index-view
   "the view of index"
@@ -88,13 +92,18 @@
         action (str "/notes" (when-not new? (str "/" (:ar-id note))))]
     [:div.mod-note-form
      (form-to
-       [:DELETE action]
-       [:input.btn {:type :submit :value :DELETE}])
-     (form-to
        [:POST action]
        [:input.title {:type "text" :name "title" :value (get note :title "")}]
-       [:textarea.content {:name "content"} (get note :content "")]
-       [:input {:class "btn lv2" :type :submit :value (if new? :CREATE :UPDATE)}])]))
+       [:textarea#content {:name "content"} (get note :content "")]
+       [:input {:class "btn act" :type :submit :value (if new? :CREATE :UPDATE)}])
+     (form-to
+       [:DELETE action]
+       [:input {:class "btn lv2 act" :type :submit :value :DELETE}])
+     [:input#note-id {:type :hidden :value (:ar-id note)}]
+     [:script {:type "text/javascript"} "notes.web.client.run();
+                                      notes.web.client.pull_content_from_local();
+                                      notes.web.client.clear_note_local_storage();
+                                      notes.web.client.listen_save_note_key_press()"]]))
 
 (defn- mod-note
   [note]
@@ -121,7 +130,7 @@
   [ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
-      "edit note"
+      (:title note)
       (if (or (empty? note) (= :note-deleted (:event note)))
         (mod-error "Oops, the note is not existing")
         (mod-form-note note)))))

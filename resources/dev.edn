@@ -53,7 +53,8 @@
                                                                         :author  {:type "string" :store "yes" :index "not_analyzed"}
                                                                         :title   {:type "string" :analyzer "standard" :store "yes"}
                                                                         :content {:type "string" :analyzer "standard" :store "yes"}
-                                                                        :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}}
+                                                                        :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}
+                                                              }
                                              }
 
                         :http-server       {:component httpserver/->HttpKitServer
