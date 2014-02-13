@@ -95,13 +95,15 @@
        [:POST action]
        [:input.title {:type "text" :name "title" :value (get note :title "")}]
        [:textarea#content {:name "content"} (get note :content "")]
-       [:input {:class "btn" :type :submit :value (if new? :CREATE :UPDATE)}])
+       [:input {:class "btn act" :type :submit :value (if new? :CREATE :UPDATE)}])
      (form-to
        [:DELETE action]
-       [:input {:class "btn lv2" :type :submit :value :DELETE}])
+       [:input {:class "btn lv2 act" :type :submit :value :DELETE}])
      [:input#note-id {:type :hidden :value (:ar-id note)}]
-
-     [:script {:type "text/javascript"} "notes.web.client.run()"]]))
+     [:script {:type "text/javascript"} "notes.web.client.run();
+                                      notes.web.client.pull_content_from_local();
+                                      notes.web.client.clear_note_local_storage();
+                                      notes.web.client.listen_save_note_key_press()"]]))
 
 (defn- mod-note
   [note]
@@ -128,7 +130,7 @@
   [ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
-      "edit note"
+      (:title note)
       (if (or (empty? note) (= :note-deleted (:event note)))
         (mod-error "Oops, the note is not existing")
         (mod-form-note note)))))

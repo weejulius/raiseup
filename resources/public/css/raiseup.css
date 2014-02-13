@@ -57,6 +57,11 @@ ol, ul {
     margin:0 auto;
 }
 
+a:link, a:active,a:visited {
+  text-decoration:none;
+  color:#55f;
+}
+
 /** shared mod **/
 
 .container{
@@ -209,7 +214,6 @@ div.markdown ul li{
 /** mod note* */
 
 .mod-note{
-    width:76%;
 }
 
 .mod-note .title,.mod-note .markdown{
@@ -283,12 +287,10 @@ div.markdown ul li{
 .more{
   display:block;
   margin:10px 0;
+  font-size:0.9em;
 }
 
-a:link, a:active,a:visited {
-  text-decoration:none;
-  color:#55f;
-}
+
 
 .msg {
  background:#fee;
