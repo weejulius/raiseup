@@ -11,15 +11,17 @@
 (defroutes notes-routes
            (POST "/commands" []
                  (fn [req]
-                  ; (println (type (-> req :params :command)) (-> req :params))
+                   ; (println (type (-> req :params :command)) (-> req :params))
                    (str (s/send-command (read-string (-> req :params :command))))))
 
            (POST "/" [author title content]
-                 (str (s/send-command :note :create-note
-                                      {:author  author
-                                       :title   title
-                                       :content content
-                                       :ctime   (date/now-as-millis)})))
+                 (redirect-after-post
+                   (str "/notes/"
+                        (s/send-command :note :create-note
+                                        {:author  author
+                                         :title   title
+                                         :content content
+                                         :ctime   (date/now-as-millis)}))))
 
            (POST "/:ar-id" [ar-id title content]
                  (let [result (s/send-command :note :update-note

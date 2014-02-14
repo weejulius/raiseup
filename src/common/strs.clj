@@ -9,8 +9,10 @@
 
 (defn head
   "get the first n chars from string"
-  [^String s length append]
-  (let [s-length (.length s)]
-    (if (> s-length length)
-      (str (subs s 0 length) append)
-      s)))
+  ([^String s length append]
+   (let [s-length (.length s)]
+     (if (> s-length length)
+       (str (subs s 0 length) append)
+       s)))
+  ([s length]
+   (head s length nil)))

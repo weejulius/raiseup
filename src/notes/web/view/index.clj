@@ -70,10 +70,14 @@
         [:h1
          (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
         [:span (convert/->str (convert/->date (:ctime note)))]]
-       [:div.markdown
-        (markdown/md-to-html-string
-          (strs/head (:content note) 200
-                     (str "</br><a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))]])]])
+       (let [max-length-words 200
+             content (:content note)
+             only-summary? (< max-length-words (.length content))
+             content (if only-summary? (subs content 0 max-length-words) content)]
+         [:div.markdown
+          (markdown/md-to-html-string content)
+          (if only-summary?
+            [:a.more {:href (str "/notes/" (:ar-id note))} "...More "])])])]])
 
 (defn index-view
   "the view of index"

@@ -186,6 +186,9 @@ a:link, a:active,a:visited {
     color:#333;
 }
 
+.markdown li{
+  border:0;
+}
 div.markdown ol li{
     margin:3px 15px;
     border:0;
