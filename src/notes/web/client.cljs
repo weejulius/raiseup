@@ -3,7 +3,8 @@
     [ajax.core :refer [POST]]
     [dommy.core :as dom]
     [reagent.core :as reagent :refer [atom]]
-    [goog.storage.mechanism.HTML5SessionStorage :as html5ss])
+    [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
+    [markdown.core :as md])
   (:use-macros
     [dommy.macros :only [node sel sel1]]))
 
@@ -50,12 +51,16 @@
 (defn- save-note-to-session-storage
   [session-storage key note]
   (.set session-storage key note)
-  ;(reset! auto-save-time-state (js/Date.))
-  )
+  (reset! auto-save-time-state (js/Date.)))
+
+(defn- remove-note-from-session-storage
+  [session-storage key]
+  (.remove session-storage key))
 
 (defn- storage-key
   []
   (str "note" (val-for-el :#note-id)))
+
 (defn- save-note-local
   []
   (save-note-to-session-storage
@@ -66,7 +71,7 @@
 (defn- auto-save-note
   []
   (js/setTimeout
-    #(save-note-local) 4000))
+    #(save-note-local) 3000))
 
 (defn- clear-note-local-storage
   []
@@ -74,15 +79,23 @@
     (map (fn [el]
            (dom/listen! el :click
                         (fn [evt]
-                          (.remove storage (storage-key)))))
+                          (remove-note-from-session-storage storage (storage-key)))))
          (sel :.act))))
 
 
-(defn- pull-content-from-local
-  []
-  (let [content (.get storage (storage-key))]
+
+(defn- pull-content-from-local-by-key
+  "if the note is crashed when editing, pulling from local"
+  [key]
+  (let [content (.get storage key)]
     (if-not (empty? content)
-      (dom/set-text! (sel1 :#content) content))))
+      (dom/set-text! (sel1 :#content) content)
+      (.set storage (str (storage-key) "-his") (val-for-el :#content)))))
+
+(defn- pull-content-from-local
+  "if the note is crashed when editing, pulling from local"
+  []
+  (pull-content-from-local-by-key (storage-key)))
 
 (defn- listen-save-note-key-press
   []
@@ -93,14 +106,37 @@
                        shift-key (.-shiftKey event)
                        ctrl-key (.-ctrlKey event)
                        save-note? (and shift-key ctrl-key (= keycode 83))]
-                   (log (str keycode shift-key ctrl-key))
                    (if save-note?
                      (send-update-note-command))))))
+
+(defn discard-local-changes
+  []
+  (dom/listen! (sel1 :.discard)
+               :click
+               (fn [event]
+                 (remove-note-from-session-storage storage (storage-key))
+                 (dom/set-value!
+                   (sel1 :#content)
+                   (.get storage (str (storage-key) "-his"))))))
 
 (defn- update-auto-save-note-tip
   []
   (auto-save-note)
-  [:span (str "Tip: note is auto saved at " @auto-save-time-state)])
+  ;(discard-local-changes)
+  [:span (str "Tip: note is saved to local at " @auto-save-time-state)
+   [:a.discard "Discard"]])
+
+(defn preview-on-content-change
+  []
+  (dom/listen! (sel1 :#content)
+               :keyup
+               (fn [event]
+                 (dom/set-html! (sel1 :#preview)
+                                (md/mdToHtml (val-for-el :#content)
+                                             :code-style #(str "class=\"" % "\""))))))
+
+
+
 
 (defn ^:export run []
   (reagent/render-component [update-auto-save-note-tip]

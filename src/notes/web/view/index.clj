@@ -73,7 +73,7 @@
        [:div.markdown
         (markdown/md-to-html-string
           (strs/head (:content note) 200
-                     (str "<a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))]])]])
+                     (str "</br><a class=\"more\" href=\"/notes/" (:ar-id note) "\">...More</a>")))]])]])
 
 (defn index-view
   "the view of index"
@@ -90,20 +90,27 @@
   [note]
   (let [new? (nil? note)
         action (str "/notes" (when-not new? (str "/" (:ar-id note))))]
-    [:div.mod-note-form
-     (form-to
-       [:POST action]
-       [:input.title {:type "text" :name "title" :value (get note :title "")}]
-       [:textarea#content {:name "content"} (get note :content "")]
-       [:input {:class "btn act" :type :submit :value (if new? :CREATE :UPDATE)}])
-     (form-to
-       [:DELETE action]
-       [:input {:class "btn lv2 act" :type :submit :value :DELETE}])
+    [:div
+     [:div.mod-note-form
+      (form-to
+        [:POST action]
+        [:input.title {:type "text" :name "title" :value (get note :title "")}]
+        [:textarea#content {:name "content"} (get note :content "")]
+        [:input {:class "btn act" :type :submit :value (if new? :CREATE :UPDATE)}])
+      (form-to
+        [:DELETE action]
+        [:input {:class "btn lv2 act" :type :submit :value :DELETE}])]
+     [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
-     [:script {:type "text/javascript"} "notes.web.client.run();
-                                      notes.web.client.pull_content_from_local();
-                                      notes.web.client.clear_note_local_storage();
-                                      notes.web.client.listen_save_note_key_press()"]]))
+     [:script {:type "text/javascript"}
+      "notes.web.client.run();
+      notes.web.client.pull_content_from_local();
+      notes.web.client.clear_note_local_storage();
+      notes.web.client.listen_save_note_key_press();
+      notes.web.client.preview_on_content_change();
+      notes.web.client.discard_local_changes();"]]))
+
+
 
 (defn- mod-note
   [note]

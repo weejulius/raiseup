@@ -175,7 +175,7 @@ a:link, a:active,a:visited {
 
 
 
-.mod-notes li div.markdown, .mod-note div.markdown{
+.markdown{
     padding:25px 10px;
     clear:right;
     font-size:0.95em;
@@ -186,9 +186,9 @@ a:link, a:active,a:visited {
     color:#333;
 }
 
-div.markdown ul li{
-    margin:0px auto;
-    background:#6cc;
+div.markdown ol li{
+    margin:3px 15px;
+    border:0;
 }
 
 .markdown pre{
@@ -223,8 +223,16 @@ div.markdown ul li{
 /** note form   **/
 
 .mod-note-form{
+   width:55%;
+   float:left;
+   margin-right:15px;
+}
 
-
+#preview{
+ float:right;
+ width:40%;
+ font-size:0.8em;
+ margin :40px 0 0 0;
 }
 
 .mod-note-form input,textarea{
@@ -253,6 +261,7 @@ div.markdown ul li{
    padding:2px 5px;
    height:40px;
    line-height:40px;
+   width:100%;
 }
 
 .mod-note-form .btn{
@@ -273,7 +282,12 @@ div.markdown ul li{
   top: 350px;
 }
 
-
+.discard{
+  height:30px;
+  line-height:20px;
+  padding:5px;
+  text-decoration:underline;
+}
 
 .mod-error{
     padding:20px 0 30px 50px;
