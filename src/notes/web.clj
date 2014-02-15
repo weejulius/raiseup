@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
             [notes.web.view.index :as v]
             [system :as s]
+            [notes.web.action :as action]
             [common.convert :refer [->long ->map ->data ->str]]
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
@@ -23,6 +24,19 @@
                                          :content content
                                          :ctime   (date/now-as-millis)}))))
 
+           (POST "/users" [name password]
+                 (let [result (action/reg-user name password)]
+                   (println result)
+                   (redirect-after-post
+                     (str "/notes/" name "/notes"))))
+
+
+           #_(POST "/users/login" [name password]
+                 (let [user (s/fetch )])
+                 (s/send-command :user :login
+                                 {:name     name
+                                  :password password}))
+
            (POST "/:ar-id" [ar-id title content]
                  (let [result (s/send-command :note :update-note
                                               {:ar-id   (->long ar-id)
@@ -38,6 +52,9 @@
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" []
                 (v/new-note-view))
+
+           (GET "/:name/notes" [name]
+                (v/user-home-view name))
 
            (GET "/:ar-id" [ar-id]
                 (v/note-view (->long ar-id)))

@@ -27,7 +27,11 @@
   (s/register-command-handler :delete-note
                               (fn [ar cmd]
                                 (ar-is-required ar cmd)
-                                (delete-note ar cmd))))
+                                (delete-note ar cmd)))
+
+  (s/register-command-handler :create-user
+                              (fn [ar cmd]
+                                (create-user ar cmd))))
 
 
 (defn- update-fn
@@ -61,4 +65,8 @@
                             (fn [event readmodel]
                               (p/put-entry readmodel
                                            (select-keys event [:ar :ar-id :author :title :content :ctime]))))
-  )
+
+  (s/register-event-handler :user-created
+                            (fn [event readmodel]
+                              (p/put-entry readmodel
+                                           (select-keys event [:ar :ar-id :name :password :ctime])))))

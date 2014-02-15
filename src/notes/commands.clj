@@ -24,3 +24,7 @@
                  {:ar-id s/Num})
 
 
+(cqrs/def-schema :create-user
+                 {:name s/Str
+                  :password s/Str
+                  :ctime s/Num})

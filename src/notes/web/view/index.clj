@@ -38,9 +38,27 @@
   [:div.nav
    [:h1.logo
     "温故"]
-   [:ul
+   [:ul#menu
     [:li (link-to "/notes" "Notes")]
-    [:li "Problems"]]])
+    [:li "Problems"]]
+   [:ul#auth
+    [:li#reg
+     [:a {:class "btn"} "注册"]
+     (form-to
+       [:POST "/notes/users"]
+
+       [:input {:type :text :name :name :placeholder "输入用户名"}]
+       [:input {:type :text :name :password :placeholder "输入密码"}]
+       [:input {:type :submit :value "确定"}])]
+    [:li#login
+     [:a {:class "btn"} "登陆"]
+     (form-to
+       [:POST "/notes/users/login"]
+       [:input {:type :text :name :name :placeholder "输入用户名"}]
+       [:input {:type :text :name :password :placeholder "输入密码"}]
+       [:input {:type :submit :value "确定"}])]]
+   [:script {:type "text/javascript"}
+    "notes.web.client.nav_ready();"]])
 
 (defn- right-slide
   "right slides"
@@ -107,12 +125,7 @@
      [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
      [:script {:type "text/javascript"}
-      "notes.web.client.run();
-      notes.web.client.pull_content_from_local();
-      notes.web.client.clear_note_local_storage();
-      notes.web.client.listen_save_note_key_press();
-      notes.web.client.preview_on_content_change();
-      notes.web.client.discard_local_changes();"]]))
+      "notes.web.client.note_form_ready();"]]))
 
 
 
@@ -153,3 +166,11 @@
     (basic-layout
       (str (:title note))
       (mod-note note))))
+
+
+(defn user-home-view
+  [name]
+  (basic-layout
+    (str name "的札记")
+    (mod-notes
+      (s/fetch (->QueryNote :note nil name nil nil)))))

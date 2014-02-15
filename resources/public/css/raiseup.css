@@ -75,8 +75,6 @@ a:link, a:active,a:visited {
     position:fixed;
     top:0px;
     bottom:0px;
-
-
     background:#000;
     float:left;
     padding-top:30px;
@@ -89,13 +87,51 @@ a:link, a:active,a:visited {
   font-weight:800;
 }
 
-.nav li{
+.nav #menu li{
     color:#ffe;
     background:#88f;
     margin-bottom:3px;
     width:98%;
     padding:5px 0 5px 5px;
 }
+
+.nav #auth{
+  position:fixed;
+  bottom:20px;
+}
+
+.nav #auth li{
+  margin:2px 0;
+  height:20px;
+  line-height:20px;
+}
+
+.nav #auth li a.btn{
+  background:black;
+  display:block;
+  float:left;
+  clear:left;
+}
+.nav #auth li form{
+  float:right;
+  display:none;
+}
+
+.nav #auth li form.show{
+ display:block;
+}
+
+.nav #auth li form{
+ background : #fff;
+ height:50px;
+ line-height:30px;
+}
+.nav #auth li form input{
+  border:1px solid #ddd;
+  height:30px;
+}
+
+
 
 .nav a{
     color:#fff;
@@ -242,7 +278,6 @@ div.markdown ol li{
     display:block;
     border:1px solid #eef;
     height:40px;
-    width:480px;
     margin:5px 0;
     border-radius:3px;
     padding:5px;
@@ -263,11 +298,12 @@ div.markdown ol li{
    font-family:Consolas, "Liberation Mono", Courier, monospace;
    padding:2px 5px;
    height:40px;
+    width:480px;
    line-height:40px;
    width:100%;
 }
 
-.mod-note-form .btn{
+.btn{
   background:#55f;
   width:100px;
   border:0;
@@ -276,6 +312,8 @@ div.markdown ol li{
   margin:5px;
   color:#fff;
 
+}
+.mod-note-form .btn{
   position:fixed;
   top:250px;
   left:10px;

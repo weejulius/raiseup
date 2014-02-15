@@ -137,7 +137,37 @@
 
 
 
+(defn click-reg-user
+  []
+  (dom/listen! (sel1 [:#reg :.btn])
+               :click
+               (fn [event]
+                 (log "reg")
+                 (dom/toggle-class! (sel1 [:#reg :form]) :show))))
+
+(defn click-login-user
+  []
+  (dom/listen! (sel1 [:#login :.btn])
+               :click
+               (fn [event]
+                 (log "login")
+                 (dom/toggle-class! (sel1 [:#login :form]) :show))))
 
 (defn ^:export run []
   (reagent/render-component [update-auto-save-note-tip]
                             (sel1 :#auto-save-tip)))
+
+
+(defn note-form-ready
+  []
+  (run)
+  (pull-content-from-local)
+  (clear-note-local-storage)
+  (listen-save-note-key-press)
+  (preview-on-content-change)
+  (discard-local-changes))
+
+(defn nav-ready
+  []
+  (click-reg-user)
+  (click-login-user))

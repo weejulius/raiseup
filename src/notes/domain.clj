@@ -15,3 +15,7 @@
 (defn delete-note
   [note cmd]
   (cqrs/gen-event :note-deleted cmd []))
+
+(defn create-user
+  [user cmd]
+  (cqrs/gen-event :user-created cmd [:name :password :ctime]))
