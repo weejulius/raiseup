@@ -6,6 +6,7 @@
             [common.convert :refer [->long ->map ->data ->str]]
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
+            [common.validator :as validate]
             [notes.commands :as commands]))
 
 
@@ -27,15 +28,18 @@
            (POST "/users" [name password]
                  (let [result (action/reg-user name password)]
                    (println result)
-                   (redirect-after-post
-                     (str "/notes/" name "/notes"))))
+                   (if (validate/invalid? result)
+                     (str result)
+                     (redirect-after-post
+                       (str "/notes/" name "/notes")))))
 
 
-           #_(POST "/users/login" [name password]
-                 (let [user (s/fetch )])
-                 (s/send-command :user :login
-                                 {:name     name
-                                  :password password}))
+           (POST "/users/login" [name password]
+                 (let [result (action/login name password)]
+                   (if (validate/invalid? result)
+                     (str result)
+                     (redirect-after-post
+                       (str "/notes/" name "/notes")))))
 
            (POST "/:ar-id" [ar-id title content]
                  (let [result (s/send-command :note :update-note
@@ -65,5 +69,4 @@
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note
                                                 {:ar-id (->long ar-id)})]
-                     (redirect (str "/notes"))))
-           )
+                     (redirect (str "/notes")))))

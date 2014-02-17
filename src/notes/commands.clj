@@ -25,6 +25,11 @@
 
 
 (cqrs/def-schema :create-user
-                 {:name s/Str
+                 {:name     s/Str
                   :password s/Str
-                  :ctime s/Num})
+                  :ctime    s/Num})
+
+
+(cqrs/def-schema :login-user
+                 {:ar-id      s/Num
+                  :login-time s/Num})

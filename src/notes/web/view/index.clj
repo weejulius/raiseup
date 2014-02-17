@@ -56,7 +56,7 @@
        [:POST "/notes/users/login"]
        [:input {:type :text :name :name :placeholder "输入用户名"}]
        [:input {:type :text :name :password :placeholder "输入密码"}]
-       [:input {:type :submit :value "确定"}])]]
+       [:input { :type :submit :value "确定"}])]]
    [:script {:type "text/javascript"}
     "notes.web.client.nav_ready();"]])
 
@@ -90,11 +90,11 @@
         [:span (convert/->str (convert/->date (:ctime note)))]]
        (let [max-length-words 200
              content (:content note)
-             only-summary? (< max-length-words (.length content))
-             content (if only-summary? (subs content 0 max-length-words) content)]
+             only-show-summary? (< max-length-words (.length content))
+             content (if only-show-summary? (subs content 0 max-length-words) content)]
          [:div.markdown
           (markdown/md-to-html-string content)
-          (if only-summary?
+          (if only-show-summary?
             [:a.more {:href (str "/notes/" (:ar-id note))} "...More "])])])]])
 
 (defn index-view

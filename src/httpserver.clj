@@ -4,7 +4,12 @@
             [ring.middleware.gzip :as gzip]
             [ring.middleware.pretty-exception :as pretty-exception]
             [compojure.handler :refer [site]]
-            [common.logging :as log])
+            [common.logging :as log]
+            [ring.middleware.session :refer [wrap-session]]
+            [ring.middleware.params :refer [wrap-params]]
+            [buddy.auth :refer [authenticated?]]
+            [buddy.auth.backends.session :refer [session-backend]]
+            [buddy.auth.middleware :refer [wrap-authentication wrap-authorization]])
   (:use [org.httpkit.server :only [run-server]]))
 
 (defrecord HttpKitServer [stop-fn]
@@ -16,7 +21,12 @@
           routes (do (require (symbol (namespace routes)))
                      (resolve (symbol routes)))
           handler (site routes)
+          backend (session-backend :unauthorized-handler (fn [req meta] (authenticated? req)))
           wrapped-handler (-> handler
+                              (wrap-params)
+                              (wrap-authorization backend)
+                              (wrap-authentication backend)
+                              (wrap-session)
                               reload/wrap-reload
                               pretty-exception/wrap-pretty-exception
                               gzip/wrap-gzip)
@@ -30,3 +40,4 @@
     this)
   (halt [this options]
     this))
+

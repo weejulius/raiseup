@@ -19,3 +19,8 @@
 (defn create-user
   [user cmd]
   (cqrs/gen-event :user-created cmd [:name :password :ctime]))
+
+
+(defn login-user
+  [user cmd]
+  (cqrs/gen-event :user-logined cmd [:name :login-time]))

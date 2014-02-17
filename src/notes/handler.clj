@@ -31,7 +31,12 @@
 
   (s/register-command-handler :create-user
                               (fn [ar cmd]
-                                (create-user ar cmd))))
+                                (create-user ar cmd)))
+
+  (s/register-command-handler :login-user
+                              (fn [ar cmd]
+                                (ar-is-required ar cmd)
+                                (login-user ar cmd))))
 
 
 (defn- update-fn
@@ -43,16 +48,26 @@
     keys))
 
 
+(defn- update-fields
+  [fields]
+  (fn [event readmodel]
+    (do
+      (p/update-entry
+        readmodel
+        (:ar event)
+        (:ar-id event)
+        #(update-fn % event fields)))))
+
+(defn- put-fields
+  [fields]
+  (fn [event readmodel]
+    (p/put-entry readmodel
+                 (select-keys event fields))))
+
 (defn note-event-handlers
   []
   (s/register-event-handler :note-updated
-                            (fn [event readmodel]
-                              (do
-                                (p/update-entry
-                                  readmodel
-                                  (:ar event)
-                                  (:ar-id event)
-                                  #(update-fn % event [:author :title :content :utime])))))
+                            (update-fields [:author :title :content :utime]))
 
 
   (s/register-event-handler :note-deleted
@@ -62,11 +77,10 @@
                                 (:ar event)
                                 (:ar-id event))))
   (s/register-event-handler :note-created
-                            (fn [event readmodel]
-                              (p/put-entry readmodel
-                                           (select-keys event [:ar :ar-id :author :title :content :ctime]))))
+                            (put-fields [:ar :ar-id :author :title :content :ctime]))
 
   (s/register-event-handler :user-created
-                            (fn [event readmodel]
-                              (p/put-entry readmodel
-                                           (select-keys event [:ar :ar-id :name :password :ctime])))))
+                            (put-fields [:ar :ar-id :name :password :ctime]))
+
+  (s/register-event-handler :user-logined
+                            (update-fields [:login-time])))

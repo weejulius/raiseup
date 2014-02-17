@@ -142,15 +142,14 @@
   (dom/listen! (sel1 [:#reg :.btn])
                :click
                (fn [event]
-                 (log "reg")
                  (dom/toggle-class! (sel1 [:#reg :form]) :show))))
+
 
 (defn click-login-user
   []
   (dom/listen! (sel1 [:#login :.btn])
                :click
                (fn [event]
-                 (log "login")
                  (dom/toggle-class! (sel1 [:#login :form]) :show))))
 
 (defn ^:export run []
