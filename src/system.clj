@@ -39,3 +39,8 @@
   "fetch result of query"
   [query :- p/Query]
   (cqrs/fetch (:readmodel component/state) query))
+
+(schema.macros/defn fetch-first
+  "fetch result of query"
+  [query :- p/Query]
+  (first (fetch query)))

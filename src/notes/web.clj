@@ -34,8 +34,8 @@
 
            (POST "/users/login" [name password :as r]
                  (let [result (action/login name password)
-                       session   (-> (:session r)
-                                     (assoc :identity (keyword name)))]
+                       session (-> (:session r)
+                                   (assoc :identity (keyword name)))]
                    (if (validate/invalid? result)
                      (str result)
                      (do
@@ -56,17 +56,17 @@
                 (v/index-view {:page (->long page) :size (->long size)}))
 
            ;;this route must be ahead of /notes/:ar-id
-           (GET "/new" []
-                (v/new-note-view))
+           (GET "/new" [:as r]
+                (action/note-form-ctrl nil r))
 
-           (GET "/:name/notes" [name]
-                (v/user-home-view name))
+           (GET "/:name/notes" [name :as r]
+                (action/user-notes-ctrl name r))
 
            (GET "/:ar-id" [ar-id]
                 (v/note-view (->long ar-id)))
 
            (GET "/:ar-id/form" [ar-id :as r]
-                (action/note-form-ctrl r))
+                (action/note-form-ctrl ar-id r))
 
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note

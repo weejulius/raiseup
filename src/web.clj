@@ -36,6 +36,10 @@
 
 (defroutes app-routes
            (context "/notes" [] notes-routes)
+           (GET "/403" []
+                "Forbidden")
+           (GET "/401" []
+                "Unauthorized")
            (route/resources "/")
            (route/not-found "PAGE NOT FOUND"))
 

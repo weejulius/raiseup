@@ -56,7 +56,7 @@
        [:POST "/notes/users/login"]
        [:input {:type :text :name :name :placeholder "输入用户名"}]
        [:input {:type :text :name :password :placeholder "输入密码"}]
-       [:input { :type :submit :value "确定"}])]]
+       [:input {:type :submit :value "确定"}])]]
    [:script {:type "text/javascript"}
     "notes.web.client.nav_ready();"]])
 
@@ -79,14 +79,14 @@
 
 
 (defn- mod-notes
-  [notes]
+  [notes editable?]
   [:div.mod-notes
    [:ul
     (for [note notes]
       [:li
        [:div.title
         [:h1
-         (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
+         (link-to (str "/notes/" (:ar-id note) (if editable? "/form")) (:title note))]
         [:span (convert/->str (convert/->date (:ctime note)))]]
        (let [max-length-words 200
              content (:content note)
@@ -104,7 +104,8 @@
     (basic-layout
       "温故知心"
       (mod-notes
-        (s/fetch (->QueryNote :note nil nil page size))))))
+        (s/fetch (->QueryNote :note nil nil page size))
+        false))))
 
 
 (defn- mod-form-note
@@ -154,9 +155,7 @@
   [note]
   (basic-layout
     (:title note)
-    (if (or (empty? note) (= :note-deleted (:event note)))
-      (mod-error "Oops, the note is not existing")
-      (mod-form-note note))))
+    (mod-form-note note)))
 
 
 (defn note-view
@@ -167,9 +166,8 @@
       (mod-note note))))
 
 
-(defn user-home-view
-  [name]
+(defn user-notes-view
+  [notes name]
   (basic-layout
     (str name "的札记")
-    (mod-notes
-      (s/fetch (->QueryNote :note nil name nil nil)))))
+    (mod-notes notes true)))

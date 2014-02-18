@@ -4,6 +4,7 @@
             [common.convert :refer [->long]]
             [common.date :as d]
             [notes.web.view.index :as v]
+            [buddy.crypto.hashers.bcrypt :as hash]
             [buddy.crypto.signing :as sign]
             [common.validator :as validate]
             [buddy.auth :refer [authenticated? throw-notauthorized]]))
@@ -15,18 +16,15 @@
       (validate/invalid-msg :user-name-is-existing)
       (s/send-command :user :create-user
                       {:name     name
-                       :password (sign/sign name password)
+                       :password (hash/make-password password)
                        :ctime    (d/now-as-millis)}))))
-
-
-
 
 (defn login
   [name password]
   (let [user (first (s/fetch (q/->QueryUser :user nil name nil nil)))
         user-not-exist? (nil? user)
-        invalid-password? (and user (= (:password user) (sign/sign name password)))]
-    ;(println user)
+        invalid-password? (not (hash/check-password password (:password user)))]
+    ; (println user)
     (cond
       user-not-exist? (validate/invalid-msg :user-not-found)
       invalid-password? (validate/invalid-msg :invalid-password)
@@ -39,12 +37,29 @@
   [req]
   (not (nil? (-> req :session :identity))))
 
+(defn- current-user?
+  [req user-name]
+  (= (keyword user-name) (-> req :session :identity)))
+
 (defn note-form-ctrl
-  [req]
-  (let [note (first (s/fetch (q/->QueryNote :note (->long (:ar-id req)) nil nil nil)))]
-    (if-not (or (authed? req) (= (:author note) (-> req :session :identity)))
+  [ar-id req]
+  (let [new-form? (nil? ar-id)
+        note (if-not new-form?
+               (s/fetch
+                 (q/->QueryNote :note (->long ar-id) nil nil nil)))]
+    (if-not (and
+              (authed? req)
+              (or new-form?
+                  (current-user? req (:author note))))
       (throw-notauthorized req)
       (v/note-edit-view note))))
+
+(defn user-notes-ctrl
+  [name req]
+  (let [notes (if-not (nil? name) (s/fetch (q/->QueryNote :note nil name nil nil)))]
+    (if-not (authed? req)
+      (throw-notauthorized req)
+      (v/user-notes-view notes name))))
 
 
 (defn post-note
@@ -53,7 +68,7 @@
     (do
       (throw-notauthorized req))
     (s/send-command :note :create-note
-                    {:author  (-> req :session :identify)
+                    {:author  (name (-> req :session :identity))
                      :title   (-> req :params :title)
                      :content (-> req :params :content)
                      :ctime   (d/now-as-millis)})))
