@@ -7,7 +7,8 @@
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
             [common.validator :as validate]
-            [notes.commands :as commands]))
+            [notes.commands :as commands]
+            ))
 
 
 (defroutes notes-routes
@@ -16,30 +17,31 @@
                    ; (println (type (-> req :params :command)) (-> req :params))
                    (str (s/send-command (read-string (-> req :params :command))))))
 
-           (POST "/" [author title content]
-                 (redirect-after-post
-                   (str "/notes/"
-                        (s/send-command :note :create-note
-                                        {:author  author
-                                         :title   title
-                                         :content content
-                                         :ctime   (date/now-as-millis)}))))
+           (POST "/" [:as req]
+                 (let [result (action/post-note req)]
+                   (if (validate/invalid? result)
+                     (str result)
+                     (redirect-after-post
+                       (str "/notes/" result)))))
 
            (POST "/users" [name password]
                  (let [result (action/reg-user name password)]
-                   (println result)
                    (if (validate/invalid? result)
                      (str result)
                      (redirect-after-post
                        (str "/notes/" name "/notes")))))
 
 
-           (POST "/users/login" [name password]
-                 (let [result (action/login name password)]
+           (POST "/users/login" [name password :as r]
+                 (let [result (action/login name password)
+                       session   (-> (:session r)
+                                     (assoc :identity (keyword name)))]
                    (if (validate/invalid? result)
                      (str result)
-                     (redirect-after-post
-                       (str "/notes/" name "/notes")))))
+                     (do
+                       (-> (redirect-after-post
+                             (str "/notes/" name "/notes"))
+                           (assoc :session session))))))
 
            (POST "/:ar-id" [ar-id title content]
                  (let [result (s/send-command :note :update-note
@@ -63,8 +65,8 @@
            (GET "/:ar-id" [ar-id]
                 (v/note-view (->long ar-id)))
 
-           (GET "/:ar-id/form" [ar-id]
-                (v/note-edit-view (->long ar-id)))
+           (GET "/:ar-id/form" [ar-id :as r]
+                (action/note-form-ctrl r))
 
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note

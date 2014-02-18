@@ -151,13 +151,12 @@
     (mod-form-note nil)))
 
 (defn note-edit-view
-  [ar-id]
-  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
-    (basic-layout
-      (:title note)
-      (if (or (empty? note) (= :note-deleted (:event note)))
-        (mod-error "Oops, the note is not existing")
-        (mod-form-note note)))))
+  [note]
+  (basic-layout
+    (:title note)
+    (if (or (empty? note) (= :note-deleted (:event note)))
+      (mod-error "Oops, the note is not existing")
+      (mod-form-note note))))
 
 
 (defn note-view
