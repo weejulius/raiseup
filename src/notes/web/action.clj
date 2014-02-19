@@ -47,7 +47,6 @@
 
 (defn- current-user?
   [req user-name]
-  (println user-name (current-user req))
   (= user-name (current-user req)))
 
 (defn index-ctrl

@@ -24,12 +24,15 @@
                      (redirect-after-post
                        (str "/notes/" result)))))
 
-           (POST "/users" [name password]
-                 (let [result (action/reg-user name password)]
+           (POST "/users" [name password :as r]
+                 (let [result (action/reg-user name password)
+                       session (-> (:session r)
+                                   (assoc :identity (keyword name)))]
                    (if (validate/invalid? result)
                      (str result)
-                     (redirect-after-post
-                       (str "/notes/" name "/notes")))))
+                     (-> (redirect-after-post
+                           (str "/notes/" name "/notes"))
+                         (assoc :session session)))))
 
 
            (POST "/users/login" [name password :as r]

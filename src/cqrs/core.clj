@@ -74,7 +74,7 @@
                  event (f ar command)
                  snapshot (get-ar [ar event])]
              (es/store-snapshot snapshot snapshot-db)
-             (log/debug "publishing event" event ar command snapshot)
+             (log/debug "stored and to event" event command)
              (publish-event bus event)))))
 
 
@@ -137,12 +137,15 @@
                        {:type    command-type
                         :command command
                         :schemas @schemas}))
-       (do (validate-schema schema command)
-           (if (nil? (:ar-id command))
-             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
-             (do
-               (ar-is-required (get-ar (:ar command) (:ar-id command) snapshot-db) command)
-               command)))))))
+       (let [ar-id (:ar-id command)
+             ar-name (:ar command)]
+         (validate-schema schema command)
+         (if (nil? ar-id)
+           (assoc command :ar-id
+                          (inc-id-for (str ar-name) recoverable-ids))
+           (let [ar (get-ar (name ar-name) ar-id snapshot-db)]
+             (ar-is-required ar command)
+             command)))))))
 
 
 ;;elastic search fetch
