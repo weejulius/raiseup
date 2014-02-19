@@ -51,9 +51,9 @@
                                                :utime   (date/now-as-millis)})]
                    (redirect-after-post (str "/notes/" ar-id))))
 
-           (GET "/" [page size]
+           (GET "/" [:as req]
                 #_(throw (ex-info "test" {:a 1}))
-                (v/index-view {:page (->long page) :size (->long size)}))
+                (action/index-ctrl req))
 
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" [:as r]
@@ -62,8 +62,8 @@
            (GET "/:name/notes" [name :as r]
                 (action/user-notes-ctrl name r))
 
-           (GET "/:ar-id" [ar-id]
-                (v/note-view (->long ar-id)))
+           (GET "/:ar-id" [ar-id :as req]
+                (action/note-ctrl ar-id req))
 
            (GET "/:ar-id/form" [ar-id :as r]
                 (action/note-form-ctrl ar-id r))

@@ -4,13 +4,7 @@
             [notes.domain :refer :all]
             [common.logging :as log]))
 
-(defn- ar-is-required
-  [ar cmd]
-  (if (empty? ar)
-    (throw (ex-info "ar not found"
-                    {:ar      (:ar cmd)
-                     :ar-id   (:ar-id cmd)
-                     :command cmd}))))
+
 
 (defn note-command-handlers
   []
@@ -20,13 +14,11 @@
 
   (s/register-command-handler :update-note
                               (fn [ar cmd]
-                                (ar-is-required ar cmd)
                                 (update-note ar cmd)))
 
 
   (s/register-command-handler :delete-note
                               (fn [ar cmd]
-                                (ar-is-required ar cmd)
                                 (delete-note ar cmd)))
 
   (s/register-command-handler :create-user
@@ -35,7 +27,6 @@
 
   (s/register-command-handler :login-user
                               (fn [ar cmd]
-                                (ar-is-required ar cmd)
                                 (login-user ar cmd))))
 
 

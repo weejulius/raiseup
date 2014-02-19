@@ -32,6 +32,9 @@
   []
   [:div.footer
    ])
+
+
+
 (defn- nav
   "a nav mod including menus"
   []
@@ -62,19 +65,20 @@
 
 (defn- right-slide
   "right slides"
-  []
+  [user-name]
   [:div.right-slide
-   ])
+   [:div#current-user
+    [:span user-name]]])
 
 (defn basic-layout
-  [title modes]
+  [user-name title modes]
   (layout title
           (nav)
           [:div.main
            [:div#mod-tips
             [:div#auto-save-tip {:class "msg"}]]
            modes]
-          (right-slide)
+          (right-slide user-name)
           (footer)))
 
 
@@ -97,15 +101,7 @@
           (if only-show-summary?
             [:a.more {:href (str "/notes/" (:ar-id note))} "...More "])])])]])
 
-(defn index-view
-  "the view of index"
-  [{:keys [page size]}]
-  (let []
-    (basic-layout
-      "温故知心"
-      (mod-notes
-        (s/fetch (->QueryNote :note nil nil page size))
-        false))))
+
 
 
 (defn- mod-form-note
@@ -144,30 +140,45 @@
   [:div.mod-error
    [:span error]])
 
+(defn index-view
+  "the view of index"
+  [user-name notes]
+  (let []
+    (basic-layout
+      user-name
+      "温故知心"
+      (mod-notes
+        notes
+        false))))
+
 (defn new-note-view
   "the page to new note"
-  []
+  [user-name]
   (basic-layout
+    user-name
     "new note"
     (mod-form-note nil)))
 
 (defn note-edit-view
-  [note]
+  [user-name note]
   (basic-layout
+    user-name
     (:title note)
     (mod-form-note note)))
 
 
 (defn note-view
-  [ar-id]
+  [user-name ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
+      user-name
       (str (:title note))
       (mod-note note))))
 
 
 (defn user-notes-view
-  [notes name]
+  [notes name editable?]
   (basic-layout
+    name
     (str name "的札记")
-    (mod-notes notes true)))
+    (mod-notes notes editable?)))

@@ -4,6 +4,7 @@
             [common.convert :refer [->long]]
             [common.date :as d]
             [notes.web.view.index :as v]
+            [clojure.pprint :as pr]
             [buddy.crypto.hashers.bcrypt :as hash]
             [buddy.crypto.signing :as sign]
             [common.validator :as validate]
@@ -23,7 +24,8 @@
   [name password]
   (let [user (first (s/fetch (q/->QueryUser :user nil name nil nil)))
         user-not-exist? (nil? user)
-        invalid-password? (not (hash/check-password password (:password user)))]
+        invalid-password? (and (not user-not-exist?)
+                               (not (hash/check-password password (:password user))))]
     ; (println user)
     (cond
       user-not-exist? (validate/invalid-msg :user-not-found)
@@ -37,9 +39,23 @@
   [req]
   (not (nil? (-> req :session :identity))))
 
+(defn- current-user
+  [req]
+  (if-let [user (-> req :session :identity)]
+    (name user)))
+
+
 (defn- current-user?
   [req user-name]
-  (= (keyword user-name) (-> req :session :identity)))
+  (println user-name (current-user req))
+  (= user-name (current-user req)))
+
+(defn index-ctrl
+  [req]
+  (let [notes (s/fetch (q/->QueryNote :note nil nil
+                                      (->long (-> req :params :page))
+                                      (->long (-> req :params :size))))]
+    (v/index-view (current-user req) notes)))
 
 (defn note-form-ctrl
   [ar-id req]
@@ -47,20 +63,25 @@
         note (if-not new-form?
                (s/fetch
                  (q/->QueryNote :note (->long ar-id) nil nil nil)))]
+    (pr/pprint req)
     (if-not (and
               (authed? req)
               (or new-form?
                   (current-user? req (:author note))))
       (throw-notauthorized req)
-      (v/note-edit-view note))))
+      (v/note-edit-view (current-user req) note))))
 
 (defn user-notes-ctrl
   [name req]
-  (let [notes (if-not (nil? name) (s/fetch (q/->QueryNote :note nil name nil nil)))]
+  (let [notes (if-not (empty? name)
+                (s/fetch (q/->QueryNote :note nil name nil nil)))]
     (if-not (authed? req)
       (throw-notauthorized req)
-      (v/user-notes-view notes name))))
+      (v/user-notes-view notes name (current-user? req name)))))
 
+(defn note-ctrl
+  [ar-id req]
+  (v/note-view (current-user req) (->long ar-id)))
 
 (defn post-note
   [req]

@@ -112,15 +112,24 @@
   [schema any]
   (schema/validate schema any))
 
+(defn ar-is-required
+  [ar cmd]
+  (if (empty? ar)
+    (throw (ex-info "ar not found"
+                    {:ar      (:ar cmd)
+                     :ar-id   (:ar-id cmd)
+                     :command cmd}))))
+
 (defn gen-command
   "generate command"
-  ([ar command-type fields recoverable-ids]
+  ([ar command-type fields recoverable-ids snapshot-db]
    (gen-command (-> fields
                     (assoc :ar ar)
                     (assoc :command command-type))
-                recoverable-ids))
+                recoverable-ids
+                snapshot-db))
 
-  ([command recoverable-ids]
+  ([command recoverable-ids snapshot-db]
    (let [command-type (:command command)
          schema (get @schemas command-type)]
      (if (nil? schema)
@@ -129,9 +138,11 @@
                         :command command
                         :schemas @schemas}))
        (do (validate-schema schema command)
-           (if-not (:ar-id command)
+           (if (nil? (:ar-id command))
              (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
-             command))))))
+             (do
+               (ar-is-required (get-ar (:ar command) (:ar-id command) snapshot-db) command)
+               command)))))))
 
 
 ;;elastic search fetch

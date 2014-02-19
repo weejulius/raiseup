@@ -100,12 +100,26 @@ CQRS实现回顾
 - 评论
 - 用户登陆
   1. 用户名及密码长度，合法字符验证
-  2. 密码加密
-  3. 权限验证
+  2. [DONE] 密码加密
+  3. [DONE] 权限验证
+  4. 登陆/注册输入样式调优
+  5. send command 异常处理
+  6. 剔除重复代码
+  7. note显示作者
+  8. 现在当前登陆用户
+
 - 标签
 - [DONE] 编辑时可以preview
 - 访问量
 - 用户个人首页
+  1. 左边菜单
+
+
+## 问题
+
+* note-his should be removed
+* 注册成功应该更新session
+* identity为什么不在req？
 
 ## 完成NOTE
 

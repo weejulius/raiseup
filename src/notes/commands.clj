@@ -1,7 +1,8 @@
 (ns notes.commands
   (:require
     [cqrs.core :as cqrs]
-    [schema.core :as s]))
+    [schema.core :as s]
+    [common.core :as c]))
 
 (cqrs/def-schema :create-note
                  {:author  (s/maybe s/Str)
@@ -25,8 +26,10 @@
 
 
 (cqrs/def-schema :create-user
-                 {:name     s/Str
-                  :password s/Str
+                 {:name     (s/both s/Str
+                                    (s/pred #(c/between (count %) 5 16)))
+                  :password (s/both s/Str
+                                    (s/pred #(c/between (count %) 5 1001)))
                   :ctime    s/Num})
 
 

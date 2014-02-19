@@ -31,10 +31,11 @@
           handler (site routes)
           backend (session-backend :unauthorized-handler unauthorized-handle)
           wrapped-handler (-> handler
-                              (wrap-params)
+
                               (wrap-authorization backend)
                               (wrap-authentication backend)
                               (wrap-session)
+
                               reload/wrap-reload
                               pretty-exception/wrap-pretty-exception
                               gzip/wrap-gzip)
