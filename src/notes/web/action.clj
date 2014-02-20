@@ -10,30 +10,6 @@
             [common.validator :as validate]
             [buddy.auth :refer [authenticated? throw-notauthorized]]))
 
-(defn reg-user
-  [name password]
-  (let [user (s/fetch (q/->QueryUser :user nil name nil nil))]
-    (if-not (empty? user)
-      (validate/invalid-msg :user-name-is-existing)
-      (s/send-command :user :create-user
-                      {:name     name
-                       :password (hash/make-password password)
-                       :ctime    (d/now-as-millis)}))))
-
-(defn login
-  [name password]
-  (let [user (first (s/fetch (q/->QueryUser :user nil name nil nil)))
-        user-not-exist? (nil? user)
-        invalid-password? (and (not user-not-exist?)
-                               (not (hash/check-password password (:password user))))]
-    ; (println user)
-    (cond
-      user-not-exist? (validate/invalid-msg :user-not-found)
-      invalid-password? (validate/invalid-msg :invalid-password)
-      :else
-      (s/send-command :user :login-user
-                      {:ar-id      (:ar-id user)
-                       :login-time (d/now-as-millis)}))))
 
 (defn- authed?
   [req]
@@ -48,6 +24,41 @@
 (defn- current-user?
   [req user-name]
   (= user-name (current-user req)))
+
+
+(defn reg-user
+  [name password]
+  (let [user (s/fetch (q/->QueryUser :user nil name nil nil))]
+    (if-not (empty? user)
+      (validate/invalid-msg :user-name-is-existing)
+      (s/send-command :user :create-user
+                      {:name            name
+                       :password        password
+                       :hashed-password (hash/make-password password)
+                       :ctime           (d/now-as-millis)}))))
+
+(defn login
+  [name password]
+  (let [user (first (s/fetch (q/->QueryUser :user nil name nil nil)))
+        user-not-exist? (nil? user)
+        valid-password? (and (not user-not-exist?)
+                             (not (empty? (:hashed-password user)))
+                             (hash/check-password password (:hashed-password user)))]
+    ; (println user)
+    (cond
+      user-not-exist? (validate/invalid-msg :user-not-found)
+      valid-password? (s/send-command :user :login-user
+                                      {:ar-id      (:ar-id user)
+                                       :login-time (d/now-as-millis)})
+      :else (validate/invalid-msg :invalid-password))))
+
+(defn logout
+  [req]
+  (let [user (first (s/fetch (q/->QueryUser :user nil (current-user req) nil nil)))]
+    (s/send-command :user :logout-user
+                    {:ar-id       (:ar-id user)
+                     :logout-time (d/now-as-millis)})))
+
 
 (defn index-ctrl
   [req]

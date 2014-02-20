@@ -27,7 +27,11 @@
 
   (s/register-command-handler :login-user
                               (fn [ar cmd]
-                                (login-user ar cmd))))
+                                (login-user ar cmd)))
+
+  (s/register-command-handler :logout-user
+                              (fn [ar cmd]
+                                (logout-user ar cmd))))
 
 
 (defn- update-fn
@@ -71,7 +75,10 @@
                             (put-fields [:ar :ar-id :author :title :content :ctime]))
 
   (s/register-event-handler :user-created
-                            (put-fields [:ar :ar-id :name :password :ctime]))
+                            (put-fields [:ar :ar-id :name :hashed-password :ctime]))
 
   (s/register-event-handler :user-logined
-                            (update-fields [:login-time])))
+                            (update-fields [:login-time]))
+
+  (s/register-event-handler :user-logouted
+                            (update-fields [:logout-time])))

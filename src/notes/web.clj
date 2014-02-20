@@ -58,6 +58,11 @@
                 #_(throw (ex-info "test" {:a 1}))
                 (action/index-ctrl req))
 
+           (GET "/users/logout" [:as req]
+                (action/logout req)
+                (-> (redirect "/notes")
+                    (assoc :session {})))
+
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" [:as r]
                 (action/note-form-ctrl nil r))

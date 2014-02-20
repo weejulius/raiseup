@@ -26,13 +26,19 @@
 
 
 (cqrs/def-schema :create-user
-                 {:name     (s/both s/Str
-                                    (s/pred #(c/between (count %) 5 16)))
-                  :password (s/both s/Str
-                                    (s/pred #(c/between (count %) 5 1001)))
-                  :ctime    s/Num})
+                 {:name            (s/both s/Str
+                                           (s/pred #(c/between (count %) 5 16)))
+                  :password        (s/both s/Str
+                                           (s/pred #(c/between (count %) 5 16)))
+                  :hashed-password s/Str
+                  :ctime           s/Num})
 
 
 (cqrs/def-schema :login-user
                  {:ar-id      s/Num
                   :login-time s/Num})
+
+
+(cqrs/def-schema :logout-user
+                 {:ar-id       s/Num
+                  :logout-time s/Num})

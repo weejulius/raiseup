@@ -37,29 +37,34 @@
 
 (defn- nav
   "a nav mod including menus"
-  []
+  [authed?]
   [:div.nav
    [:h1.logo
     "温故"]
    [:ul#menu
     [:li (link-to "/notes" "Notes")]
     [:li "Problems"]]
-   [:ul#auth
-    [:li#reg
-     [:a {:class "btn"} "注册"]
-     (form-to
-       [:POST "/notes/users"]
+   (if authed?
+     [:ul#auth
+      [:li#logout
+       [:a {:class "btn" :href "/notes/users/logout"} "退出"]]]
 
-       [:input {:type :text :name :name :placeholder "输入用户名"}]
-       [:input {:type :text :name :password :placeholder "输入密码"}]
-       [:input {:type :submit :value "确定"}])]
-    [:li#login
-     [:a {:class "btn"} "登陆"]
-     (form-to
-       [:POST "/notes/users/login"]
-       [:input {:type :text :name :name :placeholder "输入用户名"}]
-       [:input {:type :text :name :password :placeholder "输入密码"}]
-       [:input {:type :submit :value "确定"}])]]
+     [:ul#auth
+      [:li#login
+       [:a {:class "btn"} "登陆"]
+       (form-to
+         [:POST "/notes/users/login"]
+         [:input {:type :text :name :name :placeholder "输入用户名"}]
+         [:input {:type :password :name :password :placeholder "输入密码"}]
+         [:input {:type :submit :value "确定"}])]
+      [:li#reg
+       [:a {:class "btn"} "注册"]
+       (form-to
+         [:POST "/notes/users"]
+
+         [:input {:type :text :name :name :placeholder "输入用户名"}]
+         [:input {:type :password :name :password :placeholder "输入密码"}]
+         [:input {:type :submit :value "确定"}])]])
    [:script {:type "text/javascript"}
     "notes.web.client.nav_ready();"]])
 
@@ -68,17 +73,17 @@
   [user-name]
   [:div.right-slide
    [:div#current-user
-    [:span user-name]]])
+    [:a {:href (str "/notes/" user-name "/notes")} user-name]]])
 
 (defn basic-layout
-  [user-name title modes]
+  [logined-user-name title modes]
   (layout title
-          (nav)
+          (nav (not (empty? logined-user-name)))
           [:div.main
            [:div#mod-tips
             [:div#auto-save-tip {:class "msg"}]]
            modes]
-          (right-slide user-name)
+          (right-slide logined-user-name)
           (footer)))
 
 
@@ -91,6 +96,7 @@
        [:div.title
         [:h1
          (link-to (str "/notes/" (:ar-id note) (if editable? "/form")) (:title note))]
+        [:span (:author note)]
         [:span (convert/->str (convert/->date (:ctime note)))]]
        (let [max-length-words 200
              content (:content note)
@@ -132,6 +138,7 @@
    [:div.title
     [:h1
      (link-to (str "/notes/" (:ar-id note)) (:title note))]
+    [:span (:author note)]
     [:span (convert/->str (convert/->date (:ctime note)))]]
    [:div.markdown (markdown/md-to-html-string (:content note))]])
 
@@ -153,32 +160,32 @@
 
 (defn new-note-view
   "the page to new note"
-  [user-name]
+  [logined-user-name]
   (basic-layout
-    user-name
+    logined-user-name
     "new note"
     (mod-form-note nil)))
 
 (defn note-edit-view
-  [user-name note]
+  [logined-user-name note]
   (basic-layout
-    user-name
+    logined-user-name
     (:title note)
     (mod-form-note note)))
 
 
 (defn note-view
-  [user-name ar-id]
+  [logined-user-name ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
-      user-name
+      logined-user-name
       (str (:title note))
       (mod-note note))))
 
 
 (defn user-notes-view
-  [notes name editable?]
+  [notes logined-user-name editable?]
   (basic-layout
-    name
-    (str name "的札记")
+    logined-user-name
+    (str logined-user-name "的札记")
     (mod-notes notes editable?)))
