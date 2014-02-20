@@ -51,7 +51,10 @@
                       :settings (:settings options)
                       :mappings (:mappings options))
           (log/debug "==== ==== creating elastic search index " app))
-        (log/debug "==== ==== starting existing elastic search index " app)))
+        (do
+          (doseq [[type map] (:mappings options)]
+            (idx/update-mapping (:app options) type :mapping {type map}))
+          (log/debug "==== ==== starting existing elastic search index " app))))
     (assoc this :app (:app options)))
   (start [this options]
     (log/debug "==== ==== starting elastic search")
@@ -59,5 +62,5 @@
   (stop [this options]
     this)
   (halt [this options]
-   (run-local-command (:shutdown-shell options))
+    (run-local-command (:shutdown-shell options))
     this))
