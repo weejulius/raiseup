@@ -75,9 +75,7 @@ a:link, a:active,a:visited {
     position:fixed;
     top:0px;
     bottom:0px;
-
-
-    background:#000;
+    background:#333;
     float:left;
     padding-top:30px;
 }
@@ -89,13 +87,51 @@ a:link, a:active,a:visited {
   font-weight:800;
 }
 
-.nav li{
+.nav #menu li{
     color:#ffe;
     background:#88f;
     margin-bottom:3px;
     width:98%;
     padding:5px 0 5px 5px;
 }
+
+.nav #auth{
+  position:fixed;
+  bottom:20px;
+}
+
+.nav #auth li{
+  margin:2px 0;
+  height:40px;
+  line-height:20px;
+}
+
+.nav #auth li a.btn{
+  background:#333;
+  display:block;
+  float:left;
+  clear:left;
+}
+.nav #auth li form{
+  float:right;
+  display:none;
+}
+
+.nav #auth li form.show{
+ display:block;
+}
+
+.nav #auth li form{
+ background : #fff;
+ height:40px;
+ line-height:30px;
+}
+.nav #auth li form input{
+  border:1px solid #ddd;
+  height:30px;
+}
+
+
 
 .nav a{
     color:#fff;
@@ -106,19 +142,22 @@ a:link, a:active,a:visited {
 }
 
 .right-slide{
-   width : 15%;
-   float: right;
+   position:fixed;
+   top:0px;
+   right:0px;
+   width : 14%;
+
 }
 
 .main{
   width:76%;
   margin-left:9%;
   margin-right:15%;
-
+  float:left;
 }
 
 .footer{
- clear:left;
+ clear:both;
  width:100%;
  height:30px;
  background:#effeff;
@@ -146,7 +185,6 @@ a:link, a:active,a:visited {
 }
 
 .mod-notes li .title,.mod-note .title{
-    border-bottom:1px solid #ecf;
     border-radius:2px;
     padding-bottom:3px;
     margin-bottom:3px;
@@ -155,7 +193,8 @@ a:link, a:active,a:visited {
 }
 
 .mod-notes li h1, .mod-note h1{
-    height:30px;
+    height:25px;
+    border-left:2px solid green;
     text-transform: capitalize;
     font-family:monospace;
     font-weight:800;
@@ -168,7 +207,10 @@ a:link, a:active,a:visited {
     text-decoration: none;
 }
 
-.mod-notes li span{
+.mod-note .title{
+   margin-top:20px;
+}
+.mod-notes li span, .mod-note .title span{
     display:block;
     font-family:monospace;
     padding-left:5px;}
@@ -242,7 +284,6 @@ div.markdown ol li{
     display:block;
     border:1px solid #eef;
     height:40px;
-    width:480px;
     margin:5px 0;
     border-radius:3px;
     padding:5px;
@@ -263,11 +304,12 @@ div.markdown ol li{
    font-family:Consolas, "Liberation Mono", Courier, monospace;
    padding:2px 5px;
    height:40px;
+    width:480px;
    line-height:40px;
    width:100%;
 }
 
-.mod-note-form .btn{
+.btn{
   background:#55f;
   width:100px;
   border:0;
@@ -276,6 +318,8 @@ div.markdown ol li{
   margin:5px;
   color:#fff;
 
+}
+.mod-note-form .btn{
   position:fixed;
   top:250px;
   left:10px;
@@ -309,9 +353,20 @@ div.markdown ol li{
 
 
 
-.msg {
+.msg , #current-user {
  background:#fee;
  color:#f00;
- padding:10px 5px;
+ padding:2px 5px;
  border-radius:3px;
+ height:25px;
+}
+
+#current-user {
+  padding:2px 15px;
+  line-height:25px;
+}
+
+#current-user a{
+  margin-left:30px;
+  text-decoration:underline;
 }

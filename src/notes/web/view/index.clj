@@ -32,61 +32,82 @@
   []
   [:div.footer
    ])
+
+
+
 (defn- nav
   "a nav mod including menus"
-  []
+  [authed?]
   [:div.nav
    [:h1.logo
     "温故"]
-   [:ul
+   [:ul#menu
     [:li (link-to "/notes" "Notes")]
-    [:li "Problems"]]])
+    [:li "Problems"]]
+   (if authed?
+     [:ul#auth
+      [:li#logout
+       [:a {:class "btn" :href "/notes/users/logout"} "退出"]]]
+
+     [:ul#auth
+      [:li#login
+       [:a {:class "btn"} "登陆"]
+       (form-to
+         [:POST "/notes/users/login"]
+         [:input {:type :text :name :name :placeholder "输入用户名"}]
+         [:input {:type :password :name :password :placeholder "输入密码"}]
+         [:input {:type :submit :value "确定"}])]
+      [:li#reg
+       [:a {:class "btn"} "注册"]
+       (form-to
+         [:POST "/notes/users"]
+
+         [:input {:type :text :name :name :placeholder "输入用户名"}]
+         [:input {:type :password :name :password :placeholder "输入密码"}]
+         [:input {:type :submit :value "确定"}])]])
+   [:script {:type "text/javascript"}
+    "notes.web.client.nav_ready();"]])
 
 (defn- right-slide
   "right slides"
-  []
+  [user-name]
   [:div.right-slide
-   ])
+   [:div#current-user
+    [:a {:href (str "/notes/" user-name "/notes")} user-name]]])
 
 (defn basic-layout
-  [title modes]
+  [logined-user-name title modes]
   (layout title
-          (nav)
+          (nav (not (empty? logined-user-name)))
           [:div.main
            [:div#mod-tips
             [:div#auto-save-tip {:class "msg"}]]
            modes]
-          (right-slide)
+          (right-slide logined-user-name)
           (footer)))
 
 
 (defn- mod-notes
-  [notes]
+  [notes editable?]
   [:div.mod-notes
    [:ul
     (for [note notes]
       [:li
        [:div.title
         [:h1
-         (link-to (str "/notes/" (:ar-id note) "/form") (:title note))]
+         (link-to (str "/notes/" (:ar-id note) (if editable? "/form")) (:title note))]
+        [:span (:author note)]
         [:span (convert/->str (convert/->date (:ctime note)))]]
        (let [max-length-words 200
              content (:content note)
-             only-summary? (< max-length-words (.length content))
-             content (if only-summary? (subs content 0 max-length-words) content)]
+             only-show-summary? (< max-length-words (.length content))
+             content (if only-show-summary? (subs content 0 max-length-words) content)]
          [:div.markdown
           (markdown/md-to-html-string content)
-          (if only-summary?
+          (if only-show-summary?
             [:a.more {:href (str "/notes/" (:ar-id note))} "...More "])])])]])
 
-(defn index-view
-  "the view of index"
-  [{:keys [page size]}]
-  (let []
-    (basic-layout
-      "温故知心"
-      (mod-notes
-        (s/fetch (->QueryNote :note nil nil page size))))))
+
 
 
 (defn- mod-form-note
@@ -107,12 +128,7 @@
      [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
      [:script {:type "text/javascript"}
-      "notes.web.client.run();
-      notes.web.client.pull_content_from_local();
-      notes.web.client.clear_note_local_storage();
-      notes.web.client.listen_save_note_key_press();
-      notes.web.client.preview_on_content_change();
-      notes.web.client.discard_local_changes();"]]))
+      "notes.web.client.note_form_ready();"]]))
 
 
 
@@ -122,6 +138,7 @@
    [:div.title
     [:h1
      (link-to (str "/notes/" (:ar-id note)) (:title note))]
+    [:span (:author note)]
     [:span (convert/->str (convert/->date (:ctime note)))]]
    [:div.markdown (markdown/md-to-html-string (:content note))]])
 
@@ -130,26 +147,45 @@
   [:div.mod-error
    [:span error]])
 
+(defn index-view
+  "the view of index"
+  [user-name notes]
+  (let []
+    (basic-layout
+      user-name
+      "温故知心"
+      (mod-notes
+        notes
+        false))))
+
 (defn new-note-view
   "the page to new note"
-  []
+  [logined-user-name]
   (basic-layout
+    logined-user-name
     "new note"
     (mod-form-note nil)))
 
 (defn note-edit-view
-  [ar-id]
-  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
-    (basic-layout
-      (:title note)
-      (if (or (empty? note) (= :note-deleted (:event note)))
-        (mod-error "Oops, the note is not existing")
-        (mod-form-note note)))))
+  [logined-user-name note]
+  (basic-layout
+    logined-user-name
+    (:title note)
+    (mod-form-note note)))
 
 
 (defn note-view
-  [ar-id]
+  [logined-user-name ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
+      logined-user-name
       (str (:title note))
       (mod-note note))))
+
+
+(defn user-notes-view
+  [notes logined-user-name editable?]
+  (basic-layout
+    logined-user-name
+    (str logined-user-name "的札记")
+    (mod-notes notes editable?)))

@@ -4,13 +4,7 @@
             [notes.domain :refer :all]
             [common.logging :as log]))
 
-(defn- ar-is-required
-  [ar cmd]
-  (if (empty? ar)
-    (throw (ex-info "ar not found"
-                    {:ar      (:ar cmd)
-                     :ar-id   (:ar-id cmd)
-                     :command cmd}))))
+
 
 (defn note-command-handlers
   []
@@ -20,14 +14,24 @@
 
   (s/register-command-handler :update-note
                               (fn [ar cmd]
-                                (ar-is-required ar cmd)
                                 (update-note ar cmd)))
 
 
   (s/register-command-handler :delete-note
                               (fn [ar cmd]
-                                (ar-is-required ar cmd)
-                                (delete-note ar cmd))))
+                                (delete-note ar cmd)))
+
+  (s/register-command-handler :create-user
+                              (fn [ar cmd]
+                                (create-user ar cmd)))
+
+  (s/register-command-handler :login-user
+                              (fn [ar cmd]
+                                (login-user ar cmd)))
+
+  (s/register-command-handler :logout-user
+                              (fn [ar cmd]
+                                (logout-user ar cmd))))
 
 
 (defn- update-fn
@@ -39,16 +43,26 @@
     keys))
 
 
+(defn- update-fields
+  [fields]
+  (fn [event readmodel]
+    (do
+      (p/update-entry
+        readmodel
+        (:ar event)
+        (:ar-id event)
+        #(update-fn % event fields)))))
+
+(defn- put-fields
+  [fields]
+  (fn [event readmodel]
+    (p/put-entry readmodel
+                 (select-keys event fields))))
+
 (defn note-event-handlers
   []
   (s/register-event-handler :note-updated
-                            (fn [event readmodel]
-                              (do
-                                (p/update-entry
-                                  readmodel
-                                  (:ar event)
-                                  (:ar-id event)
-                                  #(update-fn % event [:author :title :content :utime])))))
+                            (update-fields [:author :title :content :utime]))
 
 
   (s/register-event-handler :note-deleted
@@ -58,7 +72,13 @@
                                 (:ar event)
                                 (:ar-id event))))
   (s/register-event-handler :note-created
-                            (fn [event readmodel]
-                              (p/put-entry readmodel
-                                           (select-keys event [:ar :ar-id :author :title :content :ctime]))))
-  )
+                            (put-fields [:ar :ar-id :author :title :content :ctime]))
+
+  (s/register-event-handler :user-created
+                            (put-fields [:ar :ar-id :name :hashed-password :ctime]))
+
+  (s/register-event-handler :user-logined
+                            (update-fields [:login-time]))
+
+  (s/register-event-handler :user-logouted
+                            (update-fields [:logout-time])))

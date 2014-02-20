@@ -74,7 +74,7 @@
                  event (f ar command)
                  snapshot (get-ar [ar event])]
              (es/store-snapshot snapshot snapshot-db)
-             (log/debug "publishing event" event ar command snapshot)
+             (log/debug "stored and to event" event command)
              (publish-event bus event)))))
 
 
@@ -112,15 +112,24 @@
   [schema any]
   (schema/validate schema any))
 
+(defn ar-is-required
+  [ar cmd]
+  (if (empty? ar)
+    (throw (ex-info "ar not found"
+                    {:ar      (:ar cmd)
+                     :ar-id   (:ar-id cmd)
+                     :command cmd}))))
+
 (defn gen-command
   "generate command"
-  ([ar command-type fields recoverable-ids]
+  ([ar command-type fields recoverable-ids snapshot-db]
    (gen-command (-> fields
                     (assoc :ar ar)
                     (assoc :command command-type))
-                recoverable-ids))
+                recoverable-ids
+                snapshot-db))
 
-  ([command recoverable-ids]
+  ([command recoverable-ids snapshot-db]
    (let [command-type (:command command)
          schema (get @schemas command-type)]
      (if (nil? schema)
@@ -128,10 +137,15 @@
                        {:type    command-type
                         :command command
                         :schemas @schemas}))
-       (do (validate-schema schema command)
-           (if-not (:ar-id command)
-             (assoc command :ar-id (inc-id-for (str (:ar command)) recoverable-ids))
-             command))))))
+       (let [ar-id (:ar-id command)
+             ar-name (:ar command)]
+         (validate-schema schema command)
+         (if (nil? ar-id)
+           (assoc command :ar-id
+                          (inc-id-for (str ar-name) recoverable-ids))
+           (let [ar (get-ar (name ar-name) ar-id snapshot-db)]
+             (ar-is-required ar command)
+             command)))))))
 
 
 ;;elastic search fetch

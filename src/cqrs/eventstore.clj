@@ -1,5 +1,6 @@
 (ns cqrs.eventstore
   (:require [common.convert :refer [->data ->bytes]]
+            [common.logging :as log]
             [cqrs.storage :as store]))
 
 ;;deprecate
@@ -41,19 +42,20 @@
         (nil? (:ar-id snapshot))
         (throw (ex-info "ar-id is missing of snapshot"
                         {:snapshot snapshot}))
-        (not (=  1 (- (:vsn snapshot) (:vsn cur-snapshot))))
+        (not (= 1 (- (:vsn snapshot) (:vsn cur-snapshot))))
         (throw (ex-info "version conflict storing snapshot"
                         {:cur-vsn (:vsn cur-snapshot)
                          :new-vsn (:vsn snapshot)
                          :cur     cur-snapshot
                          :new     snapshot}))))
+    (log/debug "store snapshot" snapshot-key snapshot)
     (store/write snapshot-db
                  (->bytes snapshot-key)
                  (->bytes snapshot))))
 
 (defn retreive-ar-snapshot
   [ar-name ar-id snapshot-db]
-  (let [snapshot-bytes (store/ret-value snapshot-db (str ar-name ar-id))]
+  (if-let [snapshot-bytes (store/ret-value snapshot-db (str ar-name ar-id))]
     (->data snapshot-bytes)))
 ;;deprecate
 (defn read-event-ids
