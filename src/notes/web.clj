@@ -30,14 +30,14 @@
            (POST "/" [:as req]
                  (-> req
                      ctrl/post-note
-                     (on-failed #(str %))
+                     (on-failed (partial str))
                      (on-success #(redirect-after-post
                                    (str "/notes/" %)))))
 
            (POST "/users" [name password :as r]
                  (-> name
                      (ctrl/reg-user password)
-                     (on-failed #(str %))
+                     (on-failed (partial str))
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
@@ -47,7 +47,7 @@
 
            (POST "/users/login" [name password :as r]
                  (-> (ctrl/login name password)
-                     (on-failed #(str %))
+                     (on-failed (partial str))
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
@@ -56,13 +56,13 @@
 
            (POST "/:ar-id" [ar-id title content :as req]
                  (-> (ctrl/put-note req)
-                     (on-failed #(str %))
-                     (on-success #(redirect-after-post
-                                   (str "/notes/" ar-id)))))
+                     (on-failed (partial str))
+                     (on-success
+                       #(redirect-after-post (str "/notes/" ar-id)))))
 
            (DELETE "/:ar-id" [ar-id :as req]
                    (-> (ctrl/delete-note req)
-                       (on-failed #(str %))
+                       (on-failed (partial str))
                        (on-success #(redirect "/notes"))))
 
            ;;--------------GET ---------------------------------------------
