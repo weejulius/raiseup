@@ -85,7 +85,7 @@ CQRS实现回顾
 - 将event和最近快照写入文件系统
 - 将readmodel写入elasticsearch,读写速度慢相比hazelcast，但后者不能全文搜索
 
-## 计划
+## auth 计划
 
 - 用hazelcast替代leveldb做kv存储
 - [DONE]引用vert.x作用消息bus
@@ -121,6 +121,9 @@ CQRS实现回顾
 * note-his should be removed
 * [DONE] 注册成功应该更新session
 * identity为什么不在req？
+
+
+## refactor to be functional
 
 ## 完成NOTE
 
