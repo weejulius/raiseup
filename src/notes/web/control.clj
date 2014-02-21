@@ -1,4 +1,4 @@
-(ns notes.web.action
+(ns notes.web.control
   (:require [notes.query :as q]
             [system :as s]
             [common.convert :refer [->long]]

@@ -2,7 +2,7 @@
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
             [notes.web.view.index :as v]
             [system :as s]
-            [notes.web.action :as action]
+            [notes.web.control :as ctrl]
             [common.convert :refer [->long ->map ->data ->str]]
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
@@ -11,32 +11,36 @@
             ))
 
 
+(defn- on-command-result [result on-invalid on-valid]
+  (if (validate/invalid? result)
+    (on-invalid result)
+    (on-valid result)))
+
 (defroutes notes-routes
            (POST "/commands" []
                  (fn [req]
-                   ; (println (type (-> req :params :command)) (-> req :params))
                    (str (s/send-command (read-string (-> req :params :command))))))
 
            (POST "/" [:as req]
-                 (let [result (action/post-note req)]
-                   (if (validate/invalid? result)
-                     (str result)
-                     (redirect-after-post
-                       (str "/notes/" result)))))
+                 (-> req
+                     ctrl/post-note
+                     (on-command-result
+                       #(str %)
+                       #(redirect-after-post
+                         (str "/notes/" %)))))
 
            (POST "/users" [name password :as r]
-                 (let [result (action/reg-user name password)
-                       session (-> (:session r)
-                                   (assoc :identity (keyword name)))]
-                   (if (validate/invalid? result)
-                     (str result)
-                     (-> (redirect-after-post
-                           (str "/notes/" name "/notes"))
-                         (assoc :session session)))))
+                 (-> name
+                     (ctrl/reg-user password)
+                     (on-command-result
+                       #(str %)
+                       #(-> (redirect-after-post
+                              (str "/notes/" name "/notes"))
+                            assoc :session (assoc (:session r) :identity (keyword name))))))
 
 
            (POST "/users/login" [name password :as r]
-                 (let [result (action/login name password)
+                 (let [result (ctrl/login name password)
                        session (-> (:session r)
                                    (assoc :identity (keyword name)))]
                    (if (validate/invalid? result)
@@ -56,25 +60,25 @@
 
            (GET "/" [:as req]
                 #_(throw (ex-info "test" {:a 1}))
-                (action/index-ctrl req))
+                (ctrl/index-ctrl req))
 
            (GET "/users/logout" [:as req]
-                (action/logout req)
+                (ctrl/logout req)
                 (-> (redirect "/notes")
                     (assoc :session {})))
 
            ;;this route must be ahead of /notes/:ar-id
            (GET "/new" [:as r]
-                (action/note-form-ctrl nil r))
+                (ctrl/note-form-ctrl nil r))
 
            (GET "/:name/notes" [name :as r]
-                (action/user-notes-ctrl name r))
+                (ctrl/user-notes-ctrl name r))
 
            (GET "/:ar-id" [ar-id :as req]
-                (action/note-ctrl ar-id req))
+                (ctrl/note-ctrl ar-id req))
 
            (GET "/:ar-id/form" [ar-id :as r]
-                (action/note-form-ctrl ar-id r))
+                (ctrl/note-form-ctrl ar-id r))
 
            (DELETE "/:ar-id" [ar-id]
                    (let [result (s/send-command :note :delete-note
