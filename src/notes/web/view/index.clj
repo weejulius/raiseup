@@ -147,7 +147,7 @@
   [:div.mod-error
    [:span error]])
 
-(defn index-view
+(defn load-index-view
   "the view of index"
   [user-name notes]
   (let []
@@ -166,7 +166,7 @@
     "new note"
     (mod-form-note nil)))
 
-(defn note-edit-view
+(defn load-note-edit-view
   [logined-user-name note]
   (basic-layout
     logined-user-name
@@ -174,7 +174,7 @@
     (mod-form-note note)))
 
 
-(defn note-view
+(defn load-note-view
   [logined-user-name ar-id]
   (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
     (basic-layout
@@ -183,7 +183,7 @@
       (mod-note note))))
 
 
-(defn user-notes-view
+(defn load-user-notes-view
   [notes logined-user-name editable?]
   (basic-layout
     logined-user-name

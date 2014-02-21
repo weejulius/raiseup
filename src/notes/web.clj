@@ -10,11 +10,17 @@
             [notes.commands :as commands]
             ))
 
+(defn- on-failed
+  [result f]
+  (let [invalid? (validate/invalid? result)]
+    (if invalid? [false (f result)]
+                 [true result])))
 
-(defn- on-command-result [result on-invalid on-valid]
-  (if (validate/invalid? result)
-    (on-invalid result)
-    (on-valid result)))
+(defn- on-success
+  [result f]
+  (if (first result)
+    (f (second result))
+    (second result)))
 
 (defroutes notes-routes
            (POST "/commands" []
@@ -24,39 +30,43 @@
            (POST "/" [:as req]
                  (-> req
                      ctrl/post-note
-                     (on-command-result
-                       #(str %)
-                       #(redirect-after-post
-                         (str "/notes/" %)))))
+                     (on-failed #(str %))
+                     (on-success #(redirect-after-post
+                                   (str "/notes/" %)))))
 
            (POST "/users" [name password :as r]
                  (-> name
                      (ctrl/reg-user password)
-                     (on-command-result
-                       #(str %)
-                       #(-> (redirect-after-post
-                              (str "/notes/" name "/notes"))
-                            assoc :session (assoc (:session r) :identity (keyword name))))))
+                     (on-failed #(str %))
+                     (on-success
+                       (fn [result]
+                         (-> (redirect-after-post
+                               (str "/notes/" name "/notes"))
+                             (assoc-in [:session :identity] (keyword name)))))))
 
 
            (POST "/users/login" [name password :as r]
-                 (let [result (ctrl/login name password)
-                       session (-> (:session r)
-                                   (assoc :identity (keyword name)))]
-                   (if (validate/invalid? result)
-                     (str result)
-                     (do
-                       (-> (redirect-after-post
-                             (str "/notes/" name "/notes"))
-                           (assoc :session session))))))
+                 (-> (ctrl/login name password)
+                     (on-failed #(str %))
+                     (on-success
+                       (fn [result]
+                         (-> (redirect-after-post
+                               (str "/notes/" name "/notes"))
+                             (assoc-in [:session :identity] (keyword name)))))))
 
-           (POST "/:ar-id" [ar-id title content]
-                 (let [result (s/send-command :note :update-note
-                                              {:ar-id   (->long ar-id)
-                                               :title   title
-                                               :content content
-                                               :utime   (date/now-as-millis)})]
-                   (redirect-after-post (str "/notes/" ar-id))))
+           (POST "/:ar-id" [ar-id title content :as req]
+                 (-> (ctrl/put-note req)
+                     (on-failed #(str %))
+                     (on-success #(redirect-after-post
+                                   (str "/notes/" ar-id)))))
+
+           (DELETE "/:ar-id" [ar-id :as req]
+                   (-> (ctrl/delete-note req)
+                       (on-failed #(str %))
+                       (on-success #(redirect "/notes"))))
+
+           ;;--------------GET ---------------------------------------------
+
 
            (GET "/" [:as req]
                 #_(throw (ex-info "test" {:a 1}))
@@ -78,9 +88,4 @@
                 (ctrl/note-ctrl ar-id req))
 
            (GET "/:ar-id/form" [ar-id :as r]
-                (ctrl/note-form-ctrl ar-id r))
-
-           (DELETE "/:ar-id" [ar-id]
-                   (let [result (s/send-command :note :delete-note
-                                                {:ar-id (->long ar-id)})]
-                     (redirect (str "/notes")))))
+                (ctrl/note-form-ctrl ar-id r)))
