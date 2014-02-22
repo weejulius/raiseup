@@ -22,22 +22,25 @@
     (f (second result))
     (second result)))
 
+
+
 (defroutes notes-routes
            (POST "/commands" []
                  (fn [req]
-                   (str (s/send-command (read-string (-> req :params :command))))))
+                   (str (s/send-command
+                          (read-string (-> req :params :command))))))
 
            (POST "/" [:as req]
                  (-> req
                      ctrl/post-note
-                     (on-failed (partial str))
+                     (on-failed str)
                      (on-success #(redirect-after-post
                                    (str "/notes/" %)))))
 
            (POST "/users" [name password :as r]
                  (-> name
                      (ctrl/reg-user password)
-                     (on-failed (partial str))
+                     (on-failed str)
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
@@ -47,20 +50,20 @@
 
            (POST "/users/login" [name password :as r]
                  (-> (ctrl/login name password)
-                     (on-failed (partial str))
+                     (on-failed str)
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
                                (str "/notes/" name "/notes"))
                              (assoc-in [:session :identity] (keyword name)))))))
 
-           (POST "/:ar-id" [ar-id title content :as req]
+           (POST ["/:ar-id", :ar-id #"[0-9]+"] [ar-id title content :as req]
                  (-> (ctrl/put-note req)
-                     (on-failed (partial str))
+                     (on-failed str)
                      (on-success
                        #(redirect-after-post (str "/notes/" ar-id)))))
 
-           (DELETE "/:ar-id" [ar-id :as req]
+           (DELETE ["/:ar-id", :ar-id #"[0-9]+"] [ar-id :as req]
                    (-> (ctrl/delete-note req)
                        (on-failed (partial str))
                        (on-success #(redirect "/notes"))))
@@ -81,11 +84,13 @@
            (GET "/new" [:as r]
                 (ctrl/note-form-ctrl nil r))
 
-           (GET "/:name/notes" [name :as r]
-                (ctrl/user-notes-ctrl name r))
 
-           (GET "/:ar-id" [ar-id :as req]
+
+           (GET ["/:ar-id", :ar-id #"[0-9]+"] [ar-id :as req]
                 (ctrl/note-ctrl ar-id req))
+
+           (GET "/:name" [name :as r]
+                (ctrl/user-notes-ctrl name r))
 
            (GET "/:ar-id/form" [ar-id :as r]
                 (ctrl/note-form-ctrl ar-id r)))

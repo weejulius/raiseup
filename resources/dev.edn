@@ -7,7 +7,8 @@
   :separator          ","
   :template-extension "httl"
 
-  :components         {
+  :components
+                      {
                         :snapshot-db       {
                                              :component      cqrs.storage/->LeveldbStore
                                              :path           "/tmp/snapshot-db"
@@ -47,21 +48,25 @@
                                              :cluster-name   "elasticsearch"
                                              ;  :settings {:index {"number_of_replicas" 1}}
                                              :mappings
-                                                             {"note" {:properties
-                                                                       {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
-                                                                        :ar      {:type "string" :store "yes" :index "not_analyzed"}
-                                                                        :author  {:type "string" :store "yes" :index "not_analyzed"}
-                                                                        :title   {:type "string" :analyzer "standard" :store "yes"}
-                                                                        :content {:type "string" :analyzer "standard" :store "yes"}
-                                                                        :ctime   {:type "date" :store "yes" :index "not_analyzed"}}}
-                                                              "user" {:properties
-                                                                       {:ar-id   {:type "long" :store "yes" :index "not_analyzed"}
-                                                                        :ar      {:type "string" :store "yes" :index "not_analyzed"}
-                                                                        :author  {:type "string" :store "yes" :index "not_analyzed"}
-                                                                        :title   {:type "string" :analyzer "standard" :store "yes"}
-                                                                        :content {:type "string" :analyzer "standard" :store "yes"}
-                                                                        :ctime   {:type "date" :store "yes" :index
-                                                                                        "not_analyzed"}}}
+                                                             {"note"
+                                                               {
+                                                                 :properties
+                                                                 {:ar-id   {:type "long" :index "not_analyzed"}
+                                                                  :ar      {:type "string" :index "not_analyzed"}
+                                                                  :author  {:type "string" :index "not_analyzed"}
+                                                                  :title   {:type "string" :analyzer "standard"}
+                                                                  :content {:type "string" :analyzer "standard"}
+                                                                  :ctime   {:type "long" :index "not_analyzed"}}}
+                                                              "user"
+                                                               {
+                                                                 :properties
+                                                                 {:ar-id           {:type "long" :index "not_analyzed"}
+                                                                  :ar              {:type "string" :index "not_analyzed"}
+                                                                  :name            {:type "string" :index "not_analyzed"}
+                                                                  :hashed-password {:type "string" :index "no"}
+                                                                  :login-time      {:type "long" :index "not_analyzed"}
+                                                                  :logout-time     {:type "long" :index "not_analyzed"}
+                                                                  :ctime           {:type "long" :index "not_analyzed"}}}
                                                               }
                                              }
 

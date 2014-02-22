@@ -53,7 +53,9 @@
           (log/debug "==== ==== creating elastic search index " app))
         (do
           (doseq [[type map] (:mappings options)]
-            (idx/update-mapping (:app options) type :mapping {type map}))
+            (idx/update-mapping (:app options) type
+                                :mapping {type map}
+                                :ignore_conflicts true))
           (log/debug "==== ==== starting existing elastic search index " app))))
     (assoc this :app (:app options)))
   (start [this options]

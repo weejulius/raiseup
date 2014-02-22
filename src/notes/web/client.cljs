@@ -139,7 +139,7 @@
 
 (defn click-reg-user
   []
-  (dom/listen! (sel1 [:#reg :.btn])
+  (dom/listen! (sel1 [:#reg :a])
                :click
                (fn [event]
                  (dom/toggle-class! (sel1 [:#reg :form]) :show))))
@@ -147,7 +147,7 @@
 
 (defn click-login-user
   []
-  (dom/listen! (sel1 [:#login :.btn])
+  (dom/listen! (sel1 [:#login :a])
                :click
                (fn [event]
                  (dom/toggle-class! (sel1 [:#login :form]) :show))))

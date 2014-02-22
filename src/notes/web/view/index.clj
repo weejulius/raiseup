@@ -47,18 +47,18 @@
    (if authed?
      [:ul#auth
       [:li#logout
-       [:a {:class "btn" :href "/notes/users/logout"} "退出"]]]
+       [:a {:class "" :href "/notes/users/logout"} "退出"]]]
 
      [:ul#auth
       [:li#login
-       [:a {:class "btn"} "登陆"]
+       [:a {:class ""} "登陆"]
        (form-to
          [:POST "/notes/users/login"]
          [:input {:type :text :name :name :placeholder "输入用户名"}]
          [:input {:type :password :name :password :placeholder "输入密码"}]
          [:input {:type :submit :value "确定"}])]
       [:li#reg
-       [:a {:class "btn"} "注册"]
+       [:a {:class ""} "注册"]
        (form-to
          [:POST "/notes/users"]
 
@@ -70,10 +70,11 @@
 
 (defn- right-slide
   "right slides"
-  [user-name]
+  [logined-user-name]
   [:div.right-slide
    [:div#current-user
-    [:a {:href (str "/notes/" user-name "/notes")} user-name]]])
+    (if-not (empty? logined-user-name)
+      [:span [:a {:href (str "/notes/" logined-user-name)} logined-user-name] "的空间"])]])
 
 (defn basic-layout
   [logined-user-name title modes]
@@ -90,14 +91,17 @@
 (defn- mod-notes
   [notes editable?]
   [:div.mod-notes
+   (if editable?
+     [:a {:class "btn lv1" :href "/notes/new"} "新建"])
    [:ul
     (for [note notes]
       [:li
        [:div.title
         [:h1
          (link-to (str "/notes/" (:ar-id note) (if editable? "/form")) (:title note))]
-        [:span (:author note)]
-        [:span (convert/->str (convert/->date (:ctime note)))]]
+        [:div.additional
+         [:span (convert/->str (convert/->date (:ctime note)))]
+         [:span [:a {:href (str "/notes/" (:author note))} (:author note)]]]]
        (let [max-length-words 200
              content (:content note)
              only-show-summary? (< max-length-words (.length content))
@@ -121,10 +125,10 @@
         [:POST action]
         [:input.title {:type "text" :name "title" :value (get note :title "")}]
         [:textarea#content {:name "content"} (get note :content "")]
-        [:input {:class "btn act" :type :submit :value (if new? :CREATE :UPDATE)}])
+        [:input {:class "btn lv1" :type :submit :value (if new? :CREATE :UPDATE)}])
       (form-to
         [:DELETE action]
-        [:input {:class "btn lv2 act" :type :submit :value :DELETE}])]
+        [:input {:class "btn lv1 lv2" :type :submit :value :DELETE}])]
      [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
      [:script {:type "text/javascript"}
@@ -138,8 +142,9 @@
    [:div.title
     [:h1
      (link-to (str "/notes/" (:ar-id note)) (:title note))]
-    [:span (:author note)]
-    [:span (convert/->str (convert/->date (:ctime note)))]]
+    [:div.additional
+     [:span (convert/->str (convert/->date (:ctime note)))]
+     [:span (:author note)]]]
    [:div.markdown (markdown/md-to-html-string (:content note))]])
 
 (defn- mod-error

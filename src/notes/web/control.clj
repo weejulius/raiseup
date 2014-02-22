@@ -99,7 +99,7 @@
     #(-> (empty? name)
          (if-not (s/fetch (q/->QueryNote :note nil name nil nil)))
          (v/load-user-notes-view
-           name
+           (current-user req)
            (current-user? req name)))))
 
 (defn note-ctrl
