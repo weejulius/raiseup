@@ -9,7 +9,7 @@
                  [clj-time "0.6.0"]
                  [prismatic/schema "0.2.0"]
                  [com.taoensso/nippy "2.5.2"]
-                 [com.taoensso/timbre "3.0.0"]
+                 [com.taoensso/timbre "3.0.1"]
 
                  ;;cqrs
                  [io.vertx/clojure-api "1.0.0.Beta2"]

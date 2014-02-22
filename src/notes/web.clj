@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
             [notes.web.view.index :as v]
             [system :as s]
+            [clojure.edn :as edn]
             [notes.web.control :as ctrl]
             [common.convert :refer [->long ->map ->data ->str]]
             [ring.util.response :refer [redirect redirect-after-post]]
@@ -28,7 +29,7 @@
            (POST "/commands" []
                  (fn [req]
                    (str (s/send-command
-                          (read-string (-> req :params :command))))))
+                          (edn/read-string (-> req :params :command))))))
 
            (POST "/" [:as req]
                  (-> req
@@ -44,7 +45,7 @@
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
-                               (str "/notes/" name "/notes"))
+                               (str "/notes/" name))
                              (assoc-in [:session :identity] (keyword name)))))))
 
 
@@ -54,7 +55,7 @@
                      (on-success
                        (fn [result]
                          (-> (redirect-after-post
-                               (str "/notes/" name "/notes"))
+                               (str "/notes/" name))
                              (assoc-in [:session :identity] (keyword name)))))))
 
            (POST ["/:ar-id", :ar-id #"[0-9]+"] [ar-id title content :as req]

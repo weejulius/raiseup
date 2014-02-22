@@ -4,7 +4,7 @@
             [cqrs.core :as cqrs]
             [cqrs.protocol :as p]
             [common.config :as cfg]
-            [common.component :as component]
+            [common.components :as component]
             [common.logging :as log])
   (:import [clojure.lang IPersistentMap]))
 

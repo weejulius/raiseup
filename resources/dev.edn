@@ -9,6 +9,15 @@
 
   :components
                       {
+                        :logging           {:component common.logging/->TimbreLogging
+                                            :config
+                                                       {
+                                                         [:shared-appender-config :rotor] {:path     "/tmp/raiseup1.log"
+                                                                                           :max-size 10240000
+                                                                                           :backlog  5}
+                                                         [:appenders :rotor]              taoensso.timbre.appenders.rotor/rotor-appender
+
+                                                         }}
                         :snapshot-db       {
                                              :component      cqrs.storage/->LeveldbStore
                                              :path           "/tmp/snapshot-db"

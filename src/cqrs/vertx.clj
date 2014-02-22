@@ -5,6 +5,7 @@
             [clojure.test :refer :all]
             [vertx.eventbus :as bus]
             [vertx.embed :as vertx]
+            [common.core :as c]
             [common.logging :as log]))
 
 (defrecord VertxBus [useless]
@@ -27,8 +28,8 @@
     (doall
       (map (fn [handlers]
              (log/info "```init handlers for bus```" handlers)
-             (require (symbol (namespace handlers)))
-             ((resolve (symbol handlers)))) (:handlers options)))
+             ((c/load-sym handlers)))
+           (:handlers options)))
     this)
   (stop [this options]
     this)

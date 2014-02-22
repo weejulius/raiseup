@@ -1,17 +1,26 @@
 {
-  :components         {
-                        :snapshot-db       {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/snapshot-db"}
+  :components {
+                :logging           {
+                                     :config
+                                     {
+                                       [:shared-appender-config :rotor]
+                                                           {:path
+                                                                      "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/logs/raiseup.log"
+                                                            :max-size 10240000
+                                                            :backlog  5}
+                                       }}
+                :snapshot-db       {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/snapshot-db"}
 
-                        :recoverable-id-db {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/ids-db"}
+                :recoverable-id-db {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/ids-db"}
 
-                        :events-db         {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/events-db"}
+                :events-db         {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/events-db"}
 
-                        :readmodel         {
-                                             :host "127.6.87.129"
-                                             :port 15555
-                                             :start-shell    []
-                                             :shutdown-shell []
-                                             }
+                :readmodel         {
+                                     :host           "127.6.87.129"
+                                     :port           15555
+                                     :start-shell    []
+                                     :shutdown-shell []
+                                     }
 
-                        }
+                }
   }

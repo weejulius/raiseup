@@ -1,6 +1,7 @@
 (ns ^{:doc "config toolbox"}
   common.config
-  (:require [common.seq :as seq])
+  (:require [common.seq :as seq]
+            [clojure.edn :as edn])
   (:import (java.io PushbackReader)))
 
 (def dev-config-file "dev.edn")
@@ -24,7 +25,7 @@
   [file]
   (with-open [r (PushbackReader.
                   (-> file clojure.java.io/resource clojure.java.io/reader))]
-    (read r)))
+    (edn/read r)))
 
 
 

@@ -1,6 +1,6 @@
 (ns main
   (:gen-class)
-  (:require [common.component :as component]))
+  (:require [common.components :as component]))
 
 
 (defn -main
