@@ -7,18 +7,18 @@
 (cqrs/def-schema :create-note
                  {:author  (s/maybe s/Str)
                   :title   (s/both s/Str
-                                   (s/pred #(> 100 (count %))))
+                                   (s/pred #(c/between (count %) 2 100)))
                   :content (s/both s/Str
-                                   (s/pred #(> 5000 (count %))))
+                                   (s/pred #(c/between (count %) 2 5000)))
                   :ctime   s/Num})
 
 
 (cqrs/def-schema :update-note
                  {:ar-id                  s/Num
                   (s/optional-key :title) (s/maybe (s/both s/Str
-                                                           (s/pred #(> 100 (count %)))))
+                                                           (s/pred #(c/between (count %) 2 100))))
                   :content                (s/maybe (s/both s/Str
-                                                           (s/pred #(> 5000 (count %)))))
+                                                           (s/pred #(c/between (count %) 5 5000))))
                   :utime                  s/Num})
 
 (cqrs/def-schema :delete-note
