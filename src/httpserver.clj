@@ -2,6 +2,8 @@
   (:require [common.component :as component]
             [ring.middleware.reload :as reload]
             [ring.middleware.gzip :as gzip]
+            [common.core :as common]
+            [common.config :as cfg]
             [ring.middleware.pretty-exception :as pretty-exception]
             [compojure.handler :refer [site]]
             [common.logging :as log]
@@ -26,8 +28,7 @@
     this)
   (start [this options]
     (let [routes (:routes options)
-          routes (do (require (symbol (namespace routes)))
-                     (resolve (symbol routes)))
+          routes (common/load-sym routes)
           handler (site routes)
           backend (session-backend :unauthorized-handler unauthorized-handle)
           wrapped-handler (-> handler
@@ -36,9 +37,13 @@
                               (wrap-authentication backend)
                               (wrap-session)
 
-                              reload/wrap-reload
-                              pretty-exception/wrap-pretty-exception
                               gzip/wrap-gzip)
+          
+          wrapped-handler (if (cfg/dev-mode?)
+                            (-> wrapped-handler
+                                reload/wrap-reload
+                                pretty-exception/wrap-pretty-exception)
+                            wrapped-handler)
           port (:port options)
           ip (:host options)
           stop-fn (run-server wrapped-handler {:port port :ip ip})]

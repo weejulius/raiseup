@@ -14,7 +14,7 @@
 (defprotocol Store
   "the protocol to utilize the store"
   (ret-value [this key] "return value by key in the store")
-  (write [this key-bytes value-bytes] "store the key value which is bytes")
+  (write [this key value] "store the key value")
   (write-in-batch [this items] "store items in batch")
   (delete [this key] "delete the value by key")
   (map [this f] "apply f for each item")
@@ -27,7 +27,7 @@
   (ret-value [this key]
     (.get db (->bytes key)))
   (write [this key value]
-    (.put db key value))
+    (.put db (->bytes key) (->bytes value)))
   (write-in-batch [this items]
     (let [^WriteBatch batch (.createWriteBatch db)]
       (doseq [item items]
@@ -74,9 +74,7 @@
             new-value (if (nil? cur-value) (long 0)
                                            (+ cur-value flush-recoverable-id-interval))]
         (swap! long-ids #(assoc % id-name (AtomicLong. new-value)))
-        (write storage
-               (->bytes id-name)
-               (->bytes new-value))
+        (write storage id-name new-value)
         (log/debug "init the recoverable long id for " id-name)))
     (get @long-ids id-name)))
 
@@ -93,10 +91,7 @@
                         storage id-name
                         (:long-ids this) (:flush-recoverable-id-interval this)))]
       (if (zero? (mod inc-value (:flush-recoverable-id-interval this)))
-        (write
-          storage
-          (->bytes id-name)
-          (->bytes (long inc-value))))
+        (write storage id-name (long inc-value)))
       inc-value))
   (clear! [this id-name]
     (doto (delete storage id-name)

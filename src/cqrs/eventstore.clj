@@ -20,8 +20,8 @@
         current-eventids (->data event-ids-byte)
         appended-eventids (distinct (into current-eventids event-ids))]
     (store/write storage
-                 (->bytes store-key)
-                 (->bytes appended-eventids))))
+                 store-key
+                 appended-eventids)))
 
 
 (defn write-events-to-storage
@@ -50,8 +50,8 @@
                          :new     snapshot}))))
     (log/debug "store snapshot" snapshot-key snapshot)
     (store/write snapshot-db
-                 (->bytes snapshot-key)
-                 (->bytes snapshot))))
+                 snapshot-key
+                 snapshot)))
 
 (defn retreive-ar-snapshot
   [ar-name ar-id snapshot-db]

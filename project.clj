@@ -16,7 +16,7 @@
                  [com.hazelcast/hazelcast "3.1.5"]
                  [clojurewerkz/elastisch "1.3.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.7"]
-
+                 [org.mapdb/mapdb "0.9.10"]
                  ;web
                  [http-kit "2.1.16"]
                  [compojure "1.1.6"]

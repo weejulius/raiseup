@@ -125,7 +125,11 @@ CQRS实现回顾
 
 ## refactor to be functional
 
-## 完成NOTE
+## 即将要做
+
+* use hazelcast along with leveldb
+* command style
+* everything is data
 
 
 
