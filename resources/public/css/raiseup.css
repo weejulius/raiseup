@@ -256,11 +256,15 @@ a.btn{
     padding:25px 10px;
     clear:right;
     font-size:0.95em;
-    line-height: 120%;
-    font-family:Consolas, "Liberation Mono", Courier, monospace;
+    font-family:"Source Code Pro",Monaco, Consolas, "Liberation Mono", Courier, monospace;
     -ms-text-size-adjust:100%;
     -webkit-text-size-adjust:100%;
     color:#333;
+    line-height:25px;
+}
+
+.markdown pre{
+  font-size:0.9em;
 }
 
 .markdown li{
@@ -271,13 +275,6 @@ div.markdown ol li{
     border:0;
 }
 
-.markdown pre{
-    background:#111;
-    color:#fff;
-    text-shadow: 0px 0.5px 0.5px #333;
-    margin:5px 0;
-    padding:20px;
-}
 
 .markdown p{
     margin:10px 0px;
@@ -285,7 +282,7 @@ div.markdown ol li{
 
 .markdown h2{
     font-weight:600;
-    margin :10px 0;
+    margin :20px 0;
     font-size : 1.3em;
     color:#e03;
     font-family:sans-serif;

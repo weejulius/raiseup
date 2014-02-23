@@ -25,7 +25,12 @@
      (include-js "/js/client.js")
      ;(include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
      ]
-    [:body [:div.container body]]))
+    [:body
+     [:div.container body]
+     (include-css "/css/hl.css")
+     (include-js "/js/highlight.pack.js")
+     [:script {:type "text/javascript"}
+      "hljs.initHighlightingOnLoad();"]]))
 
 
 (defn- footer
@@ -87,6 +92,11 @@
           (right-slide logined-user-name)
           (footer)))
 
+(defn- markdown->str
+  [^String content]
+  (-> (markdown/md-to-html-string content)
+      (.replace "<pre>" "<pre><code>")
+      (.replace "</pre>" "</code></pre>")))
 
 (defn- mod-notes
   [notes editable?]
@@ -107,7 +117,7 @@
              only-show-summary? (< max-length-words (.length content))
              content (if only-show-summary? (subs content 0 max-length-words) content)]
          [:div.markdown
-          (markdown/md-to-html-string content)
+          (markdown->str content)
           (if only-show-summary?
             [:a.more {:href (str "/notes/" (:ar-id note))} "...More "])])])]])
 
@@ -145,7 +155,7 @@
     [:div.additional
      [:span (convert/->str (convert/->date (:ctime note)))]
      [:span (:author note)]]]
-   [:div.markdown (markdown/md-to-html-string (:content note))]])
+   [:div.markdown (markdown->str (:content note))]])
 
 (defn- mod-error
   [error]

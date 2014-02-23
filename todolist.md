@@ -121,6 +121,7 @@ CQRS实现回顾
 * note-his should be removed
 * [DONE] 注册成功应该更新session
 * identity为什么不在req？
+* notes应该是倒序排
 
 
 ## refactor to be functional

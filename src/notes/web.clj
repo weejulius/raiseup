@@ -62,12 +62,14 @@
                  (-> (ctrl/put-note req)
                      (on-failed str)
                      (on-success
-                       #(redirect-after-post (str "/notes/" ar-id)))))
+                       (fn [result]
+                         (redirect-after-post (str "/notes/" ar-id))))))
 
            (DELETE ["/:ar-id", :ar-id #"[0-9]+"] [ar-id :as req]
                    (-> (ctrl/delete-note req)
                        (on-failed (partial str))
-                       (on-success #(redirect "/notes"))))
+                       (on-success
+                         (fn [result] (redirect "/notes")))))
 
            ;;--------------GET ---------------------------------------------
 
