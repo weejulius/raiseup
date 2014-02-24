@@ -122,6 +122,7 @@ CQRS实现回顾
 * [DONE] 注册成功应该更新session
 * identity为什么不在req？
 * notes应该是倒序排
+* 个人页面不需要权限验证
 
 
 ## refactor to be functional

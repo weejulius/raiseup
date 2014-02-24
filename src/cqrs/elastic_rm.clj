@@ -39,6 +39,8 @@
       (if (empty? query-result)
         []
         (map #(get % :_source) (-> query-result :hits :hits)))))
+
+
   component/Lifecycle
   (init [this options]
     (run-local-command (:start-shell options))

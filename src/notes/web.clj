@@ -8,8 +8,7 @@
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
             [common.validator :as validate]
-            [notes.commands :as commands]
-            ))
+            [notes.commands :as commands]))
 
 (defn- on-failed
   [result f]

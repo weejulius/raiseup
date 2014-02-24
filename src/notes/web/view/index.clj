@@ -191,7 +191,7 @@
 
 (defn load-note-view
   [logined-user-name ar-id]
-  (let [note (s/fetch (->QueryNote :note ar-id nil nil nil))]
+  (let [note (s/fetch :note :ar-id ar-id)]
     (basic-layout
       logined-user-name
       (str (:title note))

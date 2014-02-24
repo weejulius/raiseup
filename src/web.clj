@@ -1,7 +1,7 @@
 (ns web
   (:require [compojure.core :refer [defroutes context GET POST DELETE]]
             [compojure.route :as route]
-            [ontime.web :as ontime-web]
+            [notes.query :refer :all]
             [notes.web :as notes-web :refer :all]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]

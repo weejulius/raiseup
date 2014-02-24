@@ -25,15 +25,15 @@
   [req user-name]
   (= user-name (current-user req)))
 
-(defn- on-authed-with
-  ([additional req f]
-   (if-not (or (authed? req) additional)
-     (throw-notauthorized req)
-     (f))))
+(defn- authorize-to-change-resource
+  ([has-resource? resource-owner req]
+   (if-not (or (authed? req) (and has-resource?
+                                  (= (current-user req) (resource-owner))))
+     (throw-notauthorized req))))
 
-(defn- on-authed
-  [req f]
-  (on-authed-with false req f))
+(defn- authorize-resource
+  [req]
+  (authorize-to-change-resource false nil req))
 
 (defn- p
   [key req]
@@ -41,7 +41,7 @@
 
 (defn reg-user
   [name password]
-  (let [user (s/fetch (q/->QueryUser :user nil name nil nil))]
+  (let [user (s/fetch :user :name name)]
     (if-not (empty? user)
       (validate/invalid-msg :user-name-is-existing)
       (s/send-command :user :create-user
@@ -52,7 +52,7 @@
 
 (defn login
   [name password]
-  (let [user (first (s/fetch (q/->QueryUser :user nil name nil nil)))
+  (let [user (s/fetch-first :user :name name)
         user-not-exist? (nil? user)
         valid-password? (and (not user-not-exist?)
                              (not (empty? (:hashed-password user)))
@@ -66,8 +66,7 @@
 
 (defn logout
   [req]
-  (let [user (s/fetch-first
-               (q/->QueryUser :user nil (current-user req) nil nil))]
+  (let [user (s/fetch-first :user :name (current-user req))]
     (s/send-command :user :logout-user
                     {:ar-id       (:ar-id user)
                      :logout-time (d/now-as-millis)})))
@@ -75,32 +74,23 @@
 
 (defn index-ctrl
   [req]
-  (let [notes (s/fetch (q/->QueryNote :note nil nil
-                                      (->long (p :page req))
-                                      (->long (p :size req))))]
+  (let [notes (s/fetch :note :page (->long (p :page req)) :size (->long (p :size req)))]
     (v/load-index-view (current-user req) notes)))
 
 (defn note-form-ctrl
   [ar-id req]
   (let [new-form? (nil? ar-id)
-        note (if-not new-form?
-               (s/fetch
-                 (q/->QueryNote :note (->long ar-id) nil nil nil)))]
-    (on-authed-with
-      (not (or new-form?
-               (current-user? req (:author note))))
-      req
-      #(v/load-note-edit-view (current-user req) note))))
+        note (if-not new-form? (s/fetch :note :ar-id (->long ar-id)))]
+    (authorize-to-change-resource new-form? #(:author note) req)
+    (v/load-note-edit-view (current-user req) note)))
 
 (defn user-notes-ctrl
   [name req]
-  (on-authed
-    req
-    #(-> (empty? name)
-         (if-not (s/fetch (q/->QueryNote :note nil name nil nil)))
-         (v/load-user-notes-view
-           (current-user req)
-           (current-user? req name)))))
+  (-> (if-not (empty? name)
+        (s/fetch :note :author name))
+      (v/load-user-notes-view
+        (current-user req)
+        (current-user? req name))))
 
 (defn note-ctrl
   [ar-id req]
@@ -108,27 +98,29 @@
 
 (defn post-note
   [req]
-  (on-authed
-    req
-    #(s/send-command :note :create-note
-                     {:author  (name (-> req :session :identity))
-                      :title   (p :title req)
-                      :content (p :content req)
-                      :ctime   (d/now-as-millis)})))
+  (authorize-resource req)
+  (s/send-command :note :create-note
+                  {:author  (name (-> req :session :identity))
+                   :title   (p :title req)
+                   :content (p :content req)
+                   :ctime   (d/now-as-millis)}))
 
 (defn put-note
   [req]
-  (on-authed
-    req
-    #(s/send-command :note :update-note
-                     {:ar-id   (->long (p :ar-id req))
-                      :title   (p :title req)
-                      :content (p :content req)
-                      :utime   (d/now-as-millis)})))
+  (let [ar-id (->long (p :ar-id req))
+        get-note #(s/fetch :note :ar-id ar-id)]
+    (authorize-to-change-resource (nil? ar-id) get-note req)
+    (s/send-command :note :update-note
+                    {:ar-id   ar-id
+                     :title   (p :title req)
+                     :content (p :content req)
+                     :utime   (d/now-as-millis)})))
 
 (defn delete-note
   [req]
-  (on-authed
-    req
-    #(s/send-command :note :delete-note
-                     {:ar-id (->long (p :ar-id req))})))
+  (let [ar-id (->long (p :ar-id req))
+        get-note #(s/fetch :note :ar-id ar-id)]
+    (authorize-to-change-resource (nil? ar-id) get-note req)
+    (s/send-command :note :delete-note
+                    {:ar-id (->long (p :ar-id req))})))
+

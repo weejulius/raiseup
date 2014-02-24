@@ -37,12 +37,12 @@
                                  (fn [] (:bus component/state))
                                  (fn [] (:snapshot-db component/state))))
 
-(schema.macros/defn fetch
+(defn fetch
   "fetch result of query"
-  [query :- p/Query]
-  (cqrs/fetch (:readmodel component/state) query))
+  [ar & {:as query}]
+  (cqrs/fetch (:readmodel component/state) ar query))
 
-(schema.macros/defn fetch-first
+(defn fetch-first
   "fetch result of query"
-  [query :- p/Query]
-  (first (fetch query)))
+  [ar & {:as query}]
+  (first (cqrs/fetch (:readmodel component/state) ar query)))

@@ -1,28 +1,32 @@
 (ns ^{:doc "the queries for notes"}
   notes.query
-  (:require [cqrs.protocol :refer [Query] :as p]
-            [schema.macros :as sm]
-            [schema.core :as s]))
+  (:require [schema.macros :as sm]
+            [schema.core :as s]
+            [cqrs.core :as cqrs]))
 
-(sm/defrecord QueryNote
-              [ar :- s/Keyword
-               id :- (s/maybe s/Num)
-               author :- (s/maybe s/Str)
-               page :- (s/maybe s/Num)
-               size :- (s/maybe s/Num)]
-  Query
-  (query [this]
-         (if-not (nil? author)
-           {:query {:term {:author author}}})))
+(cqrs/def-query
+  :note
+
+  {
+    :schema
+    {(s/optional-key :author) s/Str}
+
+    :query
+    (fn [p]
+      (if-not (nil? (:author p))
+        {:query {:term {:author (:author p)}}}))})
 
 
-(sm/defrecord QueryUser
-              [ar :- s/Keyword
-               id :- (s/maybe s/Num)
-               name :- (s/maybe s/Str)
-               page :- (s/maybe s/Num)
-               size :- (s/maybe s/Num)]
-  Query
-  (query [this]
-         (if-not (nil? name)
-           {:query {:term {:name name}}})))
+
+(cqrs/def-query
+  :user
+  {
+    :schema
+    {(s/optional-key :name) s/Str}
+
+
+    :query
+    (fn [p]
+      (if-not (nil? (:name p))
+        {:query {:term {:name (:name p)}}}))})
+

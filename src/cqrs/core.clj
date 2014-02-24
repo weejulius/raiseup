@@ -94,19 +94,34 @@
 
 
 
-(defonce schemas (atom {}))
+(defonce defs-cache (atom {}))
 
-(defn def-schema
+(defn def-command-schema
   "define schema which can be got by name"
   [name schema]
   (do
-    (log/debug "def schema" name)
-    (swap! schemas
+    (log/debug "command schema" name)
+    (swap! defs-cache
            #(assoc % name
                      (merge
                        {:ar      schema/Keyword
                         :command schema/Keyword}
                        schema)))))
+
+(defn def-query
+  "define schema which can be got by name"
+  [ar defs]
+  (swap! defs-cache
+         #(assoc % (str "query-" ar "-schema")
+                   (merge
+                     (:schema defs)
+                     {
+                       (schema/optional-key :ar-id) (schema/maybe schema/Num)
+                       (schema/optional-key :page)  (schema/maybe schema/Num)
+                       (schema/optional-key :size)  (schema/maybe schema/Num)})))
+  (swap! defs-cache
+         #(assoc % (str "query-" ar) (:query defs))))
+
 
 (defn- validate-schema
   [schema any]
@@ -131,12 +146,12 @@
 
   ([command recoverable-ids snapshot-db]
    (let [command-type (:command command)
-         schema (get @schemas command-type)]
+         schema (get @defs-cache command-type)]
      (if (nil? schema)
        (throw (ex-info "schema is missing"
                        {:type    command-type
                         :command command
-                        :schemas @schemas}))
+                        :schemas @defs-cache}))
        (let [ar-id (:ar-id command)
              ar-name (:ar command)]
          (validate-schema schema command)
@@ -151,24 +166,24 @@
 ;;elastic search fetch
 (defn fetch
   "fetch result of query"
-  [readmodel query]
-  (if-not (:ar query)
+  [readmodel ar query]
+  (if (nil? ar)
     (throw (ex-info "ar is missing for the query"
                     {:query query})))
-  (validate-schema (type query) query)
-  (if (:id query)
+  (validate-schema (get @defs-cache (str "query-" ar "-schema")) query)
+  (if (:ar-id query)
     (p/load-entry
-      readmodel (:ar query) (:id query))
+      readmodel ar (:ar-id query))
     (let [p (or (:page query) 1)
           s (or (:size query) 20)
           basic-query [:from (* s (dec p))
                        :size s]
-          more (p/query query)
-          combined (concat basic-query (flatten (seq more)))
-          combined (if-not (:sort more)
-                     (concat combined [:sort {:ar-id "asc"}])
+          more-query ((get @defs-cache (str "query-" ar)) query) ;; get sql from cache
+          combined (apply concat basic-query more-query)
+          combined (if-not (:sort more-query)
+                     (concat combined [:sort {:ar-id "desc"}])
                      combined)]
       (p/do-query
         readmodel
-        (:ar query)
+        ar
         combined))))
