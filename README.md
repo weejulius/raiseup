@@ -1,29 +1,32 @@
 # raiseup
 
-raiseup is a set of projects, applying the event souring and cqrs, and is built upon the clojure.
+Raiseup is to be a full stack of web development using clojure and clojurescript, it is not a framework or library, it is just a lab project wants to practise functional,cqrs,reative and so on. the demo is shown [here](http://red-raiseup.rhcloud.com/notes).
 
-## CQRS + Event sourcing
 
-CQRS is used to separate the read model from write model, and ES (event sourcing) is to track the events
-produced and the state of domains can be replayed by reprocessing the events.
+Raiseup is inspired by CQRS ,event sourcing and clojure, thus the command is separated from the queries, everything is simpe as it should be, data is the core. it includes the following parts.
 
-Raiseup uses a simple implementation of CQRS and ES, the events will be stored in the level db
-and the command/event bus utilizes a map as a router to dispath the event/command stream.
+##CQRS
 
-In order to optimize the performance to read events for an aggregate root, the event ids referred to an aggregate root is stored.
+- Command    : a map has the data order the system to do something
+- Handler    : functions to handle commands or events, the commands/events are distrubted by the bus.
+- Read Model : entries to be queried
+- Query      : a map has the data tell the query engine what will be retreived from the read model. 
+- Domain     : functions apply to the domain and create the final event
 
-domian.clj is a collection of aggregate root and entities and also produce the events.
-cqrsroutes.clj is the map between the command/events with the listeners/handlers.
-readmodel.clj is the read model along with the listeners to update the read model.
-commands.clj is the command handlers.
-control.clj is reposibile for producing commands.
+##WEB
+- Control : function to handle the actions or requests.
+- View    : the UI user will face.
 
-The read model now uses the hazelcast as a in memory read model, the problem here is not convecience to query models.
+It has several components, is inspired by the Reload flow work, the components have side effect but are self-managed. Now including:
 
-## Convention
+- Http Server component (imp by httpkit)
+- ReadModel component (imp by elastic search)
+- Bus component (impl by vert.x)
+- Storage component (impl by leveldb)
+- Logging component (impl by timbre)
+- Recoverable Id component (impl by leveldb)
 
-* the name of read model cache is single, like :user-slot rather than :user-slots
-
+## Functional programming
 
 ## Why function programming
 
