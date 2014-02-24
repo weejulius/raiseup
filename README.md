@@ -1,7 +1,8 @@
-# raiseup
+# Raiseup
 
 Raiseup is to be a full stack of web development using clojure and clojurescript, it is not a framework or library, it is just a lab project wants to practise functional,cqrs,reative and so on. the demo is shown [here](http://red-raiseup.rhcloud.com/notes).
 
+# Stack
 
 Raiseup is inspired by CQRS ,event sourcing and clojure, thus the command is separated from the queries, everything is simpe as it should be, data is the core. it includes the following parts.
 
@@ -26,7 +27,7 @@ It has several components, is inspired by the Reload flow work, the components h
 - Logging component (impl by timbre)
 - Recoverable Id component (impl by leveldb)
 
-## Functional programming
+# Functional programming
 
 ## Why function programming
 
@@ -37,4 +38,4 @@ It has several components, is inspired by the Reload flow work, the components h
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright © 2014 FIXME
