@@ -98,7 +98,7 @@
       (.replace "<pre>" "<pre><code>")
       (.replace "</pre>" "</code></pre>")))
 
-(defn- mod-notes
+(defn mod-notes
   [notes editable?]
   [:div.mod-notes
    (if editable?

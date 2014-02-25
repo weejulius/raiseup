@@ -59,7 +59,6 @@
     {:client {:source-paths ["src"]
               :compiler
                             {:preamble     ["reagent/react.js"]
-                             :output-dir   "resources/public/js"
+                             :output-dir   "target/js"
                              :output-to    "resources/public/js/client.js"
-                             :source-map   "resources/public/js/client.js.map"
                              :pretty-print true}}}})

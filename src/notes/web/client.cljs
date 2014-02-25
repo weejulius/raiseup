@@ -1,6 +1,6 @@
 (ns notes.web.client
   (:require
-    [ajax.core :refer [POST]]
+    [ajax.core :refer [POST GET ajax-request raw-response-format]]
     [dommy.core :as dom]
     [reagent.core :as reagent :refer [atom]]
     [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
@@ -170,3 +170,33 @@
   []
   (click-reg-user)
   (click-login-user))
+
+
+
+;;;;;;;;;;;;;;;;;;;------------------------demo-------------------------------------
+
+
+(defn- resp-send-command
+  [[ok response]]
+  (let [cmd-box (sel1 :#cmd-box)
+        resp (sel1 :#resp)]
+    (dom/set-style! cmd-box :top "30px")
+    (dom/set-html! resp response)))
+
+(defn click-cmd-box
+  []
+  (dom/listen! (sel1 :body)
+               :keyup
+               (fn [event]
+                 (let [keycode (.-keyCode event)]
+                   (if (= keycode 13)
+                     (ajax-request "/notes/cmd" :get
+                                   {:params {:cmd (val-for-el :#cmd-box)}
+                                    :handler resp-send-command
+                                    :format (raw-response-format)}))))))
+
+
+(defn demo-ready
+  []
+  (click-cmd-box))
+

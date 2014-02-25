@@ -1,6 +1,7 @@
 (ns notes.web
   (:require [compojure.core :refer [defroutes GET POST DELETE]]
             [notes.web.view.index :as v]
+            [notes.web.view.demo :as demo]
             [system :as s]
             [clojure.edn :as edn]
             [notes.web.control :as ctrl]
@@ -8,7 +9,8 @@
             [ring.util.response :refer [redirect redirect-after-post]]
             [common.date :as date]
             [common.validator :as validate]
-            [notes.commands :as commands]))
+            [notes.commands :as commands]
+            [hiccup.core :refer [html]]))
 
 (defn- on-failed
   [result f]
@@ -73,6 +75,25 @@
            ;;--------------GET ---------------------------------------------
 
 
+
+
+           ;;-------------------demo---------------------------
+
+           (GET "/demo" [:as req]
+                (demo/demo-view))
+
+           (GET "/cmd" [cmd :as req]
+                (condp = (keyword cmd)
+                  :recent
+                  (html (v/mod-notes
+                          (s/fetch :note :size nil)
+                          false))))
+
+
+
+
+           ;;-----------------------------------------------------------
+
            (GET "/" [:as req]
                 #_(throw (ex-info "test" {:a 1}))
                 (ctrl/index-ctrl req))
@@ -95,4 +116,6 @@
                 (ctrl/user-notes-ctrl name r))
 
            (GET "/:ar-id/form" [ar-id :as r]
-                (ctrl/note-form-ctrl ar-id r)))
+                (ctrl/note-form-ctrl ar-id r))
+
+           )
