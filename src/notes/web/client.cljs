@@ -181,7 +181,11 @@
   (let [cmd-box (sel1 :#cmd-box)
         resp (sel1 :#resp)]
     (dom/set-style! cmd-box :top "30px")
-    (dom/set-html! resp response)))
+    (dom/set-html! resp response)
+    (.blur cmd-box)
+    (doseq [li (sel :li)]
+      (dom/set-attr! li :tabindex 2))
+    (dom/add-class! (sel1 :li) :current)))
 
 (defn click-cmd-box
   []

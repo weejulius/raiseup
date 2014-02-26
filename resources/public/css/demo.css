@@ -51,13 +51,17 @@ table {
 /**
    reset end
    **/
+a{
+ color:#ccc;
+}
 
+body{
+   background:#222;
+}
 
 .main{
   position:relative;
   width:100%;
-  background:#222;
-  height:1000px;
 }
 
 #cmd-box{
@@ -76,9 +80,105 @@ table {
 }
 
 #resp{
- width:80%px;
+ width:76%;
  margin:0 auto;
  color:#fff;
 }
 
+.mod-notes{
+  margin-left:15px;
+}
 
+.mod-notes{
+  padding-top:100px;
+}
+
+.mod-notes li{
+  background:#333;
+}
+
+.mod-notes li {
+    border-radius:3px;
+    margin-bottom:5px;
+}
+
+.mod-notes li .title{
+    position:relative;
+    border-radius:2px;
+    padding-bottom:3px;
+    margin-bottom:5px;
+    text-shadow: 0 1px 0 rgba(111,111,111,0.2);
+}
+
+.mod-notes li .title h1{
+    height:30px;
+
+    text-transform: capitalize;
+    font-family:'Roboto Slab', monospace;
+    font-weight:800;
+    font-size:1.2em;
+    padding:10px 0 0 5px;
+
+}
+
+.mod-notes li .additional{
+
+    position:absolute;
+    right:0px;
+    top:0px;
+    font-size:1em;
+    color:#fff;
+    height:100%;
+    padding:3px 5px;
+    font-family:monospace;
+}
+
+.mod-notes li .additional span{
+    display:block;
+    margin-top:5px;
+}
+
+.markdown{
+    border-top:1px solid #555;
+    padding:25px 10px;
+    clear:right;
+    font-size:0.95em;
+    font-family:"Source Code Pro",Monaco, Consolas, "Liberation Mono", Courier, monospace;
+    -ms-text-size-adjust:100%;
+    -webkit-text-size-adjust:100%;
+    color:#eee;
+    line-height:25px;
+}
+
+.markdown pre{
+  font-size:0.9em;
+}
+
+.markdown li{
+  border:0;
+}
+div.markdown ol li{
+    margin:3px 15px;
+    border:0;
+}
+
+
+.markdown p{
+    margin:10px 0px;
+}
+
+.markdown h2{
+    font-weight:600;
+    margin :20px 0;
+    font-size : 1.3em;
+    color:#e03;
+    font-family:sans-serif;
+}
+
+
+li.current{
+     -moz-box-shadow: 3px 3px 4px #111;
+      -webkit-box-shadow: 3px 3px 4px #111;
+      box-shadow: 3px 3px 4px #111;
+      margin-bottom:13px;
+}

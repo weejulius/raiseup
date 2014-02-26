@@ -86,7 +86,7 @@
                 (condp = (keyword cmd)
                   :recent
                   (html (v/mod-notes
-                          (s/fetch :note :size nil)
+                          (s/fetch :note :size 5)
                           false))))
 
 

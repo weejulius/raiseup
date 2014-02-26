@@ -32,7 +32,7 @@
     "demo"
     [:div.main
      [:div
-      [:input#cmd-box {:type :text :placeholder "h"} ]
+      [:input#cmd-box {:type :text :autofocus "autofocus"} ]
       [:div#resp]
       ]
      [:script {:type "text/javascript"}
