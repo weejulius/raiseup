@@ -195,12 +195,29 @@
                  (let [keycode (.-keyCode event)]
                    (if (= keycode 13)
                      (ajax-request "/notes/cmd" :get
-                                   {:params {:cmd (val-for-el :#cmd-box)}
+                                   {:params  {:cmd (val-for-el :#cmd-box)}
                                     :handler resp-send-command
-                                    :format (raw-response-format)}))))))
+                                    :format  (raw-response-format)}))))))
+
+(defn cursor
+  []
+  (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
+
+(defn syn-text
+  []
+  (dom/listen! (sel1 :#cmd-box)
+               :click
+               (fn [event]
+                 (.focus (sel1 :#hidden-cmd))))
+  (dom/listen! (sel1 :#hidden-cmd)
+               :keyup
+               (fn [event]
+                 (dom/set-html! (sel1 :#cmd) (dom/html (sel1 :#hidden-cmd))))))
 
 
 (defn demo-ready
   []
+  (cursor)
+  (syn-text)
   (click-cmd-box))
 

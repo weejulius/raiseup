@@ -32,7 +32,10 @@
     "demo"
     [:div.main
      [:div
-      [:input#cmd-box {:type :text :autofocus "autofocus"} ]
+      [:div#cmd-box
+       [:span#hidden-cmd {:contenteditable "true"}]
+       [:span#cmd]
+       [:span#cursor "_"]]
       [:div#resp]
       ]
      [:script {:type "text/javascript"}

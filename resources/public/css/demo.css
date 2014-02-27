@@ -68,15 +68,37 @@ body{
   position:absolute;
   top:300px;
   left:35%;
-  width:30%;
-  height:60px;
-  border:1px solid #333;
-  background:#444;
+  height:40px;
+  background:#222;
   font-size:1.8em;
-  line-height:50px;
-  color:#eee;
+  line-height:40px;
   font-family: 'Roboto Slab', serif;
-  text-shadow: 3px 6px 3px rgba(0,0,0,0.2);
+
+}
+
+
+#hidden-cmd{
+   position:absolute;
+   left:-1000px;
+
+}
+
+#cmd{
+  border:0px;
+  background:#222;
+  color:#444;
+}
+
+#cmd:focus{
+ outline:none;
+}
+
+#cursor{
+  color:#0fe729;
+}
+
+#cmd-box span.blink{
+  color:#222;
 }
 
 #resp{
@@ -182,3 +204,5 @@ li.current{
       box-shadow: 3px 3px 4px #111;
       margin-bottom:13px;
 }
+
+
