@@ -85,9 +85,7 @@
            (GET "/cmd" [cmd :as req]
                 (condp = (keyword cmd)
                   :recent
-                  (html (v/mod-notes
-                          (s/fetch :note :size 5)
-                          false))))
+                  (pr-str (s/fetch :note :size 5 :fields [:title]))))
 
 
 

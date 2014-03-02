@@ -9,6 +9,7 @@
             [common.convert :as convert]
             [common.strs :as strs]))
 
+
 (defn layout
   "the layout of html which can be reused"
   [title & body]
@@ -94,9 +95,10 @@
 
 (defn- markdown->str
   [^String content]
-  (-> (markdown/md-to-html-string content)
-      (.replace "<pre>" "<pre><code>")
-      (.replace "</pre>" "</code></pre>")))
+  (if-not (empty? content)
+    (-> (markdown/md-to-html-string content)
+        (.replace "<pre>" "<pre><code>")
+        (.replace "</pre>" "</code></pre>"))))
 
 (defn mod-notes
   [notes editable?]

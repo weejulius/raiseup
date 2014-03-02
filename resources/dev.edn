@@ -62,10 +62,11 @@
                                                                  :properties
                                                                  {:ar-id   {:type "long" :index "not_analyzed"}
                                                                   :ar      {:type "string" :index "not_analyzed"}
-                                                                  :author  {:type "string" :index "not_analyzed"}
-                                                                  :title   {:type "string" :analyzer "standard"}
+                                                                  :author  {:type "string" :store "yes" :index "not_analyzed"}
+                                                                  :title   {:type "string" :store "yes" :analyzer "standard"}
                                                                   :content {:type "string" :analyzer "standard"}
-                                                                  :ctime   {:type "long" :index "not_analyzed"}}}
+                                                                  :ctime   {:type "long" :store "yes" :index "not_analyzed"}
+                                                                  :utime   {:type "long" :index "not_analyzed"}}}
                                                               "user"
                                                                {
                                                                  :properties

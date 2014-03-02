@@ -29,15 +29,15 @@
                  [buddy "0.1.0-beta3"]
 
                  ;;client
-                 [org.clojure/clojurescript "0.0-2156"]
-                 [reagent "0.3.0"]
-                 [om "0.4.2"]
+                 [org.clojure/clojurescript "0.0-2173"]
+                 ; [reagent "0.3.0"]
+                 [om "0.5.0"]
+                 [om-sync "0.1.1"]
                  [cljs-ajax "0.2.3"]
                  [prismatic/dommy "0.1.2"]
 
                  ;;test
-                 [criterium "0.4.2" :scope "test"]
-                 ]
+                 [criterium "0.4.2" :scope "test"]]
   :plugins [[lein-cljsbuild "1.0.2"] [lein-ancient "0.5.4"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
@@ -52,13 +52,25 @@
          :plugins      []
          :repl-options {:port 4001}}
    :production
-           {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}}
+        {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}}
 
   :cljsbuild
   {:builds
-    {:client {:source-paths ["src"]
-              :compiler
-                            {:preamble     ["reagent/react.js"]
-                             :output-dir   "target/js"
-                             :output-to    "resources/public/js/client.js"
-                             :pretty-print true}}}})
+    [
+      {:id           "dev"
+       :source-paths ["src"]
+       :compiler     {
+                       :output-to     "resources/public/js/main.js"
+                       :output-dir    "resources/public/tmp"
+                       :optimizations :none
+                       :source-map    true}}
+      {:id           "release"
+       :source-paths ["src"]
+       :compiler     {
+                       :output-to      "resources/public/js/main.js"
+                       :optimizations  :advanced
+                       :elide-asserts  true
+                       :pretty-print   false
+                       :output-wrapper false
+                       :preamble       ["react/react.min.js"]
+                       :externs        ["react/externs/react.js"]}}]})

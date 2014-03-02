@@ -15,9 +15,12 @@
        }]
      [:title title]
      (include-css "/css/demo.css")
-     (include-js "/js/client.js")
      (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
-     ]
+     (include-js "/js/react.min.js")
+     (include-js "/tmp/goog/base.js")
+     (include-js "/js/main.js")
+     [:script {:type "text/javascript"}
+      "goog.require(\"notes.web.client\");"]]
     [:body
      [:div.container body]
      (include-css "/css/hl.css")
@@ -32,11 +35,9 @@
     "demo"
     [:div.main
      [:div
-      [:div#cmd-box
-       [:span#hidden-cmd {:contenteditable "true"}]
-       [:span#cmd]
-       [:span#cursor "_"]]
+      [:div#cmd-box]
+      [:span#cursor "_"]
       [:div#resp]
-      ]
-     [:script {:type "text/javascript"}
-      "notes.web.client.demo_ready();"]]))
+      [:script {:type "text/javascript"}
+       "notes.web.client.demo_ready();"]]
+     ]))

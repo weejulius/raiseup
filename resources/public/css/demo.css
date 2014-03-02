@@ -79,7 +79,7 @@ body{
 
 #hidden-cmd{
    position:absolute;
-   left:-1000px;
+   left:-2000px;
 
 }
 
@@ -107,9 +107,6 @@ body{
  color:#fff;
 }
 
-.mod-notes{
-  margin-left:15px;
-}
 
 .mod-notes{
   padding-top:100px;
@@ -120,28 +117,21 @@ body{
 }
 
 .mod-notes li {
-    border-radius:3px;
     margin-bottom:5px;
+    padding:10px 20px;
+    position:relative;
 }
 
 .mod-notes li .title{
-    position:relative;
-    border-radius:2px;
-    padding-bottom:3px;
-    margin-bottom:5px;
     text-shadow: 0 1px 0 rgba(111,111,111,0.2);
-}
-
-.mod-notes li .title h1{
-    height:30px;
-
     text-transform: capitalize;
     font-family:'Roboto Slab', monospace;
     font-weight:800;
-    font-size:1.2em;
-    padding:10px 0 0 5px;
-
+    font-size:1.4em;
+    line-height:50px;
+    height:50px;
 }
+
 
 .mod-notes li .additional{
 

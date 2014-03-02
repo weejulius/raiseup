@@ -2,9 +2,11 @@
   (:require
     [ajax.core :refer [POST GET ajax-request raw-response-format]]
     [dommy.core :as dom]
-    [reagent.core :as reagent :refer [atom]]
+    [om.core :as om :include-macros true]
+    [om.dom :as d :include-macros true]
     [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
-    [markdown.core :as md])
+    [markdown.core :as md]
+    [cljs.reader :as reader])
   (:use-macros
     [dommy.macros :only [node sel sel1]]))
 
@@ -17,8 +19,8 @@
   (.-value (sel1 el)))
 
 (defn- log
-  [msg]
-  (.log js/console msg))
+  [& msg]
+  (.log js/console (apply str msg)))
 
 
 
@@ -153,8 +155,7 @@
                  (dom/toggle-class! (sel1 [:#login :form]) :show))))
 
 (defn ^:export run []
-  (reagent/render-component [update-auto-save-note-tip]
-                            (sel1 :#auto-save-tip)))
+  )
 
 
 (defn note-form-ready
@@ -175,49 +176,140 @@
 
 ;;;;;;;;;;;;;;;;;;;------------------------demo-------------------------------------
 
+(defn- as-date-str
+  [^long m]
+  (.toLocaleDateString
+    (doto (js/Date.)
+      (.setTime m))))
+
+
+(defn cmpt-notes
+  [notes owner]
+  (reify
+    om/IRender
+    (render [this]
+      (apply d/ul #js {:className "mod-notes"}
+             (vec
+               (map
+                 #(d/li nil
+                        (d/h1 #js {:className "title"} (:title %))
+                        (d/div #js {:className "additional"}
+                               (d/span nil (as-date-str (:ctime %)))
+                               (d/span nil (:author %))))
+                 notes))))))
+
+
+#_{:o "open"
+ :pp "peep"
+ :pv "preview"
+ :n "next page"
+ :p "previous page"
+
+ :b "back"
+ :e "edit"
+ :l "left"
+ :r "right"
+ :um "user's more"
+ :. "repeat"
+ :c "comment"
+ :lc "list comment"
+ :enter "confirm,submit"}
+(def commands
+  {:recent [:o :pp :n :p :b]
+   :o      [:e :b :r :l :um :c :lc]
+   :e      [:pv :b :enter]
+   :pv     [:b]
+   :pp     [:b]
+   :um     [:. :b :o]
+   :c      [:b :enter :e]
+   :lc     [:n :p]
+   })
+
+(def kw-map-fn (atom {}))
+(def shotcus-map (atom {}))
+(def req-res (atom []))
+
+(defn def-command
+  [name shotcuts possible-behaviors handler]
+  (swap! kw-map-fn #(assoc % name {:fn        handler
+                                   :behaviors possible-behaviors}))
+  (swap! shotcus-map #(assoc % shotcuts name)))
+
+
+(defn- find-fn-by-shotcut
+  [s]
+  (if-let [f-name (s @shotcus-map)]
+    (get-in @kw-map-fn [f-name :fn])))
 
 (defn- resp-send-command
   [[ok response]]
   (let [cmd-box (sel1 :#cmd-box)
-        resp (sel1 :#resp)]
-    (dom/set-style! cmd-box :top "30px")
-    (dom/set-html! resp response)
-    (.blur cmd-box)
-    (doseq [li (sel :li)]
-      (dom/set-attr! li :tabindex 2))
-    (dom/add-class! (sel1 :li) :current)))
+        resp (sel1 :#resp)
+        res (reader/read-string response)]
+    (log res)
+    (reset! req-res res)
+    (dom/set-style! cmd-box :top "30px")))
 
-(defn click-cmd-box
+(def-command
+  :recent
+  :recent
+  [:open-note :peep-note :next-page :prev-page]
+  (fn []
+    (ajax-request "/notes/cmd" :get
+                  {:params  {:cmd :recent}
+                   :handler resp-send-command
+                   :format  (raw-response-format)})))
+
+(def input (atom []))
+
+(def keymap
+  {:enter 13})
+
+(defn key-is?
+  [keycode key]
+  (= keycode (key keymap)))
+
+(defn listen-commands
   []
   (dom/listen! (sel1 :body)
                :keyup
                (fn [event]
-                 (let [keycode (.-keyCode event)]
-                   (if (= keycode 13)
-                     (ajax-request "/notes/cmd" :get
-                                   {:params  {:cmd (val-for-el :#cmd-box)}
-                                    :handler resp-send-command
-                                    :format  (raw-response-format)}))))))
+                 (let [keycode (.-keyCode event)
+                       char (.fromCharCode js/String keycode)]
+                   (if (key-is? keycode :enter)
+                     (let [input-str (apply str @input)
+                           splits (seq (.split input-str " "))
+                           key (keyword (.toLowerCase (first splits)))
+                           handler (find-fn-by-shotcut key)]
+                       (log input-str key handler (rest splits))
+                       (reset! input [])
+                       (if-not (nil? handler)
+                         (apply handler (rest splits))))
+                     (swap! input conj char))))))
 
-(defn cursor
+
+(defn cmpt-cmd
+  [cmd owner]
+  (reify
+    om/IRender
+    (render [this]
+      (d/span #js {:id "cmd"} (apply str cmd)))))
+
+
+
+#_(defn blink-cursor
   []
   (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
 
-(defn syn-text
-  []
-  (dom/listen! (sel1 :#cmd-box)
-               :click
-               (fn [event]
-                 (.focus (sel1 :#hidden-cmd))))
-  (dom/listen! (sel1 :#hidden-cmd)
-               :keyup
-               (fn [event]
-                 (dom/set-html! (sel1 :#cmd) (dom/html (sel1 :#hidden-cmd))))))
 
+(def app-state (atom {}))
 
 (defn demo-ready
   []
-  (cursor)
-  (syn-text)
-  (click-cmd-box))
+  (om/root cmpt-notes req-res
+           {:target (sel1 :#resp)})
+  (om/root cmpt-cmd input
+           {:target (sel1 :#cmd-box)})
+  (listen-commands)
+  #_(blink-cursor))
 

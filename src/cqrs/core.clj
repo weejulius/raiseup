@@ -178,7 +178,8 @@
           s (or (:size query) 20)
           basic-query [:from (* s (dec p))
                        :size s]
-          more-query ((get @defs-cache (str "query-" ar)) query) ;; get sql from cache
+          query-fn (get @defs-cache (str "query-" ar))
+          more-query (query-fn query) ;; get sql from cache
           combined (apply concat basic-query more-query)
           combined (if-not (:sort more-query)
                      (concat combined [:sort {:ar-id "desc"}])
