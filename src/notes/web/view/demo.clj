@@ -34,10 +34,7 @@
   (layout
     "demo"
     [:div.main
-     [:div
-      [:div#cmd-box]
-      [:span#cursor "_"]
-      [:div#resp]
-      [:script {:type "text/javascript"}
-       "notes.web.client.demo_ready();"]]
+     [:div#app]
+     [:script {:type "text/javascript"}
+      "notes.web.client.demo_ready();"]
      ]))

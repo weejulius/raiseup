@@ -6,8 +6,10 @@
     [om.dom :as d :include-macros true]
     [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
     [markdown.core :as md]
+    [cljs.core.async :refer [put! <! chan]]
     [cljs.reader :as reader])
   (:use-macros
+    [cljs.core.async.macros :only [go]]
     [dommy.macros :only [node sel sel1]]))
 
 (defn- now-as-mills
@@ -183,20 +185,7 @@
       (.setTime m))))
 
 
-(defn cmpt-notes
-  [notes owner]
-  (reify
-    om/IRender
-    (render [this]
-      (apply d/ul #js {:className "mod-notes"}
-             (vec
-               (map
-                 #(d/li nil
-                        (d/h1 #js {:className "title"} (:title %))
-                        (d/div #js {:className "additional"}
-                               (d/span nil (as-date-str (:ctime %)))
-                               (d/span nil (:author %))))
-                 notes))))))
+
 
 
 #_{:o "open"
@@ -227,40 +216,45 @@
 
 (def kw-map-fn (atom {}))
 (def shotcus-map (atom {}))
-(def req-res (atom []))
 
 (defn def-command
-  [name shotcuts possible-behaviors handler]
+  [name desc shotcuts possible-behaviors handler]
   (swap! kw-map-fn #(assoc % name {:fn        handler
+                                   :desc      desc
                                    :behaviors possible-behaviors}))
   (swap! shotcus-map #(assoc % shotcuts name)))
 
 
-(defn- find-fn-by-shotcut
+(defn- find-event-map
   [s]
+  (log @shotcus-map "," s "," (ffirst @shotcus-map))
   (if-let [f-name (s @shotcus-map)]
-    (get-in @kw-map-fn [f-name :fn])))
+    (f-name @kw-map-fn)))
 
 (defn- resp-send-command
-  [[ok response]]
+  [comm [ok response]]
   (let [cmd-box (sel1 :#cmd-box)
         resp (sel1 :#resp)
         res (reader/read-string response)]
-    (log res)
-    (reset! req-res res)
-    (dom/set-style! cmd-box :top "30px")))
+    (put! comm [:notes-fetched res])))
 
 (def-command
   :recent
+  "list recent notes"
   :recent
   [:open-note :peep-note :next-page :prev-page]
-  (fn []
+  (fn [comm]
     (ajax-request "/notes/cmd" :get
                   {:params  {:cmd :recent}
-                   :handler resp-send-command
+                   :handler (partial resp-send-command comm)
                    :format  (raw-response-format)})))
 
-(def input (atom []))
+
+
+(def app-state (atom {:input   []
+                      :content []
+                      :next    []}))
+
 
 (def keymap
   {:enter 13})
@@ -269,31 +263,59 @@
   [keycode key]
   (= keycode (key keymap)))
 
-(defn listen-commands
-  []
-  (dom/listen! (sel1 :body)
-               :keyup
-               (fn [event]
-                 (let [keycode (.-keyCode event)
-                       char (.fromCharCode js/String keycode)]
-                   (if (key-is? keycode :enter)
-                     (let [input-str (apply str @input)
-                           splits (seq (.split input-str " "))
-                           key (keyword (.toLowerCase (first splits)))
-                           handler (find-fn-by-shotcut key)]
-                       (log input-str key handler (rest splits))
-                       (reset! input [])
-                       (if-not (nil? handler)
-                         (apply handler (rest splits))))
-                     (swap! input conj char))))))
+(defn listen-input
+  [app-state keycode comm]
+  (let [char (.fromCharCode js/String keycode)]
+    (if (key-is? keycode :enter)
+      (let [input-str (apply str (:input @app-state))
+            splits (seq (.split input-str " "))
+            key (keyword (.toLowerCase (first splits)))
+            event-map (find-event-map key)
+            handler (:fn event-map)]
+        (log event-map)
+        (om/update! app-state :input [])
+        (om/update! app-state :next (:behaviors event-map))
+        (if-not (nil? handler)
+          (apply handler comm (rest splits))))
+      (om/transact! app-state :input
+                    (fn [input] (conj input char))))))
+
+(defn handle-event [type app val comm]
+  (case type
+    :input-char (listen-input app val comm)
+    :notes-fetched (om/update! app :content val)
+    nil))
 
 
-(defn cmpt-cmd
-  [cmd owner]
+(defn app
+  [app-state owner]
   (reify
-    om/IRender
-    (render [this]
-      (d/span #js {:id "cmd"} (apply str cmd)))))
+    om/IWillMount
+    (will-mount [_]
+      (let [comm (chan)]
+        (om/set-state! owner :comm comm)
+        (go (while true
+              (let [[type value] (<! comm)]
+                (handle-event type app-state value comm))))
+        (dom/listen! (sel1 :body)
+                     :keyup
+                     (fn [event]
+                       (put! comm [:input-char (.-keyCode event)])))))
+    om/IRenderState
+    (render-state [_ _]
+      (d/div
+        nil
+        (d/span #js {:id "cmd"} (apply str (:input app-state)))
+        (apply d/ul nil (map #(d/li nil (str %)) (:next app-state)))
+        (d/div #js {:id "content"}
+               (apply d/ul #js {:className "mod-notes"}
+                      (map
+                        #(d/li nil
+                               (d/h1 #js {:className "title"} (:title %))
+                               (d/div #js {:className "additional"}
+                                      (d/span nil (as-date-str (:ctime %)))
+                                      (d/span nil (:author %))))
+                        (:content app-state))))))))
 
 
 
@@ -302,14 +324,9 @@
   (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
 
 
-(def app-state (atom {}))
-
 (defn demo-ready
   []
-  (om/root cmpt-notes req-res
-           {:target (sel1 :#resp)})
-  (om/root cmpt-cmd input
-           {:target (sel1 :#cmd-box)})
-  (listen-commands)
+  (om/root app app-state {:target (sel1 :#app)})
+
   #_(blink-cursor))
 
