@@ -112,17 +112,27 @@ body{
   padding-top:100px;
 }
 
-.mod-notes li{
+.mod-note{
+  margin-top:100px;
+}
+
+.mod-note{
+
+}
+
+.mod-notes li,.mod-note{
   background:#333;
 }
 
-.mod-notes li {
+.mod-notes li{
+  padding:10px 20px;
+}
+.mod-notes li , .mod-note{
     margin-bottom:5px;
-    padding:10px 20px;
     position:relative;
 }
 
-.mod-notes li .title{
+.mod-notes li .title, .mod-note .title{
     text-shadow: 0 1px 0 rgba(111,111,111,0.2);
     text-transform: capitalize;
     font-family:'Roboto Slab', monospace;
@@ -133,7 +143,7 @@ body{
 }
 
 
-.mod-notes li .additional{
+.mod-notes li .additional, .mod-note .additional{
 
     position:absolute;
     right:0px;
@@ -145,7 +155,7 @@ body{
     font-family:monospace;
 }
 
-.mod-notes li .additional span{
+.mod-notes li .additional span, .mod-note .additional span{
     display:block;
     margin-top:5px;
 }
@@ -185,6 +195,26 @@ div.markdown ol li{
     font-size : 1.3em;
     color:#e03;
     font-family:sans-serif;
+}
+
+#next-behaviors{
+  position:absolute;
+  top:100px;
+  width:150px;
+  color:#eee;
+}
+
+#next-behaviors li{
+ height:20px;
+ line-height:20px;
+ padding:3px 10px;
+ margin:2px auto;
+ border-left:5px solid #990;
+ font-weight:600;
+}
+
+#next-behaviors li span{
+  margin-right:5px;
 }
 
 

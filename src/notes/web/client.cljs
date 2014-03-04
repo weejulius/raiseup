@@ -214,24 +214,25 @@
    :lc     [:n :p]
    })
 
-(def kw-map-fn (atom {}))
-(def shotcus-map (atom {}))
+(def name-map-def (atom {}))
+(def shortcut-map-name (atom {}))
+(def name-map-shortcut (atom {}))
 
 (defn def-command
-  [name desc shotcuts possible-behaviors handler]
-  (swap! kw-map-fn #(assoc % name {:fn        handler
-                                   :desc      desc
-                                   :behaviors possible-behaviors}))
-  (swap! shotcus-map #(assoc % shotcuts name)))
+  [name desc shortcut possible-behaviors handler]
+  (swap! name-map-def #(assoc % name {:fn        handler
+                                      :desc      desc
+                                      :behaviors possible-behaviors}))
+  (swap! shortcut-map-name #(assoc % shortcut name))
+  (swap! name-map-shortcut #(assoc % name shortcut)))
 
 
 (defn- find-event-map
   [s]
-  (log @shotcus-map "," s "," (ffirst @shotcus-map))
-  (if-let [f-name (s @shotcus-map)]
-    (f-name @kw-map-fn)))
+  (if-let [f-name (s @shortcut-map-name)]
+    (f-name @name-map-def)))
 
-(defn- resp-send-command
+(defn- on-recent-resp
   [comm [ok response]]
   (let [cmd-box (sel1 :#cmd-box)
         resp (sel1 :#resp)
@@ -242,18 +243,28 @@
   :recent
   "list recent notes"
   :recent
-  [:open-note :peep-note :next-page :prev-page]
+  [:open-note]
   (fn [comm]
     (ajax-request "/notes/cmd" :get
                   {:params  {:cmd :recent}
-                   :handler (partial resp-send-command comm)
+                   :handler (partial on-recent-resp comm)
                    :format  (raw-response-format)})))
 
 
+(def-command
+  :open-note
+  "open note"
+  :o
+  [:back]
+  (fn [comm num]
+    (put! comm [:open-note (long num)])))
 
-(def app-state (atom {:input   []
-                      :content []
-                      :next    []}))
+
+(def app-state (atom {:input     []
+                      :content   []
+                      :next      []
+                      :render-fn nil
+                      :error-msg ""}))
 
 
 (def keymap
@@ -264,6 +275,7 @@
   (= keycode (key keymap)))
 
 (defn listen-input
+  "watching the user's input and make action"
   [app-state keycode comm]
   (let [char (.fromCharCode js/String keycode)]
     (if (key-is? keycode :enter)
@@ -272,19 +284,57 @@
             key (keyword (.toLowerCase (first splits)))
             event-map (find-event-map key)
             handler (:fn event-map)]
-        (log event-map)
         (om/update! app-state :input [])
-        (om/update! app-state :next (:behaviors event-map))
+        (om/update! app-state :next (map
+                                      (fn [behavior]
+                                        (if-let [shortcut (behavior @name-map-shortcut)]
+                                          [(name shortcut) (name behavior)]))
+                                      (:behaviors event-map)))
+        (log app-state)
         (if-not (nil? handler)
           (apply handler comm (rest splits))))
       (om/transact! app-state :input
                     (fn [input] (conj input char))))))
 
-(defn handle-event [type app val comm]
+(defn- render-notes
+  [app-state]
+  (apply d/ul #js {:className "mod-notes"}
+         (map
+           #(d/li nil
+                  (d/h1 #js {:className "title"} (:title %))
+                  (d/div #js {:className "additional"}
+                         (d/span nil (as-date-str (:ctime %)))
+                         (d/span nil (:author %))))
+           (:content app-state))))
+
+(defn- render-note
+  [app-state]
+  (let [note (:content app-state)]
+    (d/div #js {:className "mod-note"}
+           (d/div nil
+                  (d/h1 #js {:className "title"} (:title note))
+                  (d/div #js {:className "additional"}
+                         (d/span nil (as-date-str (:ctime note)))
+                         (d/span nil (:author note))))
+           (d/div #js {:className "markdown"}
+                  (md/mdToHtml (:content note)
+                               :code-style #(str "class=\"" % "\""))))))
+
+
+(defn handle-input-command
+  "handle the input command from channel"
+  [type app val comm]
   (case type
     :input-char (listen-input app val comm)
-    :notes-fetched (om/update! app :content val)
+    :notes-fetched (do
+                     (om/update! app :content val)
+                     (om/update! app :render-fn render-notes))
+    :open-note (let []
+                 (om/transact! app :content (fn [content] (nth content (dec val))))
+                 (om/update! app :render-fn render-note))
     nil))
+
+
 
 
 (defn app
@@ -296,7 +346,7 @@
         (om/set-state! owner :comm comm)
         (go (while true
               (let [[type value] (<! comm)]
-                (handle-event type app-state value comm))))
+                (handle-input-command type app-state value comm))))
         (dom/listen! (sel1 :body)
                      :keyup
                      (fn [event]
@@ -306,16 +356,14 @@
       (d/div
         nil
         (d/span #js {:id "cmd"} (apply str (:input app-state)))
-        (apply d/ul nil (map #(d/li nil (str %)) (:next app-state)))
+        (apply d/ul #js {:id "next-behaviors"}
+               (map #(d/li nil
+                           (d/span nil (str (first %) ": "))
+                           (d/span nil (second %)))
+                    (:next app-state)))
         (d/div #js {:id "content"}
-               (apply d/ul #js {:className "mod-notes"}
-                      (map
-                        #(d/li nil
-                               (d/h1 #js {:className "title"} (:title %))
-                               (d/div #js {:className "additional"}
-                                      (d/span nil (as-date-str (:ctime %)))
-                                      (d/span nil (:author %))))
-                        (:content app-state))))))))
+               (if-let [render-fn (:render-fn app-state)]
+                 (render-fn app-state)))))))
 
 
 
@@ -326,7 +374,5 @@
 
 (defn demo-ready
   []
-  (om/root app app-state {:target (sel1 :#app)})
-
-  #_(blink-cursor))
+  (om/root app app-state {:target (sel1 :#app)}))
 
