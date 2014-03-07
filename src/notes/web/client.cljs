@@ -1,5 +1,6 @@
 (ns notes.web.client
   (:require
+    [goog.events :as events]
     [ajax.core :refer [POST GET ajax-request raw-response-format]]
     [dommy.core :as dom]
     [om.core :as om :include-macros true]
@@ -10,7 +11,8 @@
     [cljs.reader :as reader])
   (:use-macros
     [cljs.core.async.macros :only [go]]
-    [dommy.macros :only [node sel sel1]]))
+    [dommy.macros :only [node sel sel1]])
+  (:import [goog.history Html5History]))
 
 (defn- now-as-mills
   []
@@ -217,55 +219,77 @@
 (def name-map-def (atom {}))
 (def shortcut-map-name (atom {}))
 (def name-map-shortcut (atom {}))
+(def histories (atom []))
+(def history (Html5History.))
+
+(.setUseFragment history false)
+(.setPathPrefix history "/demo")
+(.setEnabled history true)
 
 (defn def-command
   [name desc shortcut possible-behaviors handler]
-  (swap! name-map-def #(assoc % name {:fn        handler
-                                      :desc      desc
-                                      :behaviors possible-behaviors}))
+  (swap! name-map-def #(assoc % name {:fn            handler
+                                      :desc          desc
+                                      :available-cmd possible-behaviors}))
   (swap! shortcut-map-name #(assoc % shortcut name))
   (swap! name-map-shortcut #(assoc % name shortcut)))
 
 
-(defn- find-event-map
+(defn- find-command-setting
   [s]
   (if-let [f-name (s @shortcut-map-name)]
     (f-name @name-map-def)))
 
 (defn- on-recent-resp
-  [comm [ok response]]
-  (let [cmd-box (sel1 :#cmd-box)
-        resp (sel1 :#resp)
-        res (reader/read-string response)]
-    (put! comm [:notes-fetched res])))
+  [channel [ok response]]
+  (if-let [res (reader/read-string response)]
+    (put! channel [:notes-fetched res])))
 
 (def-command
   :recent
   "list recent notes"
   :recent
   [:open-note]
-  (fn [comm]
-    (ajax-request "/notes/cmd" :get
-                  {:params  {:cmd :recent}
-                   :handler (partial on-recent-resp comm)
-                   :format  (raw-response-format)})))
-
+  (fn []
+    (fn [channel]
+      (let [cmd (ajax-request "/notes/cmd" :get
+                              {:params  {:cmd :recent}
+                               :handler (partial on-recent-resp channel)
+                               :format  (raw-response-format)})]))))
 
 (def-command
   :open-note
   "open note"
   :o
   [:back]
-  (fn [comm num]
-    (put! comm [:open-note (long num)])))
+  (fn [num]
+    [:open-note (long num)]))
 
 
-(def app-state (atom {:input     []
-                      :content   []
-                      :next      []
-                      :render-fn nil
-                      :error-msg ""}))
+(def-command
+  :back
+  "back"
+  :b
+  []
+  (fn []
+    (let [command (first @histories)]
+      (swap! histories (comp vec rest))
+      command)))
 
+
+(def app-state (atom {:input         []
+                      :content       []
+                      :available-cmd []
+                      :render-fn     nil
+                      :error-msg     ""}))
+
+
+
+;; input -> command -> handle-command --(event)--> push-event -> handle-event -> update-state -> render-view
+;;
+;; next-available-commands
+;; history
+;; change url
 
 (def keymap
   {:enter 13})
@@ -274,27 +298,53 @@
   [keycode key]
   (= keycode (key keymap)))
 
-(defn listen-input
-  "watching the user's input and make action"
-  [app-state keycode comm]
+
+(defn- parse-shortcut
+  [app-state]
+  (if-let [inputs (:input @app-state)]
+    (let [command (seq (.split (apply str inputs) " "))
+          name (first command)
+          name-kw (keyword (.toLowerCase name))]
+      [name-kw (rest command)])))
+
+(defn- parse-input
+  "take the user's comming input and parse to command when enter is comming"
+  [keycode app-state]
   (let [char (.fromCharCode js/String keycode)]
     (if (key-is? keycode :enter)
-      (let [input-str (apply str (:input @app-state))
-            splits (seq (.split input-str " "))
-            key (keyword (.toLowerCase (first splits)))
-            event-map (find-event-map key)
-            handler (:fn event-map)]
-        (om/update! app-state :input [])
-        (om/update! app-state :next (map
-                                      (fn [behavior]
-                                        (if-let [shortcut (behavior @name-map-shortcut)]
-                                          [(name shortcut) (name behavior)]))
-                                      (:behaviors event-map)))
-        (log app-state)
-        (if-not (nil? handler)
-          (apply handler comm (rest splits))))
-      (om/transact! app-state :input
-                    (fn [input] (conj input char))))))
+      (parse-shortcut app-state)
+      char)))
+
+
+
+(defn- update-available-commands
+  "update the available commands, having both shortcut and command name"
+  [app-state command-name]
+  (om/update! app-state :available-cmd
+              (map
+                (fn [behavior]
+                  (if-let [shortcut (behavior @name-map-shortcut)]
+                    [(name shortcut) (name behavior)]))
+                (:available-cmd (find-command-setting command-name)))))
+
+(defn- handle-command-by-shortcut
+  [command]
+  (if (vector? command) ;;is command or just char
+    (if-let [[name params] command]
+      (let [command-setting (find-command-setting name)
+            handle-command (:fn command-setting)]
+        (if handle-command
+          (apply handle-command params))))
+    [:char-input command]))
+
+(defn- push-event-to-channel
+  [event]
+  (fn [channel]
+    (if event
+      (if (vector? event)
+        (put! channel event)
+        (event channel)))))
+
 
 (defn- render-notes
   [app-state]
@@ -307,6 +357,7 @@
                          (d/span nil (:author %))))
            (:content app-state))))
 
+
 (defn- render-note
   [app-state]
   (let [note (:content app-state)]
@@ -317,21 +368,32 @@
                          (d/span nil (as-date-str (:ctime note)))
                          (d/span nil (:author note))))
            (d/div #js {:className "markdown"}
-                  (md/mdToHtml (:content note)
-                               :code-style #(str "class=\"" % "\""))))))
+                  (md/mdToHtml (:content note))))))
 
 
-(defn handle-input-command
-  "handle the input command from channel"
-  [type app val comm]
+
+(defn- push-to-history-stack
+  [uri title app-state type value]
+  (. history (setToken uri title))
+  (swap! histories conj [type value])
+  (update-available-commands app-state
+                             (first (parse-shortcut app-state))))
+
+(defn handle-event
+  "handle event and update state"
+  [type app val]
   (case type
-    :input-char (listen-input app val comm)
+    :char-input (let []
+                  (om/transact! app :input
+                                (fn [input] (conj input val))))
     :notes-fetched (do
                      (om/update! app :content val)
-                     (om/update! app :render-fn render-notes))
-    :open-note (let []
-                 (om/transact! app :content (fn [content] (nth content (dec val))))
-                 (om/update! app :render-fn render-note))
+                     (om/update! app :render-fn render-notes)
+                     (push-to-history-stack "/notes" "notes" app type val))
+    :note-opened (let []
+                   (om/transact! app :content (fn [content] (nth content (dec val))))
+                   (om/update! app :render-fn render-note)
+                   (push-to-history-stack (str "/notes" (:ar-id (:content app))) "notes" app type val))
     nil))
 
 
@@ -342,37 +404,50 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (let [comm (chan)]
-        (om/set-state! owner :comm comm)
+      (let [channel (chan)]
+        (om/set-state! owner :channel channel)
         (go (while true
-              (let [[type value] (<! comm)]
-                (handle-input-command type app-state value comm))))
+              (let [[type value] (<! channel)]
+                (handle-event type app-state value))))
         (dom/listen! (sel1 :body)
                      :keyup
                      (fn [event]
-                       (put! comm [:input-char (.-keyCode event)])))))
+                       ((push-event-to-channel
+                          (handle-command-by-shortcut
+                            (parse-input
+                              (.-keyCode event)
+                              app-state)))
+                        channel)))))
     om/IRenderState
     (render-state [_ _]
       (d/div
         nil
-        (d/span #js {:id "cmd"} (apply str (:input app-state)))
+        (d/span #js {:id "cmd"}
+                (apply str (:input app-state)))
         (apply d/ul #js {:id "next-behaviors"}
                (map #(d/li nil
                            (d/span nil (str (first %) ": "))
                            (d/span nil (second %)))
-                    (:next app-state)))
+                    (:available-cmd app-state)))
         (d/div #js {:id "content"}
-               (if-let [render-fn (:render-fn app-state)]
-                 (render-fn app-state)))))))
+               (when-let [render-fn (:render-fn app-state)]
+                 (render-fn app-state)))))
+    om/IDidUpdate
+    (did-update [_ _ _]
+      ; (om/update! app-state :input [])
+      ;(om/update! app-state :render-fn [])
+      )))
+
+
+
+(defn demo-ready
+  []
+  (om/root app app-state {:target (sel1 :#app)}))
+
 
 
 
 #_(defn blink-cursor
   []
   (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
-
-
-(defn demo-ready
-  []
-  (om/root app app-state {:target (sel1 :#app)}))
 

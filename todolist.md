@@ -132,6 +132,8 @@ CQRS实现回顾
 * use hazelcast along with leveldb
 * command style
 * everything is data
+* note version history appears in note
+*
 
 
 
