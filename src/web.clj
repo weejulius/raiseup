@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [defroutes context GET POST DELETE]]
             [compojure.route :as route]
             [notes.query :refer :all]
+            [notes.web.view.demo :as demo]
             [notes.web :as notes-web :refer :all]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
@@ -40,6 +41,8 @@
                 "Forbidden")
            (GET "/401" []
                 "Unauthorized")
+           (GET "/demo" [:as req]
+                (demo/demo-view))
            (route/resources "/")
            (route/not-found "PAGE NOT FOUND"))
 

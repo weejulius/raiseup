@@ -79,8 +79,7 @@
 
            ;;-------------------demo---------------------------
 
-           (GET "/demo" [:as req]
-                (demo/demo-view))
+
 
            (GET "/cmd" [cmd :as req]
                 (condp = (keyword cmd)
