@@ -34,6 +34,7 @@
   (layout
     "demo"
     [:div.main
+     [:div#cmd-box]
      [:div#app]
      [:script {:type "text/javascript"}
       "notes.web.client.demo_ready();"]

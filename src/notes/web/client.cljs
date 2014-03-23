@@ -7,7 +7,7 @@
     [om.dom :as d :include-macros true]
     [goog.storage.mechanism.HTML5SessionStorage :as html5ss]
     [markdown.core :as md]
-    [cljs.core.async :refer [put! <! chan]]
+    [cljs.core.async :refer [put! >! <! alts! chan take!] :as asyn]
     [cljs.reader :as reader]
     )
   (:use-macros
@@ -208,29 +208,6 @@
  :enter "confirm,submit"}
 
 
-(def resource-name-map-config
-  "the name of command and the map with its config"
-  (atom {}))
-
-
-(def shortcut-map-resource-name
-  "shortcut map to command name"
-  (atom {}))
-
-(def resource-name-map-shortcut
-  "command name map to shortcut"
-  (atom {}))
-
-
-(def histories
-  "the access histories, used by the back navigation"
-  (atom []))
-
-
-(def render-fn
-  "the current render fn of view"
-  (atom nil))
-
 (def history
   "browser history instance"
   (Html5History.))
@@ -239,9 +216,6 @@
 (.setPathPrefix history "/demo")
 (.setEnabled history true)
 
-(def uri-matchers
-  "matchers for the uri"
-  (atom {}))
 
 ;; access via uri------------------------
 ;;                                       |
@@ -250,84 +224,126 @@
 ;; go back
 ;;
 ;;
+(def res (atom nil))
 
-(defn def-resource
-  "define the resource and its config"
-  [name desc shortcut available-rs match-uri uri-gen-fn handle-resource]
-  (swap! resource-name-map-config #(assoc % name {:fn           handle-resource
-                                                  :uri-fn       uri-gen-fn
-                                                  :desc         desc
-                                                  :available-rs available-rs}))
-  (if match-uri
-    (swap! uri-matchers name match-uri))
-  (swap! shortcut-map-resource-name #(assoc % shortcut name))
-  (swap! resource-name-map-shortcut #(assoc % name shortcut)))
-
-
-(defn- find-resource-config-by-shortcut
-  [s]
-  (if-let [f-name (s @shortcut-map-resource-name)]
-    (f-name @resource-name-map-config)))
-
-(defn- on-recent-resp
-  [channel [ok response]]
-  (if-let [res (reader/read-string response)]
-    (put! channel [:notes res])))
-
-(def-resource
-  :recent
-  "list recent notes"
-  :recent
-  [:open-note]
-  (fn [uri]
-    (if (= "/recent" uri)
-      ""))
-  (fn [] "/recent")
-  (fn []
-    (fn [channel]
-      (let [cmd (ajax-request "/notes/cmd" :get
-                              {:params  {:cmd :recent}
-                               :handler (partial on-recent-resp channel)
-                               :format  (raw-response-format)})]))))
-
-(def-resource
-  :open-note
-  "open note"
-  :o
-  []
-  (fn [uri]
-    (if-let [matches (re-matches #"/(\d)+" uri)]
-      (second matches)))
-  (fn [num]
-    (str "/" num))
-  (fn [num]
-    [:note (long num)]))
-
-
-(def-resource
-  :back
-  "back"
-  :b
-  []
-  nil
-  nil
-  (fn []
-    (let [command (vec (rest (first @histories)))
-           c (vec (conj command true))]
-      (log "back" c command)
-      c)))
-
-
-(def app-state (atom {:input        []
-                      :content      []
-                      :available-rs []
-                      :error-msg    ""}))
+(defn- on-resp
+  [[ok response]]
+  (when-let [resp (reader/read-string response)]
+    (reset! res resp)))
 
 
 
-;; input -> command -> handle-command --(event)--> push-event -> handle-event -> update-state -> render-view
+
+;;问题： resource可以有多个方式访问，通过快捷键命令，或者直接uri访问，如果是前者可以直接访问之前的content，减少请求
+;;问题: 监听body的keyup事件会导致输入note有冲突
 ;;
-;; next-available-commands
+;; 命令 URI 获取展示数据 执行Action
+
+(defprotocol Resource
+  (desc [this] "get the description")
+  (shortcut [this] "get the shortcut")
+  (match-uri [this s] "match the uri")
+  (gen-uri-for-cmd [this data] "generate the uri for the command")
+  (avail-resources [this] "the available resources of this resource ")
+  (pre-data-for-cmd [this data params] "make data")
+  (pre-data-for-uri [this params] "make data")
+  (render-view [this data]))
+
+
+
+(defn- render-notes
+  [data]
+  (if (seq? data)
+    (apply d/ul #js {:className "mod-notes"}
+           (map
+             #(d/li nil
+                    (d/h1 #js {:className "title"} (:title %))
+                    (d/div #js {:className "additional"}
+                           (d/span nil (as-date-str (:ctime %)))
+                           (d/span nil (:author %))))
+             data))))
+
+(defn- render-note
+  [data]
+  (let [note data]
+    (d/div #js {:className "mod-note"}
+           (d/div nil
+                  (d/h1 #js {:className "title"} (:title note))
+                  (d/div #js {:className "additional"}
+                         (d/span nil (as-date-str (:ctime note)))
+                         (d/span nil (:author note))))
+           (d/div #js {:className "markdown"}
+                  (md/mdToHtml (:content note))))))
+
+
+(defrecord Note []
+  Resource
+  (desc [this]
+    "open the note")
+  (shortcut [this]
+    :o)
+  (match-uri [this s]
+    (re-matches #"/(\d)+" s))
+  (gen-uri-for-cmd [this data]
+    (str "/" (:ar-id data)))
+  (avail-resources [this]
+    [])
+  (pre-data-for-cmd [this data [num]]
+    (nth data (dec (long num))))
+  (pre-data-for-uri [this [num]]
+    (ajax-request "/notes/cmd" :get
+                  {:params  {:cmd :note :ar-id num}
+                   :handler on-resp
+                   :format  (raw-response-format)})
+    @res)
+  (render-view [this data]
+    (render-notes data)))
+
+
+
+(defrecord Recent []
+  Resource
+  (desc [this]
+    "get the recent note")
+  (shortcut [this]
+    :recent)
+  (match-uri [this s]
+    (= "/recent" s))
+  (gen-uri-for-cmd [this data]
+    "/recent")
+  (avail-resources [this]
+    [[:o :open-note]])
+  (pre-data-for-cmd [this data _]
+    (let []
+      (ajax-request "/notes/cmd" :get
+                    {:params  {:cmd :recent}
+                     :handler on-resp
+                     :format  (raw-response-format)})
+      (log "-" @res)
+      @res))
+  (pre-data-for-uri [this _]
+    (pre-data-for-cmd this nil _))
+  (render-view [this data]
+    (render-notes data)))
+
+
+(def resources [(->Recent) (->Note)])
+
+(def input-state (atom []))
+
+(def app-state (atom {:resource     nil
+                      :available-rs []
+                      :data         nil
+                      :uri          ""}))
+
+
+
+;; input -> parse input -> find resource -> retrieve content -> send content to channel -> get content and update state
+;;  -> render
+;;
+;; input render-fn content available-rs
+
+;;  next-available-commands
 ;; history
 ;; change url
 
@@ -340,175 +356,98 @@
 
 
 (defn- parse-shortcut
-  [app-state]
-  (if-let [inputs (:input @app-state)]
-    (let [command (seq (.split (apply str inputs) " "))
-          name (first command)
-          name-kw (keyword (.toLowerCase name))]
-      [name-kw (rest command)])))
+  [input-state]
+  (if-let [inputs @input-state]
+    (let [shortcut (seq (.split (apply str inputs) " "))
+          shortcut-name (first shortcut)
+          name-kw (keyword (.toLowerCase shortcut-name))]
+      [name-kw (rest shortcut)])))
 
 (defn- parse-inputs
   "take the user's comming input and parse to command when enter is comming"
-  [keycode app-state]
+  [keycode input-state]
   (let [char (.fromCharCode js/String keycode)]
     (if (key-is? keycode :enter)
-      (let [shortcut (parse-shortcut app-state)]
-
+      (let [shortcut (parse-shortcut input-state)]
+        (om/update! input-state [])
         shortcut)
       (do
-        (om/transact! app-state :input
-                      (fn [input]
-                        (conj input char)))
+        (om/transact! input-state (fn [input]
+                                    (conj input char)))
         nil))))
 
-
-(defn- parse-shortcut-to-resource-params
-  [shortcut]
-  (log shortcut)
-  (when-let [[shortcut-name params] shortcut]
-    (if-let [resource-name (shortcut-name @shortcut-map-resource-name)]
-      [resource-name params])))
-
-(defn- parse-uri-to-resource-params
-  [uri]
-  (loop [matchers @uri-matchers]
-    (if-let [[resource-name match-uri] (first matchers)]
-      (if-let [params (match-uri uri)]
-        [resource-name params]
-        (recur (rest matchers))))))
-
-(defn- handle-resource-params
-  [resource-params]
-  (log "handle resource param" resource-params)
-  (if resource-params
-    (if-let [[name params] resource-params]
-      (if-let [resource-config (name @resource-name-map-config)]
-        (if-let [handle-resource (:fn resource-config)]
-          (apply handle-resource params))))))
-
-(defn- push-resource-to-channel
-  [resource]
-  (fn [channel]
-    (if resource
-      (if (vector? resource) ;;if it is [key v] we send it to channel, or it send by itself
-        (put! channel resource)
-        (resource channel)))))
+(def histories (atom []))
+(def channel (chan))
+(def context (atom nil))
 
 
-(defn- render-notes
-  [app-state]
-  (apply d/ul #js {:className "mod-notes"}
-         (map
-           #(d/li nil
-                  (d/h1 #js {:className "title"} (:title %))
-                  (d/div #js {:className "additional"}
-                         (d/span nil (as-date-str (:ctime %)))
-                         (d/span nil (:author %))))
-           (:content app-state))))
+(defn- match-resource
+  [app-state shortcut-kw params]
+  (if-let [resource (some #(if (= shortcut-kw (shortcut %)) %) resources)]
+    (when-let [data (pre-data-for-cmd resource (:data @app-state) params)]
+      (log ".." resource data)
+      {:shortcut     shortcut-kw
+       :data         data
+       :uri          (gen-uri-for-cmd resource data)
+       :available-rs (avail-resources resource)})))
+
+(defn- pop-resource-from-history
+  [histories]
+  (let [resource (first @histories)]
+    (swap! histories (rest @histories))))
 
 
-(defn- render-note
-  [app-state]
-  (let [note (:content app-state)]
-    (d/div #js {:className "mod-note"}
-           (d/div nil
-                  (d/h1 #js {:className "title"} (:title note))
-                  (d/div #js {:className "additional"}
-                         (d/span nil (as-date-str (:ctime note)))
-                         (d/span nil (:author note))))
-           (d/div #js {:className "markdown"}
-                  (md/mdToHtml (:content note))))))
-
-(defn- update-available-commands
-  "update the available commands, having both shortcut and command name"
-  [app-state short-name]
-  (log "update " short-name)
-  (om/update! app-state :available-rs
-              (map
-                (fn [available-cmd]
-                  (if-let [shortcut (available-cmd @resource-name-map-shortcut)]
-                    [(name shortcut) (:desc (available-cmd @resource-name-map-config))]))
-                (:available-rs (find-resource-config-by-shortcut short-name)))))
-
-
-(defn- manage-history-stack
-  [uri title app-state type value back?]
-  (. history (setToken uri title))
-  (if-not back?
-    (let [shortcut (parse-shortcut app-state)
-          shortcut-name (first shortcut)]
-      (swap! histories
-             (fn [h]
-               (cons [shortcut-name type value] h)))
-      (update-available-commands app-state shortcut-name)
-      (om/update! app-state :input []))
-    (do
-      (update-available-commands app-state (ffirst @histories))
-      (swap! histories (comp vec rest))
-      (om/update! app-state :input []))))
-
-
-
-(defn handle-event
-  "handle event and update state"
-  [type app val back?]
-  (log "..." type app val)
-  (case type
-    :notes (do
-             (om/update! app :content val)
-             (reset! render-fn render-notes)
-             (manage-history-stack "" "notes" app type val back?))
-
-    :note (let []
-            (log "val" val (:content @app))
-            (om/transact! app :content (fn [content] (nth content (dec (long val)))))
-            (reset! render-fn render-note)
-            (manage-history-stack (str "/" (:ar-id (:content @app))) "notes" app type val back?))
-    nil))
-
-
-
-
-(defn app
-  [app-state owner]
+(defn input-component
+  [input-state owner]
   (reify
     om/IWillMount
     (will-mount [_]
-      (let [channel (chan)]
-        (om/set-state! owner :channel channel)
+      (dom/listen! (sel1 :body)
+                   :keyup
+                   (fn [event]
+                     (if-let [shortcut (parse-inputs (.-keyCode event) input-state)]
+                       (put! channel shortcut)))))
+    om/IRenderState
+    (render-state [_ _]
+      (d/span #js {:id "cmd"}
+              (apply str input-state)))))
+
+(defn app-component
+  [{:keys [available-rs data uri] :as app-state} owner]
+  (reify
+    om/IWillMount
+    (will-mount [_]
+      (let []
         (go (while true
-              (let [[type value back?] (<! channel)]
-                (handle-event type app-state value back?))))
-        (dom/listen! (sel1 :body)
-                     :keyup
-                     (fn [event]
-                       ((push-resource-to-channel
-                          (handle-resource-params
-                            (parse-shortcut-to-resource-params
-                              (parse-inputs
-                                (.-keyCode event)
-                                app-state))))
-                        channel)))))
+              (let [[shortcut params] (<! channel)
+                    matched-resource (match-resource app-state shortcut params)]
+                (when matched-resource
+                  (om/update! app-state matched-resource)
+                  (. history (setToken (:uri matched-resource) ""))))))))
     om/IRenderState
     (render-state [_ _]
       (d/div
         nil
-        (d/span #js {:id "cmd"}
-                (apply str (:input app-state)))
         (apply d/ul #js {:id "next-behaviors"}
-               (map #(d/li nil
-                           (d/span nil (str (first %) ": "))
-                           (d/span nil (second %)))
-                    (:available-rs app-state)))
+               (map (fn [avail-resource]
+                      (d/li nil
+                            (d/span nil (str (first avail-resource)))
+                            (d/span nil (str (second avail-resource)))))
+                    available-rs))
         (d/div #js {:id "content"}
-               (when-let [render @render-fn]
-                 (render app-state)))))))
+               (when data
+                 (log "data" data)
+                 (render-view (some #(if (= (:shortcut app-state) (shortcut %)) %) resources) data)))))
+    om/IDidUpdate
+    (did-update [_ _ _]
+      (swap! histories conj app-state))))
 
 
 
 (defn demo-ready
   []
-  (om/root app app-state {:target (sel1 :#app)}))
+  (om/root input-component input-state {:target (sel1 :#cmd-box)})
+  (om/root app-component app-state {:target (sel1 :#app)}))
 
 
 
@@ -516,4 +455,7 @@
 #_(defn blink-cursor
   []
   (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
+
+
+
 
