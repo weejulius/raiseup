@@ -289,7 +289,8 @@
   (avail-resources [this]
     [])
   (pre-data-for-cmd [this data [num]]
-    (nth data (dec (long num))))
+    (log "pre data" data)
+    (nth data (dec (long num)) 0))
   (pre-data-for-uri [this [num]]
     (ajax-request "/notes/cmd" :get
                   {:params  {:cmd :note :ar-id num}
@@ -297,7 +298,7 @@
                    :format  (raw-response-format)})
     @res)
   (render-view [this data]
-    (render-notes data)))
+    (render-note data)))
 
 
 
@@ -319,12 +320,13 @@
                     {:params  {:cmd :recent}
                      :handler on-resp
                      :format  (raw-response-format)})
-      (log "-" @res)
       @res))
   (pre-data-for-uri [this _]
     (pre-data-for-cmd this nil _))
   (render-view [this data]
     (render-notes data)))
+
+
 
 
 (def resources [(->Recent) (->Note)])
@@ -381,6 +383,18 @@
 (def context (atom nil))
 
 
+
+(defn- pop-resource-from-history
+  [histories]
+  (let [rs (second @histories)]
+    (log "his" rs @histories)
+    (reset! histories (rest @histories))
+    rs))
+
+(defn back-command?
+  [shortcut-kw]
+  (= :b shortcut-kw))
+
 (defn- match-resource
   [app-state shortcut-kw params]
   (if-let [resource (some #(if (= shortcut-kw (shortcut %)) %) resources)]
@@ -389,12 +403,11 @@
       {:shortcut     shortcut-kw
        :data         data
        :uri          (gen-uri-for-cmd resource data)
-       :available-rs (avail-resources resource)})))
+       :available-rs (avail-resources resource)})
+    (when (back-command? shortcut-kw)
+      (log "backing")
+      (pop-resource-from-history histories))))
 
-(defn- pop-resource-from-history
-  [histories]
-  (let [resource (first @histories)]
-    (swap! histories (rest @histories))))
 
 
 (defn input-component
@@ -417,13 +430,15 @@
   (reify
     om/IWillMount
     (will-mount [_]
-      (let []
-        (go (while true
-              (let [[shortcut params] (<! channel)
-                    matched-resource (match-resource app-state shortcut params)]
-                (when matched-resource
-                  (om/update! app-state matched-resource)
-                  (. history (setToken (:uri matched-resource) ""))))))))
+      (go (while true
+            (let [[shortcut params] (<! channel)
+                  matched-resource (match-resource app-state shortcut params)]
+              (when matched-resource
+                (log "matched" matched-resource (:uri matched-resource))
+                (om/update! app-state matched-resource)
+                (. history (setToken (:uri matched-resource) ""))
+                (if-not (back-command? shortcut)
+                  (swap! histories #(cons matched-resource %))))))))
     om/IRenderState
     (render-state [_ _]
       (d/div
@@ -436,11 +451,7 @@
                     available-rs))
         (d/div #js {:id "content"}
                (when data
-                 (log "data" data)
-                 (render-view (some #(if (= (:shortcut app-state) (shortcut %)) %) resources) data)))))
-    om/IDidUpdate
-    (did-update [_ _ _]
-      (swap! histories conj app-state))))
+                 (render-view (some #(if (= (:shortcut app-state) (shortcut %)) %) resources) data)))))))
 
 
 
