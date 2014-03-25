@@ -227,9 +227,9 @@
 (def res (atom nil))
 
 (defn- on-resp
-  [[ok response]]
+  [ch [ok response]]
   (when-let [resp (reader/read-string response)]
-    (reset! res resp)))
+    (go (>! ch resp))))
 
 
 
@@ -245,8 +245,8 @@
   (match-uri [this s] "match the uri")
   (gen-uri-for-cmd [this data] "generate the uri for the command")
   (avail-resources [this] "the available resources of this resource ")
-  (pre-data-for-cmd [this data params] "make data")
-  (pre-data-for-uri [this params] "make data")
+  (pre-data-for-cmd [this data-ch data params] "make data")
+  (pre-data-for-uri [this data-ch params] "make data")
   (render-view [this data]))
 
 
@@ -288,15 +288,13 @@
     (str "/" (:ar-id data)))
   (avail-resources [this]
     [])
-  (pre-data-for-cmd [this data [num]]
-    (log "pre data" data)
-    (nth data (dec (long num)) 0))
-  (pre-data-for-uri [this [num]]
+  (pre-data-for-cmd [this data-ch data [num]]
+    (go (put! data-ch (nth data (dec (long num)) 0))))
+  (pre-data-for-uri [this data-ch [num]]
     (ajax-request "/notes/cmd" :get
                   {:params  {:cmd :note :ar-id num}
-                   :handler on-resp
-                   :format  (raw-response-format)})
-    @res)
+                   :handler (partial on-resp data-ch)
+                   :format  (raw-response-format)}))
   (render-view [this data]
     (render-note data)))
 
@@ -314,14 +312,13 @@
     "/recent")
   (avail-resources [this]
     [[:o :open-note]])
-  (pre-data-for-cmd [this data _]
+  (pre-data-for-cmd [this data-ch data _]
     (let []
       (ajax-request "/notes/cmd" :get
                     {:params  {:cmd :recent}
-                     :handler on-resp
-                     :format  (raw-response-format)})
-      @res))
-  (pre-data-for-uri [this _]
+                     :handler (partial on-resp data-ch)
+                     :format  (raw-response-format)})))
+  (pre-data-for-uri [this data-ch _]
     (pre-data-for-cmd this nil _))
   (render-view [this data]
     (render-notes data)))
@@ -380,7 +377,7 @@
 
 (def histories (atom []))
 (def channel (chan))
-(def context (atom nil))
+(def data-ch (chan))
 
 
 
@@ -395,18 +392,9 @@
   [shortcut-kw]
   (= :b shortcut-kw))
 
-(defn- match-resource
+(defn- prepare-resource-data
   [app-state shortcut-kw params]
-  (if-let [resource (some #(if (= shortcut-kw (shortcut %)) %) resources)]
-    (when-let [data (pre-data-for-cmd resource (:data @app-state) params)]
-      (log ".." resource data)
-      {:shortcut     shortcut-kw
-       :data         data
-       :uri          (gen-uri-for-cmd resource data)
-       :available-rs (avail-resources resource)})
-    (when (back-command? shortcut-kw)
-      (log "backing")
-      (pop-resource-from-history histories))))
+  )
 
 
 
@@ -418,12 +406,13 @@
       (dom/listen! (sel1 :body)
                    :keyup
                    (fn [event]
-                     (if-let [shortcut (parse-inputs (.-keyCode event) input-state)]
+                     (when-let [shortcut (parse-inputs (.-keyCode event) input-state)]
                        (put! channel shortcut)))))
     om/IRenderState
     (render-state [_ _]
       (d/span #js {:id "cmd"}
               (apply str input-state)))))
+
 
 (defn app-component
   [{:keys [available-rs data uri] :as app-state} owner]
@@ -431,13 +420,19 @@
     om/IWillMount
     (will-mount [_]
       (go (while true
-            (let [[shortcut params] (<! channel)
-                  matched-resource (match-resource app-state shortcut params)]
-              (when matched-resource
-                (log "matched" matched-resource (:uri matched-resource))
+            (when-let [[shortcut-kw params] (<! channel)]
+              (when-let [matched-resource (if (back-command? shortcut-kw)
+                                            (pop-resource-from-history histories)
+                                            (when-let [resource (some #(if (= shortcut-kw (shortcut %)) %) resources)]
+                                              (pre-data-for-cmd resource data-ch (:data @app-state) params)
+                                              (let [[data _] (alts! [data-ch (asyn/timeout 1000)])]
+                                                {:shortcut     shortcut-kw
+                                                 :data         data
+                                                 :uri          (gen-uri-for-cmd resource data)
+                                                 :available-rs (avail-resources resource)})))]
                 (om/update! app-state matched-resource)
                 (. history (setToken (:uri matched-resource) ""))
-                (if-not (back-command? shortcut)
+                (if-not (back-command? shortcut-kw)
                   (swap! histories #(cons matched-resource %))))))))
     om/IRenderState
     (render-state [_ _]
@@ -460,12 +455,8 @@
   (om/root input-component input-state {:target (sel1 :#cmd-box)})
   (om/root app-component app-state {:target (sel1 :#app)}))
 
-
-
-
-#_(defn blink-cursor
-  []
-  (js/setInterval #(dom/toggle-class! (sel1 :#cursor) :blink) 600))
+#_(events/listen history EventType.NAVIGATE
+               (fn [e] (secretary/dispatch! (.-token e))))
 
 
 
