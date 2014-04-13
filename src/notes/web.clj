@@ -84,7 +84,9 @@
            (GET "/cmd" [cmd :as req]
                 (condp = (keyword cmd)
                   :recent
-                  (pr-str (s/fetch :note :size 5 :fields [:title]))))
+                  (pr-str (s/fetch :note :size 5 :fields [:title]))
+                  :note
+                  (pr-str (s/fetch-first :note :ar-id (:ar-id req)))))
 
 
 

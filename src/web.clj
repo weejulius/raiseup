@@ -43,6 +43,8 @@
                 "Unauthorized")
            (GET "/demo" [:as req]
                 (demo/demo-view))
+           (GET "/demo/*" [:as req]
+                (demo/demo-view))
            (route/resources "/")
            (route/not-found "PAGE NOT FOUND"))
 
