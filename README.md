@@ -6,6 +6,8 @@ Raiseup is to be a full stack of web development using clojure and clojurescript
 
 Raiseup is inspired by CQRS ,event sourcing and clojure, thus the command is separated from the queries, everything is simpe as it should be, data is the core. it includes the following parts.
 
+[archtecture image](https://www.dropbox.com/s/i91t6zra3k8h5jq/raiseup-arch.jpg)
+
 ##CQRS
 
 - Command    : a map has the data order the system to do something
