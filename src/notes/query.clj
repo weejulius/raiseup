@@ -9,12 +9,17 @@
 
   {
     :schema
-    {(s/optional-key :author) s/Str}
+    {(s/optional-key :author) s/Str
+     (s/optional-key :fields) [s/Keyword]}
 
     :query
     (fn [p]
-      (if-not (nil? (:author p))
-        {:query {:term {:author (:author p)}}}))})
+      (let [q (if-not (nil? (:author p))
+                {:query {:term {:author (:author p)}}}
+                {})]
+        (if-not (nil? (:fields p))
+          (merge q {:fileds (:fields p)})
+          q)))})
 
 
 

@@ -173,20 +173,20 @@
   (validate-schema (get @defs-cache (str "query-" ar "-schema")) query)
   (if (:ar-id query)
     (p/load-entry
-      readmodel ar (:ar-id query))
+     readmodel ar (:ar-id query))
     (let [p (or (:page query) 1)
           s (or (:size query) 20)
           basic-query [:from (* s (dec p))
                        :size s]
-          more-query ((get @defs-cache (str "query-" ar)) query) ;; get sql from cache
+          query-fn (get @defs-cache (str "query-" ar))
+          more-query (query-fn query) ;; get sql from cache
           combined (apply concat basic-query more-query)
           combined (if-not (:sort more-query)
                      (concat combined [:sort {:ar-id "desc"}])
                      combined)]
-      (p/do-query
-        readmodel
-        ar
-        combined))))
+      (p/do-query readmodel
+                  ar
+                  combined))))
 
 
 

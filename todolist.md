@@ -1,4 +1,4 @@
- 
+
 * [DONE] time slot associates with a specific user
 * [DONE] remove the estimation and start time input box in the area to add slot
 * [DONE] delete the slot
@@ -49,7 +49,7 @@ Improvements
 * command can be composied by comamnds
 * [DONE] emit(cmd,timeout) will wait for the result until timeout otherwise exception will be thrown
 * the handlers in the same topic should process the events in order
-* [DONE] instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events 
+* [DONE] instead of saving the events id for each ar, keep the final state of ar, as a benefit that we need not replay events
 for ar when retrieving one ar
 * [DONE] page the index :est 1d
 * [DONE] use elasticsearch as read model instead of hazelcast as the query performance :est 3d
@@ -59,7 +59,7 @@ for ar when retrieving one ar
 * learn or introduce optimus for static files
 * null exception when replay events
 * optimize the event which has long text
-* http interface to replay events for ar 
+* http interface to replay events for ar
 * [DONE] add index link to menu nav
 * how to fix the data if data has some problem
 * monitor the system, like traffic and system usage on so on
@@ -132,6 +132,13 @@ CQRS实现回顾
 * use hazelcast along with leveldb
 * command style
 * everything is data
+* note version history appears in note
+
+## cmd-ui
+
+* 回退功能
+* 直接uri打开
+* 现在功能移植
 
 
 

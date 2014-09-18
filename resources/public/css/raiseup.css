@@ -58,42 +58,41 @@ ol, ul {
 }
 
 a:link, a:active,a:visited {
-  text-decoration:none;
-  color:#55f;
+    text-decoration:none;
+    color:#55f;
 }
 
 .btn{
-  display:block;
-  font-size:1.6em;
-  height:40px;
-  font-weight:600;
-  background:#558;
-  line-height:40px;
-  text-align:center;
-  border:0;
-  font-size:1em;
-  font-family:Consolas, "Liberation Mono", Courier, monospace;
-  margin:5px;
-  color:#fff;
+    display:block;
+    height:40px;
+    font-weight:600;
+    background:#558;
+    line-height:40px;
+    text-align:center;
+    border:0;
+    font-size:1em;
+    font-family:Consolas, "Liberation Mono", Courier, monospace;
+    margin:5px;
+    color:#fff;
 }
 
 a.btn{
- color:#fff;
+    color:#fff;
 }
 
 
 .lv1{
-  margin:0;
-  padding:0px;
-  width:7.3%;
-  position:fixed;
-  top:250px;
-  left:10px;
-  border:1px solid #333;
+    margin:0;
+    padding:0px;
+    width:7.3%;
+    position:fixed;
+    top:250px;
+    left:10px;
+    border:1px solid #333;
 }
 
 .lv2{
-  top: 350px;
+    top: 350px;
 }
 
 
@@ -116,10 +115,10 @@ a.btn{
 }
 
 .nav .logo{
-  color:#eef;
-  margin-bottom:3px;
-  border-bottom:2px solid #fff;
-  font-weight:800;
+    color:#eef;
+    margin-bottom:3px;
+    border-bottom:2px solid #fff;
+    font-weight:800;
 }
 
 .nav #menu li{
@@ -131,34 +130,34 @@ a.btn{
 }
 
 .nav #auth{
-  position:absolute;
-  bottom:30px;
-  z-index:999;
+    position:absolute;
+    bottom:30px;
+    z-index:999;
 }
 
 
 .nav #auth li a{
-  background:#333;
-  display:block;
-  float:left;
-  clear:left;
+    background:#333;
+    display:block;
+    float:left;
+    clear:left;
 }
 .nav #auth li form{
-  float:right;
-  display:none;
+    float:right;
+    display:none;
 }
 
 .nav #auth li form.show{
- display:block;
+    display:block;
 }
 
 .nav #auth li form{
- background : #877;
+    background : #877;
 }
 .nav #auth li form input{
-  border:1px solid #ddd;
-  height:30px;
-  line-height:30px;
+    border:1px solid #ddd;
+    height:30px;
+    line-height:30px;
 }
 
 .nav a{
@@ -168,41 +167,48 @@ a.btn{
 }
 
 .right-slide{
-   position:fixed;
-   top:0px;
-   right:0px;
-   width : 14%;
+    position:fixed;
+    top:0px;
+    right:0px;
+    width : 14%;
 
 }
 
 .main{
-  position:relative;
-  width:76%;
-  margin-left:9%;
-  margin-right:15%;
-  float:left;
+
+    width:76%;
+    margin-left:9%;
+    margin-right:15%;
+    float:left;
 }
 
 .footer{
- clear:both;
- width:100%;
- height:30px;
- background:#effeff;
- border:1px solid #eef;
- margin-top:3px;
+    clear:both;
+    position:fixed;
+    bottom:0px;
+    width:100%;
+    height:20px;
+    background:#efefef;
+    border:1px solid #eee;
+    margin-top:3px;
+    margin-left:8%;
+    color:#7f7f7f;
+    font-family: monospace;
+    font-size:1em;
+    line-height:20px;
 }
 /** note index **/
 
 .mod-notes,.mod-note,.mod-note-form,#mod-tips{
-  margin-left:15px;
+    margin-left:15px;
 }
 
 .mod-notes{
-  padding-top:20px;
+    padding-top:20px;
 }
 
 .mod-notes li{
-  background:#fff;
+    background:#fff;
 }
 
 .mod-notes li {
@@ -232,7 +238,7 @@ a.btn{
 
 
 .mod-note .title{
-   margin-top:20px;
+    margin-top:20px;
 }
 .mod-notes li .additional, .mod-note .title .additional{
 
@@ -264,11 +270,11 @@ a.btn{
 }
 
 .markdown pre{
-  font-size:0.9em;
+    font-size:0.9em;
 }
 
 .markdown li{
-  border:0;
+    border:0;
 }
 div.markdown ol li{
     margin:3px 15px;
@@ -280,36 +286,41 @@ div.markdown ol li{
     margin:10px 0px;
 }
 
-.markdown h2{
+.markdown h2, .markdown h3{
     font-weight:600;
     margin :20px 0;
     font-size : 1.3em;
     color:#e03;
-    font-family:sans-serif;
+    font-family:monospace;
 }
 
+
+.markdown h3{
+  font-size:1.2em;
+  margin:25px 0;
+}
 /** mod note* */
 
 .mod-note{
 }
 
 .mod-note .title,.mod-note .markdown{
-  background:#fff;
+    background:#fff;
 }
 
 /** note form   **/
 
 .mod-note-form{
-   width:55%;
-   float:left;
-   margin-right:15px;
+    width:55%;
+    float:left;
+    margin-right:15px;
 }
 
 #preview{
- float:right;
- width:40%;
- font-size:0.8em;
- margin :40px 0 0 0;
+    float:right;
+    width:40%;
+    font-size:0.8em;
+    margin :40px 0 0 0;
 }
 
 .mod-note-form input.title,#content{
@@ -330,22 +341,22 @@ div.markdown ol li{
 }
 
 .mod-note-form input.title{
-   font-size:1.6em;
-   font-weight:800;
-   font-family:Consolas, "Liberation Mono", Courier, monospace;
-   padding:2px 5px;
-   height:40px;
-   width:480px;
-   line-height:40px;
-   width:100%;
+    font-size:1.6em;
+    font-weight:800;
+    font-family:Consolas, "Liberation Mono", Courier, monospace;
+    padding:2px 5px;
+    height:40px;
+    width:480px;
+    line-height:40px;
+    width:100%;
 }
 
 
 .discard{
-  height:30px;
-  line-height:20px;
-  padding:5px;
-  text-decoration:underline;
+    height:30px;
+    line-height:20px;
+    padding:5px;
+    text-decoration:underline;
 }
 
 .mod-error{
@@ -358,30 +369,30 @@ div.markdown ol li{
 
 
 .more{
-  display:block;
-  margin:10px 0;
-  font-size:0.9em;
+    display:block;
+    margin:10px 0;
+    font-size:0.9em;
 }
 
 
 
 .msg , #current-user {
- background:#fee;
- color:#f00;
- padding:2px 5px;
- border-radius:3px;
- height:25px;
+    background:#fee;
+    color:#f00;
+    padding:2px 5px;
+    border-radius:3px;
+    height:25px;
 }
 
 #current-user {
-  padding:2px 15px;
-  line-height:25px;
+    padding:2px 15px;
+    line-height:25px;
 }
 
 #current-user a{
-  margin-left:30px;
-  text-decoration:underline;
-  font-size:0.8em;
-  font-weight: 800;
-  text-shadow: 0 1px 0 rgba(111,111,111,0.2);
+    margin-left:30px;
+    text-decoration:underline;
+    font-size:0.8em;
+    font-weight: 800;
+    text-shadow: 0 1px 0 rgba(111,111,111,0.2);
 }

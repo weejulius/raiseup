@@ -15,9 +15,12 @@
        }]
      [:title title]
      (include-css "/css/demo.css")
+;     (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
+     (include-js "/js/react.js")
+     (include-js "/out/goog/base.js")
      (include-js "/js/client.js")
-     (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
-     ]
+     [:script {:type "text/javascript"}
+      "goog.require(\"notes.web.client\");"]]
     [:body
      [:div.container body]
      (include-css "/css/hl.css")
@@ -31,9 +34,8 @@
   (layout
     "demo"
     [:div.main
-     [:div
-      [:input#cmd-box {:type :text :autofocus "autofocus"} ]
-      [:div#resp]
-      ]
+     [:div#cmd-box]
+     [:div#app]
      [:script {:type "text/javascript"}
-      "notes.web.client.demo_ready();"]]))
+      "notes.web.client.demo_ready();"]
+     ]))
