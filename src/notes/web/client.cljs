@@ -1,7 +1,7 @@
 (ns notes.web.client
   (:require
     [goog.events :as events]
-    [ajax.core :refer [POST GET ajax-request raw-response-format]]
+    [ajax.core :refer [POST GET easy-ajax-request raw-response-format detect-response-format]]
     [dommy.core :as dom]
     [om.core :as om :include-macros true]
     [om.dom :as d :include-macros true]
@@ -227,7 +227,7 @@
 (def res (atom nil))
 
 (defn- on-resp
-  [ch [ok response]]
+  [ch response]
   (when-let [resp (reader/read-string response)]
     (go (>! ch resp))))
 
@@ -294,10 +294,11 @@
       (go (put! data-ch (nth data (dec (long num)) 0)))))
   (pre-data-for-uri [this data-ch n]
     (if n
-      (ajax-request "/notes/cmd" :get
+      (easy-ajax-request "/notes/cmd" :get
                     {:params  {:cmd :note :ar-id n}
                      :handler (partial on-resp data-ch)
-                     :format  (raw-response-format)})))
+                     :response-format (raw-response-format)
+                    })))
   (render-view [this data]
     (render-note data)))
 
@@ -317,10 +318,10 @@
     [[:o :open-note]])
   (pre-data-for-cmd [this data-ch data _]
     (let []
-      (ajax-request "/notes/cmd" :get
-                    {:params  {:cmd :recent}
-                     :handler (partial on-resp data-ch)
-                     :format  (raw-response-format)})))
+      (easy-ajax-request "/notes/cmd" :get
+                         {:params  {:cmd :recent}
+                          :handler (partial on-resp data-ch)
+                          :response-format (raw-response-format)})))
   (pre-data-for-uri [this data-ch _]
     (pre-data-for-cmd this data-ch nil _))
   (render-view [this data]
@@ -470,7 +471,6 @@
 (defn nav-via-uri
   []
   (let [uri (subs js/window.location.pathname 5)]
-    (log "uri" uri)
     (if uri
       (put! channel [uri]))))
 

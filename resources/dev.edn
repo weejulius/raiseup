@@ -1,91 +1,91 @@
 {
-  :charset            "UTF-8"
-  :short-date-format  "yyyy-MM-dd"
-  :long-date-format   "yyyy-MM-dd HH:mm:ss"
+ :charset            "UTF-8"
+ :short-date-format  "yyyy-MM-dd"
+ :long-date-format   "yyyy-MM-dd HH:mm:ss"
 
-  ;; separator for string, like 1,2,3
-  :separator          ","
-  :template-extension "httl"
+ ;; separator for string, like 1,2,3
+ :separator          ","
+ :template-extension "httl"
 
-  :components
+ :components
+ {
+  :logging           {:component common.logging/->TimbreLogging
+                      :config
                       {
-                        :logging           {:component common.logging/->TimbreLogging
-                                            :config
-                                                       {
-                                                         [:shared-appender-config :rotor] {:path     "/tmp/raiseup1.log"
-                                                                                           :max-size 10240000
-                                                                                           :backlog  5}
-                                                         [:appenders :rotor]              taoensso.timbre.appenders.rotor/rotor-appender
+                       [:shared-appender-config :rotor] {:path     "/tmp/raiseup1.log"
+                                                         :max-size 10240000
+                                                         :backlog  5}
+                       [:appenders :rotor]              taoensso.timbre.appenders.rotor/rotor-appender
 
-                                                         }}
-                        :snapshot-db       {
-                                             :component      cqrs.storage/->LeveldbStore
-                                             :path           "/tmp/snapshot-db"
-                                             :leveldb-option {}
-                                             }
+                       }}
+  :snapshot-db       {
+                      :component      cqrs.storage/->LeveldbStore
+                      :path           "/tmp/snapshot-db"
+                      :leveldb-option {}
+                      }
 
-                        :recoverable-id-db {
-                                             :component      cqrs.storage/->LeveldbStore
-                                             :path           "/tmp/ids-db"
-                                             :leveldb-option {}
-                                             }
+  :recoverable-id-db {
+                      :component      cqrs.storage/->LeveldbStore
+                      :path           "/tmp/ids-db"
+                      :leveldb-option {}
+                      }
 
-                        :events-db         {
-                                             :component      cqrs.storage/->LeveldbStore
-                                             :path           "/tmp/events-db"
-                                             :leveldb-option {}
-                                             }
+  :events-db         {
+                      :component      cqrs.storage/->LeveldbStore
+                      :path           "/tmp/events-db"
+                      :leveldb-option {}
+                      }
 
-                        :recoverable-ids   {
-                                             :component                     cqrs.storage/->RecoverableLongId
-                                             :storage                       :recoverable-id-db
-                                             :recoverable-id-flush-interval 100000
-                                             }
+  :recoverable-ids   {
+                      :component                     cqrs.storage/->RecoverableLongId
+                      :storage                       :recoverable-id-db
+                      :recoverable-id-flush-interval 100000
+                      }
 
-                        :bus               {
-                                             :component cqrs.vertx/->VertxBus
-                                             :handlers  [notes.handler/note-event-handlers notes.handler/note-command-handlers]
-                                             }
+  :bus               {
+                      :component cqrs.vertx/->VertxBus
+                      :handlers  [notes.handler/note-event-handlers notes.handler/note-command-handlers]
+                      }
 
-                        :readmodel         {
-                                             :component      cqrs.elastic-rm/->ElasticReadModel
-                                             :app            "raiseup"
-                                             :start-shell    ["nohup" "elastic"]
-                                             :shutdown-shell ["sdelastic"]
-                                             :host           "127.0.0.1"
-                                             :port           9300
-                                             :cluster-name   "elasticsearch"
-                                             ;  :settings {:index {"number_of_replicas" 1}}
-                                             :mappings
-                                                             {"note"
-                                                               {
-                                                                 :properties
-                                                                 {:ar-id   {:type "long" :index "not_analyzed"}
-                                                                  :ar      {:type "string" :index "not_analyzed"}
-                                                                  :author  {:type "string" :store "yes" :index "not_analyzed"}
-                                                                  :title   {:type "string" :store "yes" :analyzer "standard"}
-                                                                  :content {:type "string" :analyzer "standard"}
-                                                                  :ctime   {:type "long" :store "yes" :index "not_analyzed"}
-                                                                  :utime   {:type "long" :index "not_analyzed"}}}
-                                                              "user"
-                                                               {
-                                                                 :properties
-                                                                 {:ar-id           {:type "long" :index "not_analyzed"}
-                                                                  :ar              {:type "string" :index "not_analyzed"}
-                                                                  :name            {:type "string" :index "not_analyzed"}
-                                                                  :hashed-password {:type "string" :index "no"}
-                                                                  :login-time      {:type "long" :index "not_analyzed"}
-                                                                  :logout-time     {:type "long" :index "not_analyzed"}
-                                                                  :ctime           {:type "long" :index "not_analyzed"}}}
-                                                              }
-                                             }
+  :readmodel         {
+                      :component      cqrs.elastic-rm/->ElasticReadModel
+                      :app            "raiseup"
+                      :start-shell    []
+                      :shutdown-shell []
+                      :host           "127.0.0.1"
+                      :port           9300
+                      :cluster-name   "elasticsearch"
+                                        ;  :settings {:index {"number_of_replicas" 1}}
+                      :mappings
+                      {"note"
+                       {
+                        :properties
+                        {:ar-id   {:type "long" :index "not_analyzed"}
+                         :ar      {:type "string" :index "not_analyzed"}
+                         :author  {:type "string" :store "yes" :index "not_analyzed"}
+                         :title   {:type "string" :store "yes" :analyzer "standard"}
+                         :content {:type "string" :analyzer "standard"}
+                         :ctime   {:type "long" :store "yes" :index "not_analyzed"}
+                         :utime   {:type "long" :index "not_analyzed"}}}
+                       "user"
+                       {
+                        :properties
+                        {:ar-id           {:type "long" :index "not_analyzed"}
+                         :ar              {:type "string" :index "not_analyzed"}
+                         :name            {:type "string" :index "not_analyzed"}
+                         :hashed-password {:type "string" :index "no"}
+                         :login-time      {:type "long" :index "not_analyzed"}
+                         :logout-time     {:type "long" :index "not_analyzed"}
+                         :ctime           {:type "long" :index "not_analyzed"}}}
+                       }
+                      }
 
-                        :http-server       {:component httpserver/->HttpKitServer
-                                            :host      "localhost"
-                                            :port      8080
-                                            :routes    web/app-routes
-                                            }
-
-                        }
+  :http-server       {:component httpserver/->HttpKitServer
+                      :host      "localhost"
+                      :port      8080
+                      :routes    web/app-routes
+                      }
 
   }
+
+ }

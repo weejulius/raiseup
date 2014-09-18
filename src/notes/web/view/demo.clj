@@ -15,10 +15,10 @@
        }]
      [:title title]
      (include-css "/css/demo.css")
-     (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
-     (include-js "/js/react.min.js")
-     (include-js "/tmp/goog/base.js")
-     (include-js "/js/main.js")
+;     (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
+     (include-js "/js/react.js")
+     (include-js "/out/goog/base.js")
+     (include-js "/js/client.js")
      [:script {:type "text/javascript"}
       "goog.require(\"notes.web.client\");"]]
     [:body

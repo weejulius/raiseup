@@ -14,30 +14,32 @@
   "the layout of html which can be reused"
   [title & body]
   (html5
-    [:head
-     [:meta {:charset "utf-8"}]
-     [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
-     [:meta
-      {:name    "viewport"
-       :content "width=device-width, initial-scale=1, maximum-scale=1"
-       }]
-     [:title title]
-     (include-css "/css/raiseup.css")
-     (include-js "/js/client.js")
-     ;(include-css "http://fonts.googleapis.com/css?family=Fjalla+One")
-     ]
-    [:body
-     [:div.container body]
-     (include-css "/css/hl.css")
-     (include-js "/js/highlight.pack.js")
-     [:script {:type "text/javascript"}
-      "hljs.initHighlightingOnLoad();"]]))
+   [:head
+    [:meta {:charset "utf-8"}]
+    [:meta {:http-equiv "X-UA-Compatible" :content "IE=edge,chrome=1"}]
+    [:meta
+     {:name    "viewport"
+      :content "width=device-width, initial-scale=1, maximum-scale=1"
+      }]
+    [:title title]
+    (include-css "/css/raiseup.css")
+    (include-js "/js/react.js")
+    (include-js "/out/goog/base.js")
+    (include-js "/js/client.js")
+    [:script {:type "text/javascript"}
+     "goog.require(\"notes.web.client\");"]]
+  [:body
+   [:div.container body]
+   (include-css "/css/hl.css")
+   (include-js "/js/highlight.pack.js")
+   [:script {:type "text/javascript"}
+    "hljs.initHighlightingOnLoad();"]]))
 
 
 (defn- footer
   []
   [:div.footer
-   ])
+   [:span "Powered by clojure, served by julius"]])
 
 
 

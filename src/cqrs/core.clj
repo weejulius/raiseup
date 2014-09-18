@@ -173,7 +173,7 @@
   (validate-schema (get @defs-cache (str "query-" ar "-schema")) query)
   (if (:ar-id query)
     (p/load-entry
-      readmodel ar (:ar-id query))
+     readmodel ar (:ar-id query))
     (let [p (or (:page query) 1)
           s (or (:size query) 20)
           basic-query [:from (* s (dec p))
@@ -184,10 +184,9 @@
           combined (if-not (:sort more-query)
                      (concat combined [:sort {:ar-id "desc"}])
                      combined)]
-      (p/do-query
-        readmodel
-        ar
-        combined))))
+      (p/do-query readmodel
+                  ar
+                  combined))))
 
 
 

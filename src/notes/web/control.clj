@@ -5,10 +5,9 @@
             [common.date :as d]
             [notes.web.view.index :as v]
             [clojure.pprint :as pr]
-            [buddy.crypto.hashers.bcrypt :as hash]
-            [buddy.crypto.signing :as sign]
+            [buddy.hashers.bcrypt :as hash]
             [common.validator :as validate]
-            [buddy.auth :refer [authenticated? throw-notauthorized]]))
+            [buddy.auth :refer [authenticated? throw-unauthorized]]))
 
 
 (defn- authed?
@@ -29,7 +28,7 @@
   ([has-resource? resource-owner req]
    (if-not (or (authed? req) (and has-resource?
                                   (= (current-user req) (resource-owner))))
-     (throw-notauthorized req))))
+     (throw-unauthorized req))))
 
 (defn- authorize-resource
   [req]
