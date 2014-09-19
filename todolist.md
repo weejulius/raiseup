@@ -141,6 +141,14 @@ CQRS实现回顾
 * 现在功能移植
 
 
+## simpify the component
+
+--
+reduct the complexility
+
+* replace elastic search: [Delay] no appropriate replacement
+* replace vert.x
+
 
 
 

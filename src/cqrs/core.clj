@@ -88,8 +88,8 @@
 
 (defn send-command
   "send commands"
-  [bus command]
-  (p/sends bus command)
+  [bus command options]
+  (p/sends bus command options)
   (:ar-id command))
 
 
