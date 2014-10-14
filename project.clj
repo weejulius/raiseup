@@ -5,11 +5,13 @@
 
                  ;;utils
                  [cheshire "5.3.1"]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [clj-time "0.8.0"]
+                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [prismatic/schema "0.2.6"]
                  [com.taoensso/nippy "2.6.3"]
                  [com.taoensso/timbre "3.3.1"]
+                 [clj-http "1.0.0"]
+                 [hickory "0.5.4"]
 
                  ;;cqrs
                  [io.vertx/clojure-api "1.0.3"]
@@ -32,16 +34,15 @@
                  ;;client
                  [org.clojure/clojurescript "0.0-2322"]
                  [om "0.7.3"]
-                 [cljs-ajax "0.2.6"]
+                 [cljs-ajax "0.3.0"]
                  [prismatic/dommy "0.1.2"]
 
                  ;;test
                  [criterium "0.4.2" :scope "test"]
                  ]
-  :plugins [[cider/cider-nrepl "0.7.0"]
+  :plugins [
             [lein-cljsbuild "1.0.3"]
-            [lein-ancient "0.5.5"]
-            [lein-gorilla "0.3.3"]]
+            [lein-ancient "0.5.5"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
   :main main
@@ -49,7 +50,7 @@
                  ["ibiblio" {:url "http://mirrors.ibiblio.org/maven2/"}]]
 
   :profiles
-  {:dev {:jvm-opts     ["-Dhttl.reloadable=true"]
+  {:dev {:jvm-opts     []
          :dependencies [[ring-mock "0.1.5"]
                         [org.clojure/tools.namespace "0.2.4"]]
          :source-paths ["src" "resources"]

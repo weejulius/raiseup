@@ -14,12 +14,12 @@
 
 
 (cqrs/def-command-schema :update-note
-                 {:ar-id                  s/Num
-                  (s/optional-key :title) (s/maybe (s/both s/Str
-                                                           (s/pred #(c/between (count %) 2 100))))
-                  :content                (s/maybe (s/both s/Str
-                                                           (s/pred #(c/between (count %) 5 5000))))
-                  :utime                  s/Num})
+  {:ar-id                  s/Num
+   (s/optional-key :title) (s/maybe (s/both s/Str
+                                            (s/pred #(c/between (count %) 2 100))))
+   :content                (s/maybe (s/both s/Str
+                                            (s/pred #(c/between (count %) 5 5000))))
+   :utime                  s/Num})
 
 (cqrs/def-command-schema :delete-note
                  {:ar-id s/Num})

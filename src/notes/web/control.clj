@@ -102,7 +102,8 @@
                   {:author  (name (-> req :session :identity))
                    :title   (p :title req)
                    :content (p :content req)
-                   :ctime   (d/now-as-millis)}))
+                   :ctime   (d/now-as-millis)}
+                  :timeout 3000))
 
 (defn put-note
   [req]
@@ -113,7 +114,8 @@
                     {:ar-id   ar-id
                      :title   (p :title req)
                      :content (p :content req)
-                     :utime   (d/now-as-millis)})))
+                     :utime   (d/now-as-millis)}
+                    :timeout 3000)))
 
 (defn delete-note
   [req]

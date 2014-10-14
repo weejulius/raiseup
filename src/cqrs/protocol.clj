@@ -6,7 +6,7 @@
 (defprotocol Bus
   ^{:doc   "the bus to dispath messages (like commands,events) to their handler"
     :added "1.0"}
-  (sends [this command] "send command to its handler")
+  (sends [this command options] "send command to its handler")
   (publish [this event] "publish event to this handlers")
   (reg [this name handle] "register handler for the event/command type of ar"))
 
@@ -26,6 +26,5 @@
   (put-entry [this new-entry]
              "update then entry with new entry to update it")
   (remove-entry [this entry-type entry-id] "remote the entry")
-  (do-query [this entry-type query]
-            "query the entries"))
+  (do-query [this entry-type query] "query the entries"))
 
