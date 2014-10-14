@@ -6,9 +6,9 @@
             [hickory.select :as s]))
 
 
-(def lol-domain "http://lolbox.duowan.com/")
-(def player-detail-url (str lol-domain "playerDetail.php"))
-(def ranked-info-url (str lol-domain "ajaxGetWarzone.php"))
+(def lol-url-domain-name "http://lolbox.duowan.com/")
+(def player-detail-url (str lol-url-domain-name "playerDetail.php"))
+(def ranked-info-url (str lol-url-domain-name "ajaxGetWarzone.php"))
 
 
 (defn exec-url-as-html
@@ -41,44 +41,45 @@
                     {:query-params {"serverName" server "playerName" name}}))
 
 
+(defn extract-match-data-table
+  [table start]
+  (if table
+    (let [total (-> table :content (nth start nil)
+                    :content first )
+          total (if total (clojure.string/trim total) total)
+          win-percentage (-> table :content (nth (+ start 2) nil) :content first)
+          win (-> table :content (nth (+ start 4) nil) :content first)
+          fail (-> table :content (nth (+ start 6) nil) :content first)
+          update-date (-> table :content (nth (+ start 8) nil) :content first)]
+      [total win-percentage win fail update-date])))
+
 (defn extract-ranked-data
   [w]
-  (let [ranked-table (->
-                      (s/select
-                       (s/child
-                        (s/class "J_content")) w)
-                      first :content (nth 3)
-                      :content second
-                      :content second
-                      :content (nth 2))
-        total (-> ranked-table :content (nth 7)
-                  :content first clojure.string/trim)
-        win-percentage (-> ranked-table :content (nth 9) :content first)
-        win (-> ranked-table :content (nth 11) :content first)
-        fail (-> ranked-table :content (nth 13) :content first)
-        update-date (-> ranked-table :content (nth 15) :content first)]
-    [total win-percentage win fail update-date]))
+  (extract-match-data-table (->
+                             (s/select
+                              (s/child
+                               (s/class "J_content")) w)
+                             first :content (nth 3 nil)
+                             :content second
+                             :content second
+                             :content (nth 2 nil))
+                            7))
 
 (defn extract-recent-summors
   [w]
-  ())
+  (  ))
 
 (defn extract-match-data
   [w]
-  (let [ranked-table (->
-                      (s/select
-                       (s/child
-                        (s/class "J_content")) w)
-                      first :content (nth 1)
-                      :content second
-                      :content second
-                      :content (nth 2))
-        total (-> ranked-table :content (nth 3) :content first clojure.string/trim)
-        win-percentage (-> ranked-table :content (nth 5) :content first)
-        win (-> ranked-table :content (nth 7) :content first)
-        fail (-> ranked-table :content (nth 9) :content first)
-        update-date (-> ranked-table :content (nth 11) :content first)]
-    [total win-percentage win fail update-date]))
+  (extract-match-data-table (->
+                             (s/select
+                              (s/child
+                               (s/class "J_content")) w)
+                             first :content (nth 1 nil)
+                             :content second
+                             :content second
+                             :content (nth 2 nil))
+                            3))
 
 (defn extract-level
   [w]
@@ -101,14 +102,16 @@
         :match match}))))
 
 (deftest test-get-player-level
-  (let [detail (extract-from-player-detail "电信一" "小宝贝加油")]
-    (is (= (:level detail) "30"))
-    (is (= (:ranked detail) ["316" "44%" "139" "177" "10-07 16:43"]))
-    (is (= (:match detail) ["561" "46.3%" "260" "301" "10-12 22:55"]))))
+  (let [detail (extract-from-player-detail "电信二" "大地爷")]
+    (is (= (:level detail) "15"))
+    (is (= (:ranked detail) nil))
+    (is (= (:match detail) ["115" "44.3%" "51" "64" "10-02 19:35"]))))
 
 
 (deftest test-get-player-ranked
   (is (= (:tier (find-ranked-info "电信一" "小宝贝加油"))
-         "黄铜")
-      (= (:rank (find-ranked-info "电信一" "小宝贝加油"))
-         "V")))
+         "黄铜"))
+  (is (= (:rank (find-ranked-info "电信一" "小宝贝加油"))
+         "V"))
+  (is  (= (:tier (find-ranked-info "电信二" "大地爷"))
+         nil)))
