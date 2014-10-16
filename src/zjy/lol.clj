@@ -17,7 +17,7 @@
   (let [result
         (try (client/get url params)
              (catch clojure.lang.ExceptionInfo e
-               (client/get url params)))
+               (client/get url (merge  params {:conn-timeout 3000 :socket-timeout 3000}))))
         body (:body result)]
     (hickory/as-hickory
      (hickory/parse body))))
