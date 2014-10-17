@@ -38,9 +38,13 @@
 
                  ;;test
                  [criterium "0.4.2" :scope "test"]
+
+                 ;;dev
+                 [figwheel "0.1.5-SNAPSHOT"]
                  ]
   :plugins [
             [lein-cljsbuild "1.0.3"]
+            [lein-figwheel "0.1.5-SNAPSHOT"]
             [lein-ancient "0.5.5"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
@@ -60,11 +64,27 @@
 
   :cljsbuild
   {:builds
-   {:client {:source-paths ["src"]
-             :compiler     {:preamble     ["reagent/react.js"]
-                            :output-dir   "resources/public/out"
-                            :output-to    "resources/public/js/client.js"
-                            :pretty-print true
-                            :optimizations :none
-                            :source-map true
-                            }}}})
+   [
+    {:id "zjy"
+     :source-paths ["src/zjy"]
+     :compiler     {:preamble     ["reagent/react.js"]
+                    :output-dir   "resources/public/zjy"
+                    :output-to    "resources/public/zjy/client.js"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }}
+    {:id "notes"
+     :source-paths ["src/notes"]
+     :compiler     {:preamble     ["reagent/react.js"]
+                    :output-dir   "resources/public/notes"
+                    :output-to    "resources/public/js/notes.js"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }}]
+  }
+  :figwheel
+  {:http-server-root "public"  ;; this will be in resources/
+   :server-port 3449           ;; default
+   :css-dirs ["resources/public/css"]})
