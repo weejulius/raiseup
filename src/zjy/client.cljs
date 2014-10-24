@@ -2,7 +2,9 @@
   (:require [figwheel.client :as fw :include-macros true]
             [om.core :as om :include-macros true]
             [om.dom :as d :include-macros true]
-            [dommy.core :as dom])
+            [dommy.core :as dom]
+            [ajax.core :refer [POST GET easy-ajax-request raw-response-format
+                               detect-response-format]])
   (:use-macros
    [cljs.core.async.macros :only [go]]
    [dommy.macros :only [node sel sel1]]))
@@ -14,25 +16,37 @@
  :jsload-callback (fn [] (print "reloaded")))
 
 
+(defn on-init-response
+  [state response]
+  (om/transact! state (fn [state]
+                              (assoc state :game-data response))))
+
+
+(defn init
+  [state]
+  (dom/listen!
+   (sel1 :#read-role) :click
+   (fn [event]
+     (easy-ajax-request
+      "/zjy/q" :get
+      {:params {:game_server (.-value (sel1 :#game-server))
+                :game_name (.-value (sel1 :#game-name))}
+       :handler (partial on-init-response state)
+       :response-format (raw-response-format)}))))
+
 (defn app-component
-  [input-state owner]
+  [state owner]
   (reify
     om/IWillMount
     (will-mount [_]
-      )
+      (init state))
     om/IRenderState
     (render-state [_ _]
-      (d/span #js {:id "game-name"}
-              (:game-name input-state)))))
+      (d/span #js {:id "game-data"}
+              (d/div #js {} (:game-data state))))))
 
-
-(def input-state (atom {:game-name "what are you!----++ss-..."}))
-
-(defn init []
-  (dom/listen! (sel1 :#read-role) :click
-               (fn [event]
-                 )))
-
+(def state (atom {:game-name "what are you!----++ss-..."
+                        :game-data nil}))
 
 (defn index []
-  (om/root app-component input-state {:target (sel1 :#game-name)}))
+  (om/root app-component state {:target (sel1 :#role-info)}))

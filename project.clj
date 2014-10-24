@@ -83,7 +83,7 @@
                     :optimizations :none
                     :source-map true
                     }}]
-  }
+   }
   :figwheel
   {:http-server-root "public"  ;; this will be in resources/
    :server-port 3449           ;; default
