@@ -44,7 +44,11 @@
 
   :bus               {
                       :component cqrs.vertx/->VertxBus
-                      :handlers  [notes.handler/note-event-handlers notes.handler/note-command-handlers]
+                      :handlers
+                      [notes.handler/note-event-handlers
+                       notes.handler/note-command-handlers
+                       zjy.handler/zjy-command-handlers
+                       zjy.handler/zjy-event-handlers]
                       }
 
   :readmodel         {
@@ -77,6 +81,24 @@
                          :login-time      {:type "long" :index "not_analyzed"}
                          :logout-time     {:type "long" :index "not_analyzed"}
                          :ctime           {:type "long" :index "not_analyzed"}}}
+                       }
+                      "account"
+                      {
+                       :properties
+                       {:ar-id  {:type "long" :index "not_analyzed"}
+                        :ar  {:type "string" :index "not_analyzed"}
+                        :rank  {:type "string" :index "not_analyzed"}
+                        :tier  {:type "string" :index "not_analyzed"}
+                        :league_points {:type "string" :index "not_analyzed"}
+                        :warzone_updated  {:type "long" :index "not_analyzed"}
+                        :game-name  {:type "string" :index "not_analyzed"}
+                        :game-server  {:type "string" :index "not_analyzed"}
+                        :level  {:type "string" :index "not_analyzed"}
+                        :ranked  {:type "string" :index "not_analyzed"}
+                        :match  {:type "string" :index "not_analyzed"}
+                        :dirty-words  {:type "string" :index "not_analyzed"}
+                        :age  {:type "string" :index "not_analyzed"}
+                        :ctime  {:type "long" :index "not_analyzed"}}
                        }
                       }
 

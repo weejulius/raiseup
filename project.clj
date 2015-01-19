@@ -6,8 +6,8 @@
                  ;;utils
                  [cheshire "5.3.1"]
                  [clj-time "0.8.0"]
-                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                 [prismatic/schema "0.2.6"]
+                 [org.clojure/core.async "0.1.346.0-17112a-alpha"]
+                 [prismatic/schema "0.3.0"]
                  [com.taoensso/nippy "2.6.3"]
                  [com.taoensso/timbre "3.3.1"]
                  [clj-http "1.0.0"]
@@ -16,9 +16,8 @@
                  ;;cqrs
                  [io.vertx/clojure-api "1.0.3"]
                  [com.hazelcast/hazelcast "3.2"]
-                 [clojurewerkz/elastisch "2.1.0-beta6"]
+                 [clojurewerkz/elastisch "2.1.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.8"]
-                 [org.mapdb/mapdb "0.9.10"]
 
                  ;;web
                  [http-kit "2.1.19"]
@@ -32,16 +31,20 @@
                  [buddy "0.2.0b2"]
 
                  ;;client
-                 [org.clojure/clojurescript "0.0-2322"]
+                 [org.clojure/clojurescript "0.0-2371"]
                  [om "0.7.3"]
                  [cljs-ajax "0.3.0"]
                  [prismatic/dommy "0.1.2"]
 
                  ;;test
                  [criterium "0.4.2" :scope "test"]
+
+                 ;;dev
+                 [figwheel "0.1.5-SNAPSHOT"]
                  ]
   :plugins [
             [lein-cljsbuild "1.0.3"]
+            [lein-figwheel "0.1.5-SNAPSHOT"]
             [lein-ancient "0.5.5"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
@@ -61,11 +64,27 @@
 
   :cljsbuild
   {:builds
-   {:client {:source-paths ["src"]
-             :compiler     {:preamble     ["reagent/react.js"]
-                            :output-dir   "resources/public/out"
-                            :output-to    "resources/public/js/client.js"
-                            :pretty-print true
-                            :optimizations :none
-                            :source-map true
-                            }}}})
+   [
+    {:id "zjy"
+     :source-paths ["src/zjy"]
+     :compiler     {:preamble     ["reagent/react.js"]
+                    :output-dir   "resources/public/zjy"
+                    :output-to    "resources/public/zjy/client.js"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }}
+    {:id "notes"
+     :source-paths ["src/notes"]
+     :compiler     {:preamble     ["reagent/react.js"]
+                    :output-dir   "resources/public/notes"
+                    :output-to    "resources/public/js/notes.js"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }}]
+   }
+  :figwheel
+  {:http-server-root "public"  ;; this will be in resources/
+   :server-port 3449           ;; default
+   :css-dirs ["resources/public/css"]})

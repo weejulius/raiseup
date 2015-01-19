@@ -4,6 +4,7 @@
             [notes.query :refer :all]
             [notes.web.view.demo :as demo]
             [notes.web :as notes-web :refer :all]
+            [zjy.web :refer :all]
             [common.reqres :as reqres]
             [common.convert :refer [->long ->map ->str]]
             [common.config :as cfg]
@@ -36,17 +37,18 @@
 
 
 (defroutes app-routes
-           (context "/notes" [] notes-routes)
-           (GET "/403" []
-                "Forbidden")
-           (GET "/401" []
-                "Unauthorized")
-           (GET "/demo" [:as req]
-                (demo/demo-view))
-           (GET "/demo/*" [:as req]
-                (demo/demo-view))
-           (route/resources "/")
-           (route/not-found "PAGE NOT FOUND"))
+  (context "/notes" [] notes-routes)
+  (context "/zjy" [] zjy-routes)
+  (GET "/403" []
+       "Forbidden")
+  (GET "/401" []
+       "Unauthorized")
+  (GET "/demo" [:as req]
+       (demo/demo-view))
+  (GET "/demo/*" [:as req]
+       (demo/demo-view))
+  (route/resources "/")
+  (route/not-found "PAGE NOT FOUND"))
 
 
 

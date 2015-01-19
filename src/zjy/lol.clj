@@ -17,31 +17,33 @@
   (let [result
         (try (client/get url params)
              (catch clojure.lang.ExceptionInfo e
-               (client/get url params)))
+               (client/get url (merge  params {:conn-timeout 3000 :socket-timeout 3000}))))
         body (:body result)]
     (hickory/as-hickory
      (hickory/parse body))))
 
 (defn exec-url-as-json
+  "parse the url as json"
   [url params]
   (:body
    (client/get url (assoc params :as :json))))
 
-(defn handle-player-detail
+(defn handle-content-of-player-detail-url
+  "process the content of player detail url"
   [server name f]
   (f (exec-url-as-html player-detail-url
                        {:query-params {"serverName" server "playerName" name}})))
 
 
-
-
-(defn find-ranked-info
+(defn extract-from-ranked-info
+  "extract required info from the ranked info url"
   [server name]
   (exec-url-as-json ranked-info-url
                     {:query-params {"serverName" server "playerName" name}}))
 
 
 (defn extract-match-data-table
+  "extract data from the html table structure"
   [table start]
   (if table
     (let [total (-> table :content (nth start nil)
@@ -54,6 +56,7 @@
       [total win-percentage win fail update-date])))
 
 (defn extract-ranked-data
+  "extract rank info from the html table"
   [w]
   (extract-match-data-table (->
                              (s/select
@@ -65,11 +68,7 @@
                              :content (nth 2 nil))
                             7))
 
-(defn extract-recent-summors
-  [w]
-  (  ))
-
-(defn extract-match-data
+(defn extract-common-match-data
   [w]
   (extract-match-data-table (->
                              (s/select
@@ -91,15 +90,22 @@
 
 (defn extract-from-player-detail
   [server name]
-  (handle-player-detail
+  (handle-content-of-player-detail-url
    server name
    (fn [w]
      (let [level (extract-level w)
            ranked (extract-ranked-data w)
-           match (extract-match-data w)]
+           match (extract-common-match-data w)]
        {:level level
         :ranked ranked
         :match match}))))
+
+
+(defn fetch-summor-info
+  [server name]
+  (let [info-from-detail (extract-from-player-detail server name)
+        info-from-war-zone (extract-from-ranked-info server name)]
+    (merge info-from-detail info-from-war-zone)))
 
 (deftest test-get-player-level
   (let [detail (extract-from-player-detail "电信二" "大地爷")]
@@ -109,9 +115,15 @@
 
 
 (deftest test-get-player-ranked
-  (is (= (:tier (find-ranked-info "电信一" "小宝贝加油"))
+  (is (= (:tier (extract-from-ranked-info "电信一" "小宝贝加油"))
          "黄铜"))
-  (is (= (:rank (find-ranked-info "电信一" "小宝贝加油"))
+  (is (= (:rank (extract-from-ranked-info "电信一" "小宝贝加油"))
          "V"))
-  (is  (= (:tier (find-ranked-info "电信二" "大地爷"))
+  (is  (= (:tier (extract-from-ranked-info "电信二" "大地爷"))
          nil)))
+
+(deftest test-fetch-summor-info
+  (is (= (:tier (fetch-summor-info "电信一" "小宝贝加油"))
+         "黄铜"))
+  (is (= (:rank (fetch-summor-info "电信一" "小宝贝加油"))
+         "V")))
