@@ -68,60 +68,82 @@ body{
   position:absolute;
   top:300px;
   left:35%;
-  width:30%;
-  height:60px;
-  border:1px solid #333;
-  background:#444;
+  height:40px;
+  background:#222;
   font-size:1.8em;
-  line-height:50px;
-  color:#eee;
+  line-height:40px;
   font-family: 'Roboto Slab', serif;
-  text-shadow: 3px 6px 3px rgba(0,0,0,0.2);
+
 }
 
-#resp{
- width:76%;
+
+#hidden-cmd{
+   position:absolute;
+   left:-2000px;
+
+}
+
+#cmd{
+  border:0px;
+  background:#222;
+  color:#444;
+}
+
+#cmd:focus{
+ outline:none;
+}
+
+#cursor{
+  color:#0fe729;
+}
+
+#cmd-box span.blink{
+  color:#222;
+}
+
+#content{
+ width:70%;
  margin:0 auto;
  color:#fff;
 }
 
-.mod-notes{
-  margin-left:15px;
-}
 
 .mod-notes{
   padding-top:100px;
 }
 
-.mod-notes li{
+.mod-note{
+  margin-top:100px;
+}
+
+.mod-note{
+
+}
+
+.mod-notes li,.mod-note{
   background:#333;
 }
 
-.mod-notes li {
-    border-radius:3px;
-    margin-bottom:5px;
+.mod-notes li{
+  padding:10px 20px;
 }
-
-.mod-notes li .title{
+.mod-notes li , .mod-note{
+    margin-bottom:5px;
     position:relative;
-    border-radius:2px;
-    padding-bottom:3px;
-    margin-bottom:5px;
-    text-shadow: 0 1px 0 rgba(111,111,111,0.2);
 }
 
-.mod-notes li .title h1{
-    height:30px;
-
+.mod-notes li .title, .mod-note .title{
+    text-shadow: 0 1px 0 rgba(111,111,111,0.2);
     text-transform: capitalize;
     font-family:'Roboto Slab', monospace;
     font-weight:800;
-    font-size:1.2em;
-    padding:10px 0 0 5px;
-
+    font-size:1.4em;
+    line-height:50px;
+    height:50px;
 }
 
-.mod-notes li .additional{
+
+.mod-notes li .additional, .mod-note .additional{
 
     position:absolute;
     right:0px;
@@ -133,7 +155,7 @@ body{
     font-family:monospace;
 }
 
-.mod-notes li .additional span{
+.mod-notes li .additional span, .mod-note .additional span{
     display:block;
     margin-top:5px;
 }
@@ -175,6 +197,26 @@ div.markdown ol li{
     font-family:sans-serif;
 }
 
+#next-behaviors{
+  position:absolute;
+  top:100px;
+  width:150px;
+  color:#eee;
+}
+
+#next-behaviors li{
+ height:20px;
+ line-height:20px;
+ padding:3px 10px;
+ margin:2px auto;
+ border-left:5px solid #990;
+ font-weight:600;
+}
+
+#next-behaviors li span{
+  margin-right:5px;
+}
+
 
 li.current{
      -moz-box-shadow: 3px 3px 4px #111;
@@ -182,3 +224,5 @@ li.current{
       box-shadow: 3px 3px 4px #111;
       margin-bottom:13px;
 }
+
+

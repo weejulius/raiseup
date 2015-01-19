@@ -24,12 +24,14 @@
    (cqrs/send-command (:bus component/state)
                       (cqrs/gen-command ar command-type fields
                                         (:recoverable-ids component/state)
-                                        (:snapshot-db component/state))))
+                                        (:snapshot-db component/state))
+                      options))
   ([cmd]
    (cqrs/send-command (:bus component/state)
                       (cqrs/gen-command cmd
                                         (:recoverable-ids component/state)
-                                        (:snapshot-db component/state)))))
+                                        (:snapshot-db component/state))
+                     nil)))
 
 (defn register-command-handler
   [command-type f]
