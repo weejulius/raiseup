@@ -5,22 +5,22 @@
                                      {
                                        [:shared-appender-config :rotor]
                                                            {:path
-                                                                      "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/logs/raiseup.log"
+                                                                      "/root/log/raiseup.log"
                                                             :max-size 10240000
                                                             :backlog  5}
                                        }}
-                :snapshot-db       {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/snapshot-db"}
+                :snapshot-db       {:path "/root/data/snapshot-db"}
 
-                :recoverable-id-db {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/ids-db"}
+                :recoverable-id-db {:path "/root/data/ids-db"}
 
-                :events-db         {:path "/var/lib/openshift/51c485a94382ecff5b000109/app-root/data/events-db"}
+                :events-db         {:path "/root/data/events-db"}
 
                 :readmodel         {
-                                     :host           "127.6.87.129"
-                                     :port           15555
-                                     :start-shell    []
-                                     :shutdown-shell []
-                                     }
+                                     :host           "127.0.0.1"
+                                    :port           9300
+                                    :start-shell    []
+                                    :shutdown-shell []
+                                    }
 
-                }
-  }
+               }
+ }

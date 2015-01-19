@@ -16,7 +16,7 @@
                  ;;cqrs
                  [io.vertx/clojure-api "1.0.3"]
                  [com.hazelcast/hazelcast "3.2"]
-                 [clojurewerkz/elastisch "2.1.0-beta6"]
+                 [clojurewerkz/elastisch "2.1.0"]
                  [org.fusesource.leveldbjni/leveldbjni-all "1.8"]
 
                  ;;web
