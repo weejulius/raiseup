@@ -21,6 +21,7 @@
                                      :start-shell    []
                                      :shutdown-shell []
                                      }
+               :http-server {:host "107.170.79.205"}
 
-                }
-  }
+               }
+ }
