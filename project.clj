@@ -12,6 +12,7 @@
                  [com.taoensso/timbre "3.3.1"]
                  [clj-http "1.0.0"]
                  [hickory "0.5.4"]
+                 [org.mapdb/mapdb "0.9.9"]
 
                  ;;cqrs
                  [io.vertx/clojure-api "1.0.3"]
@@ -60,8 +61,10 @@
          :plugins      []
          :repl-options {:port 4001}}
    :production
-   {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}}
+   {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}
 
+   :uberjar { :omit-source true :aot :all }}
+  :resources-path "resources"
   :hooks [leiningen.cljsbuild]
   :cljsbuild
   {:builds
@@ -84,8 +87,4 @@
                     :optimizations :none
                     :source-map true
                     }}]
-   }
-  :figwheel
-  {:http-server-root "public"  ;; this will be in resources/
-   :server-port 3449           ;; default
-   :css-dirs ["resources/public/css"]})
+   })
