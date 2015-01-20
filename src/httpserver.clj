@@ -32,13 +32,10 @@
           handler (site routes)
           backend (session-backend :unauthorized-handler unauthorized-handle)
           wrapped-handler (-> handler
-
                               (wrap-authorization backend)
                               (wrap-authentication backend)
                               (wrap-session)
-
                               gzip/wrap-gzip)
-          
           wrapped-handler (if (cfg/dev-mode?)
                             (-> wrapped-handler
                                 reload/wrap-reload
@@ -47,7 +44,6 @@
           port (:port options)
           ip (:host options)
           stop-fn (run-server wrapped-handler {:port port :ip ip})]
-      (log/info "==== ==== Server started at " ip ":" port)
       (assoc this :stop-fn stop-fn)))
   (stop [this options]
     ((:stop-fn this) :timeout 1)

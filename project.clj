@@ -62,11 +62,13 @@
    :production
    {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}}
 
+  :hooks [leiningen.cljsbuild]
   :cljsbuild
   {:builds
    [
     {:id "zjy"
      :source-paths ["src/zjy"]
+     :jar true
      :compiler     {:preamble     ["reagent/react.js"]
                     :output-dir   "resources/public/zjy"
                     :output-to    "resources/public/zjy/client.js"
@@ -76,6 +78,7 @@
                     }}
     {:id "notes"
      :source-paths ["src/notes"]
+     :jar true
      :compiler     {:preamble     ["reagent/react.js"]
                     :output-dir   "resources/public/notes"
                     :output-to    "resources/public/js/notes.js"
