@@ -25,9 +25,9 @@
     (include-css "/css/raiseup.css")
     (include-js "/js/react.js")
     (include-js "/out/goog/base.js")
-    (include-js "/js/client.js")
+    (include-js "/js/notes.js")
     [:script {:type "text/javascript"}
-     "goog.require(\"notes.web.client\");"]]
+     "goog.require(\"notes.core\");"]]
   [:body
    [:div.container body]
    (include-css "/css/hl.css")
@@ -74,7 +74,7 @@
          [:input {:type :password :name :password :placeholder "输入密码"}]
          [:input {:type :submit :value "确定"}])]])
    [:script {:type "text/javascript"}
-    "notes.web.client.nav_ready();"]])
+    "notes.core.nav_ready();"]])
 
 (defn- right-slide
   "right slides"
@@ -146,7 +146,7 @@
      [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
      [:script {:type "text/javascript"}
-      "notes.web.client.note_form_ready();"]]))
+      "notes.core.note_form_ready();"]]))
 
 
 

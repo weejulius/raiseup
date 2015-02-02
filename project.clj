@@ -1,7 +1,7 @@
 (defproject raiseup "0.1.0-SNAPSHOT"
   :description "raise up to make to do tool"
   :url "http://red-raiseup.rhcloud.com/"
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.7.0-alpha5"]
 
                  ;;utils
                  [cheshire "5.3.1"]
@@ -40,12 +40,9 @@
                  ;;test
                  [criterium "0.4.2" :scope "test"]
 
-                 ;;dev
-                 [figwheel "0.1.5-SNAPSHOT"]
                  ]
   :plugins [
             [lein-cljsbuild "1.0.3"]
-            [lein-figwheel "0.1.5-SNAPSHOT"]
             [lein-ancient "0.5.5"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
@@ -57,34 +54,35 @@
   {:dev {:jvm-opts     []
          :dependencies [[ring-mock "0.1.5"]
                         [org.clojure/tools.namespace "0.2.4"]]
-         :source-paths ["src" "resources"]
+         :source-paths ["src"]
          :plugins      []
          :repl-options {:port 4001}}
    :production
    {:jvm-opts ["-Dproduction=true" "-Dconfig=pro.edn"]}
 
-   :uberjar { :omit-source true :aot :all }}
+   :uberjar {:resources-paths ["resources"] :omit-source true :aot :all }}
+
   :resources-path "resources"
-  :hooks [leiningen.cljsbuild]
-  :cljsbuild
-  {:builds
-   [
-    {:id "zjy"
-     :source-paths ["src/zjy"]
-     :compiler     {:preamble     ["reagent/react.js"]
-                    :output-dir   "resources/public/zjy"
-                    :output-to    "resources/public/zjy/client.js"
-                    :pretty-print true
-                    :optimizations :none
-                    :source-map true
-                    }}
-    {:id "notes"
-     :source-paths ["src/notes"]
-     :compiler     {:preamble     ["reagent/react.js"]
-                    :output-dir   "resources/public/notes"
-                    :output-to    "resources/public/js/notes.js"
-                    :pretty-print true
-                    :optimizations :none
-                    :source-map true
-                    }}]
-   })
+
+   :hooks [leiningen.cljsbuild]
+   :cljsbuild
+   {:builds
+    [
+     {
+      :source-paths ["cljs-src/notes"]
+      :compiler     {:preamble     ["reagent/react.js"]
+                     :output-to   "resources/public/js/notes.js"
+                     :pretty-print true
+                     :optimizations :none
+                     :source-map true
+                     }},
+     {
+      :source-paths ["cljs-src/zjy"]
+      :compiler     {:preamble     ["reagent/react.js"]
+                     :output-to   "resources/public/js/zjy.js"
+                     :pretty-print true
+                     :optimizations :none
+                     :source-map true
+                     }}
+     ]
+    })

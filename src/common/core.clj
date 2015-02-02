@@ -7,6 +7,7 @@
 
 (defn load-sym
   [s]
+ ; (println (str "type of sym" (type s)))
   (require (symbol (namespace s)))
   (resolve s))
 

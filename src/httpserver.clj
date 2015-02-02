@@ -27,9 +27,10 @@
   (init [this options]
     this)
   (start [this options]
-    (let [routes (:routes options)
-          routes (common/load-sym routes)
-          handler (site routes)
+    (let [routes-sym (:routes options)
+          routes (common/load-sym routes-sym)
+          routes (or routes (throw (Exception. (str "fail to load routes for " routes-sym " "  *ns*))))
+          handler (or (site routes) (throw (Exception. (str "fail to site routes"))))
           backend (session-backend :unauthorized-handler unauthorized-handle)
           wrapped-handler (-> handler
                               (wrap-authorization backend)
@@ -38,7 +39,7 @@
                               gzip/wrap-gzip)
           wrapped-handler (if (cfg/dev-mode?)
                             (-> wrapped-handler
-                                reload/wrap-reload
+                                ;; reload/wrap-reload
                                 pretty-exception/wrap-pretty-exception)
                             wrapped-handler)
           port (:port options)

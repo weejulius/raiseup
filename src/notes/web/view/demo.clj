@@ -18,9 +18,9 @@
 ;     (include-css "http://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300,100")
      (include-js "/js/react.js")
      (include-js "/out/goog/base.js")
-     (include-js "/js/client.js")
+     (include-js "/js/notes.js")
      [:script {:type "text/javascript"}
-      "goog.require(\"notes.web.client\");"]]
+      "goog.require(\"notes.core\");"]]
     [:body
      [:div.container body]
      (include-css "/css/hl.css")
@@ -37,5 +37,5 @@
      [:div#cmd-box]
      [:div#app]
      [:script {:type "text/javascript"}
-      "notes.web.client.demo_ready();"]
+      "notes.core.demo_ready();"]
      ]))

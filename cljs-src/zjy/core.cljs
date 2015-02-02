@@ -1,5 +1,5 @@
-(ns zjy.client
-  (:require [figwheel.client :as fw :include-macros true]
+(ns zjy.core
+  (:require
             [om.core :as om :include-macros true]
             [om.dom :as d :include-macros true]
             [dommy.core :as dom]

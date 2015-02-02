@@ -114,8 +114,9 @@
     (try
       (handler request)
       (catch Exception e
+        (.printStackTrace e)
         (merge request
                {:body
-                         (pretty-print-exception e)
+                (str request handler (pretty-print-exception e))
                 :status  500
                 :headers {"Content-Type" "text/html"}})))))

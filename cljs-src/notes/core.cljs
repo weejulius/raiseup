@@ -1,4 +1,4 @@
-(ns notes.web.client
+(ns notes.core
   (:require
     [goog.events :as events]
     [ajax.core :refer [POST GET easy-ajax-request raw-response-format detect-response-format]]

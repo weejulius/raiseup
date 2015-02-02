@@ -24,13 +24,13 @@
     (include-css "/css/raiseup.css")
     (include-js "/js/react.js")
     (include-js "/zjy/goog/base.js")
-    (include-js "/zjy/client.js")
+    (include-js "/js/zjy.js")
     [:script {:type "text/javascript"}
-     "goog.require(\"zjy.client\");"]]
+     "goog.require(\"zjy.core\");"]]
    [:body
     [:div.container body]
     [:script {:type "text/javascript"}
-     "zjy.client.index();"]]))
+     "zjy.core.index();"]]))
 
 
 (defn index
