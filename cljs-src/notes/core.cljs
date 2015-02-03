@@ -484,5 +484,5 @@
                (fn [e] (secretary/dispatch! (.-token e))))
 
 
-
-
+(nav-ready)
+(log "ready")

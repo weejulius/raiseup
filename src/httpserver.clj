@@ -39,7 +39,7 @@
                               gzip/wrap-gzip)
           wrapped-handler (if (cfg/dev-mode?)
                             (-> wrapped-handler
-                                ;; reload/wrap-reload
+                                reload/wrap-reload
                                 pretty-exception/wrap-pretty-exception)
                             wrapped-handler)
           port (:port options)

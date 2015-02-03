@@ -32,7 +32,7 @@
                  [buddy "0.2.0b2"]
 
                  ;;client
-                 [org.clojure/clojurescript "0.0-2371"]
+                 [org.clojure/clojurescript "0.0-2760"]
                  [om "0.7.3"]
                  [cljs-ajax "0.3.0"]
                  [prismatic/dommy "0.1.2"]
@@ -41,8 +41,7 @@
                  [criterium "0.4.2" :scope "test"]
 
                  ]
-  :plugins [
-            [lein-cljsbuild "1.0.3"]
+  :plugins [[lein-cljsbuild "1.0.4"]
             [lein-ancient "0.5.5"]]
   :global-vars {*warn-on-reflection* false
                 *assert*             false}
@@ -62,27 +61,28 @@
 
    :uberjar {:resources-paths ["resources"] :omit-source true :aot :all }}
 
-  :resources-path "resources"
+  :clean-targets ["resources/public/auto"]
 
-   :hooks [leiningen.cljsbuild]
-   :cljsbuild
-   {:builds
-    [
-     {
-      :source-paths ["cljs-src/notes"]
-      :compiler     {:preamble     ["reagent/react.js"]
-                     :output-to   "resources/public/js/notes.js"
-                     :pretty-print true
-                     :optimizations :none
-                     :source-map true
-                     }},
-     {
-      :source-paths ["cljs-src/zjy"]
-      :compiler     {:preamble     ["reagent/react.js"]
-                     :output-to   "resources/public/js/zjy.js"
-                     :pretty-print true
-                     :optimizations :none
-                     :source-map true
-                     }}
-     ]
-    })
+  :resources-path "resources"
+  :cljsbuild
+  {:builds
+   [
+    {
+     :source-paths ["cljs-src/notes/"]
+     :compiler     {
+                    :output-to    "resources/public/auto/notes.js"
+                    :output-dir   "resources/public/auto/notes"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }},
+    {
+     :source-paths ["cljs-src/zjy/"]
+     :compiler     {:output-to    "resources/public/auto/zjy.js"
+                    :output-dir   "resources/public/auto/zjy"
+                    :pretty-print true
+                    :optimizations :none
+                    :source-map true
+                    }}
+    ]
+   })

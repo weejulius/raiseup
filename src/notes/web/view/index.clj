@@ -24,16 +24,17 @@
     [:title title]
     (include-css "/css/raiseup.css")
     (include-js "/js/react.js")
-    (include-js "/out/goog/base.js")
-    (include-js "/js/notes.js")
+    (include-js "/auto/notes/goog/base.js")
+    (include-js "/auto/notes.js")
+   ]
+   [:body
+    [:div.container body]
+    (include-css "/css/hl.css")
+    (include-js "/js/highlight.pack.js")
     [:script {:type "text/javascript"}
-     "goog.require(\"notes.core\");"]]
-  [:body
-   [:div.container body]
-   (include-css "/css/hl.css")
-   (include-js "/js/highlight.pack.js")
-   [:script {:type "text/javascript"}
-    "hljs.initHighlightingOnLoad();"]]))
+     "hljs.initHighlightingOnLoad();"]
+    [:script {:type "text/javascript"}
+     "goog.require(\"notes.core\");"]]))
 
 
 (defn- footer
@@ -72,9 +73,7 @@
 
          [:input {:type :text :name :name :placeholder "输入用户名"}]
          [:input {:type :password :name :password :placeholder "输入密码"}]
-         [:input {:type :submit :value "确定"}])]])
-   [:script {:type "text/javascript"}
-    "notes.core.nav_ready();"]])
+         [:input {:type :submit :value "确定"}])]])])
 
 (defn- right-slide
   "right slides"
@@ -145,8 +144,7 @@
         [:input {:class "btn lv1 lv2" :type :submit :value :DELETE}])]
      [:div#preview {:class "markdown"}]
      [:input#note-id {:type :hidden :value (:ar-id note)}]
-     [:script {:type "text/javascript"}
-      "notes.core.note_form_ready();"]]))
+    ]))
 
 
 
